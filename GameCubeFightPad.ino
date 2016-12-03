@@ -1,13 +1,16 @@
 #include <SPI.h>
 
+// Forward declarations:
 void writeToDigitalPot (int writePin, int inputValue);
 int getPotValue (int potLowPin, int potHighPin, int &potPressOrder);
 void applyModToPot (int &inputPotValue, double inputModDecimal);
 void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue);
 
+// Setup potentiometer values:
 const int masterPotResolution = 128;
 const int masterPotMiddle = ceil (masterPotResolution * 0.5);
-const int masterPotMinimum = 0;
+const int masterPotMinimum = 6;
+const int masterPotMaximum = 122;
 
 const byte potWriteAddress = 0x00;
 
@@ -48,12 +51,12 @@ int cXLastValue = masterPotMiddle;
 int cYLastValue = masterPotMiddle;
 
 // Modifier values:
-double mod1Decimal = 0.31;
-double mod2Decimal = 0.41;
-double combinedMod1TiltDecimal = 0.65;
-double combinedMod2TiltDecimal = 0.85;
-double combinedModDecimal = 0.65;
-double tiltDecimal = 0.18;
+const double mod1Decimal = 0.31;
+const double mod2Decimal = 0.41;
+const double combinedMod1TiltDecimal = 0.65;
+const double combinedMod2TiltDecimal = 0.85;
+const double combinedModDecimal = 0.65;
+const double tiltDecimal = 0.18;
 
 // C-Stick Y axis skew for angled smashes:
 double cYAxisSkew = 0.65;
@@ -107,34 +110,23 @@ void loop()
     lsXLastValue = lsXValue;
     lsYLastValue = lsYValue;
 
-    //----------C-Stick X-Axis------------
+    //-------------C Stick--------------
     int cXValue = getPotValue (cLeft, cRight, cXOrder);
+    int cYValue = getPotValue (cDown, cUp, cYOrder);
 
+    applyModToPot (cYValue, cYAxisSkew);
+    
     if (cXValue != cXLastValue)
     {
         writeToDigitalPot (cXOutPin, cXValue);
     }
-
-    cXLastValue = cXValue;
-
-    //----------C-Stick Y-Axis------------
-    int cYValue = getPotValue (cDown, cUp, cYOrder);
-
-    if (cYValue < masterPotMiddle)
-    {
-        cYValue = masterPotMiddle - masterPotMiddle * cYAxisSkew + 0.5;
-    }
-    if (cYValue > masterPotMiddle)
-    {
-        cYValue = masterPotMiddle + masterPotMiddle * cYAxisSkew + 0.5;
-    }
-
     if (cYValue != cYLastValue)
     {
         writeToDigitalPot (cYOutPin, cYValue);
     }
 
     cYLastValue = cYValue;
+    cXLastValue = cXValue;
 }
 
 void writeToDigitalPot (int writePin, int inputValue)
@@ -170,12 +162,12 @@ int getPotValue (int potLowPin, int potHighPin, int &potPressOrder)
     if (lowWasPressedFirst && highIsPressed)
     {
         potPressOrder = 0;
-        return masterPotResolution;
+        return masterPotMaximum;
     }
     if (!lowIsPressed && highIsPressed)
     {
         potPressOrder = 1;
-        return masterPotResolution;
+        return masterPotMaximum;
     }
 
     // Middle Cases
