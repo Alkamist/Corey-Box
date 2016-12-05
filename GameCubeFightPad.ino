@@ -56,7 +56,7 @@ const double mod2Decimal = 0.41;
 const double combinedMod1TiltDecimal = 0.65;
 const double combinedMod2TiltDecimal = 0.85;
 const double combinedModDecimal = 0.65;
-const double tiltDecimal = 0.18;
+const double tiltDecimal = 0.39;
 
 // C-Stick Y axis skew for angled smashes:
 double cYAxisSkew = 0.65;
