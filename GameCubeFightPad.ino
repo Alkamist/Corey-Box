@@ -4,6 +4,7 @@
 void writeToDigitalPot (int writePin, int inputValue);
 int getPotValue (int potLowPin, int potHighPin, int &potPressOrder);
 void applyModToPot (int &inputPotValue, double inputModDecimal);
+void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue);
 void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue);
 
 // Setup potentiometer values:
@@ -56,7 +57,7 @@ const double mod2Decimal = 0.41;
 const double combinedMod1TiltDecimal = 0.65;
 const double combinedMod2TiltDecimal = 0.85;
 const double combinedModDecimal = 0.65;
-const double tiltDecimal = 0.39;
+const double tiltDecimal = 0.35;
 
 // C-Stick Y axis skew for angled smashes:
 double cYAxisSkew = 0.65;
@@ -92,10 +93,12 @@ void setup()
 
 void loop()
 {
-    //-------------Left Stick--------------
     int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
     int lsYValue = getPotValue (lsDown, lsUp, lsYOrder);
+    int cXValue = getPotValue (cLeft, cRight, cXOrder);
+    int cYValue = getPotValue (cDown, cUp, cYOrder);
 
+    applyCStickModifiers (cXValue, cYValue, lsYValue);
     applyLeftStickModifiers (lsXValue, lsYValue);
 
     if (lsXValue != lsXLastValue)
@@ -106,15 +109,6 @@ void loop()
     {
         writeToDigitalPot (lsYOutPin, lsYValue);
     }
-
-    lsXLastValue = lsXValue;
-    lsYLastValue = lsYValue;
-
-    //-------------C Stick--------------
-    int cXValue = getPotValue (cLeft, cRight, cXOrder);
-    int cYValue = getPotValue (cDown, cUp, cYOrder);
-
-    applyModToPot (cYValue, cYAxisSkew);
     
     if (cXValue != cXLastValue)
     {
@@ -125,6 +119,8 @@ void loop()
         writeToDigitalPot (cYOutPin, cYValue);
     }
 
+    lsXLastValue = lsXValue;
+    lsYLastValue = lsYValue;
     cYLastValue = cYValue;
     cXLastValue = cXValue;
 }
@@ -195,6 +191,20 @@ void applyModToPot (int &inputPotValue, double inputModDecimal)
     if (inputPotValue > masterPotMiddle)
     {
         inputPotValue = masterPotMiddle + masterPotMiddle * inputModDecimal + 0.5;
+        return;
+    }
+}
+
+void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue)
+{
+    bool tiltModIsPressed = !digitalRead (tiltMod);
+
+    if (tiltModIsPressed
+     && cXAxisValue != masterPotMiddle
+     && lsYAxisValue != masterPotMiddle)
+    {
+        cYAxisValue = lsYAxisValue;
+        applyModToPot (cYAxisValue, cYAxisSkew);
         return;
     }
 }
