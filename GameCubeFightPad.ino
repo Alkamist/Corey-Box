@@ -16,25 +16,25 @@ const int masterPotMaximum = 122;
 const byte potWriteAddress = 0x00;
 
 // Slave Select Pins:
-const int lsXOutPin = 20;
-const int lsYOutPin = 21;
-const int cXOutPin = 23;
-const int cYOutPin = 22;
+const int lsXOutPin = 21;
+const int lsYOutPin = 20;
+const int cXOutPin = 22;
+const int cYOutPin = 23;
 
 // Buttons:
-const int lsLeft = 0;
-const int lsRight = 1;
+const int lsLeft = 1;
+const int lsRight = 5;
 const int lsDown = 2;
 const int lsUp = 3;
 const int xMod1 = 4;
-const int xMod2 = 5;
-const int yMod1 = 6;
-const int yMod2 = 7;
-const int cLeft = 8;
-const int cRight = 9;
+const int xMod2 = 6;
+const int yMod1 = 7;
+const int yMod2 = 8;
+const int cLeft = 9;
+const int cRight = 14;
 const int cDown = 10;
-const int cUp = 17;
-const int tiltMod = 15;
+const int cUp = 15;
+const int tiltMod = 0;
 
 // Potentiometer low/high press-order states:
 // 0 means low was pressed first.
