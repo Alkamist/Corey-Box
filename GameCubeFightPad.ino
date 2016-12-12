@@ -52,12 +52,12 @@ int cXLastValue = masterPotMiddle;
 int cYLastValue = masterPotMiddle;
 
 // Modifier values:
-const double mod1Decimal = 0.31;
-const double mod2Decimal = 0.41;
-const double combinedMod1TiltDecimal = 0.65;
-const double combinedMod2TiltDecimal = 0.85;
-const double combinedModDecimal = 0.65;
-const double tiltDecimal = 0.35;
+double mod1Decimal = 0.31;
+double mod2Decimal = 0.41;
+double combinedMod1TiltDecimal = 0.65;
+double combinedMod2TiltDecimal = 0.85;
+double combinedModDecimal = 0.65;
+double tiltDecimal = 0.35;
 
 // C-Stick Y axis skew for angled smashes:
 double cYAxisSkew = 0.65;
@@ -89,6 +89,17 @@ void setup()
     writeToDigitalPot (lsYOutPin, masterPotMiddle);
     writeToDigitalPot (cXOutPin, masterPotMiddle);
     writeToDigitalPot (cYOutPin, masterPotMiddle);
+    
+    
+    // Setup for Project M mode:
+    bool xMod1IsPressed = !digitalRead (xMod1);
+    bool yMod2IsPressed = !digitalRead (yMod2);
+    
+    if (xMod1IsPressed && yMod2IsPressed)
+    {
+        mod2Decimal = 0.55;
+        tiltDecimal = 0.47;
+    }
 }
 
 void loop()
