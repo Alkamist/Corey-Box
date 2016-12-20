@@ -52,15 +52,15 @@ int cXLastValue = masterPotMiddle;
 int cYLastValue = masterPotMiddle;
 
 // Modifier values:
-double mod1Decimal = 0.31;
-double mod2Decimal = 0.41;
-double combinedMod1TiltDecimal = 0.65;
-double combinedMod2TiltDecimal = 0.85;
-double combinedModDecimal = 0.65;
-double tiltDecimal = 0.35;
+double mod1Decimal = 0.3125;
+double mod2Decimal = 0.4125;
+double combinedMod1TiltDecimal = 0.6500;
+double combinedMod2TiltDecimal = 0.8500;
+double combinedModDecimal = 0.6500;
+double tiltDecimal = 0.3500;
 
 // C-Stick Y axis skew for angled smashes:
-double cYAxisSkew = 0.65;
+double cYAxisSkew = 0.6500;
 
 void setup()
 {
@@ -97,8 +97,8 @@ void setup()
     
     if (xMod1IsPressed && yMod2IsPressed)
     {
-        mod2Decimal = 0.55;
-        tiltDecimal = 0.47;
+        mod2Decimal = 0.5500;
+        tiltDecimal = 0.4625;
     }
 }
 
