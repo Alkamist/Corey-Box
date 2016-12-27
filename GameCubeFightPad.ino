@@ -60,7 +60,7 @@ double mod2Decimal = 0.4250;
 double combinedMod1TiltDecimal = 0.6500;
 double combinedMod2TiltDecimal = 0.8500;
 double combinedModDecimal = 0.6500;
-double tiltDecimal = 0.3250;
+double tiltDecimal = 0.3875;
 
 // C-Stick Y axis skew for angled smashes:
 double cYAxisSkew = 0.6500;
