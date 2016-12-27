@@ -1,4 +1,5 @@
 #include <SPI.h>
+#include <Metro.h>
 
 // Forward declarations:
 void writeToDigitalPot (int writePin, int inputValue);
@@ -18,22 +19,24 @@ const byte potWriteAddress = 0x00;
 // Slave Select Pins:
 const int lsXOutPin = 21;
 const int lsYOutPin = 20;
-const int cXOutPin = 22;
-const int cYOutPin = 23;
+const int cXOutPin = 23;
+const int cYOutPin = 22;
 
 // Buttons:
 const int lsLeft = 1;
-const int lsRight = 5;
+const int lsRight = 4;
 const int lsDown = 2;
 const int lsUp = 3;
-const int xMod1 = 4;
-const int xMod2 = 6;
-const int yMod1 = 7;
-const int yMod2 = 8;
+
 const int cLeft = 9;
 const int cRight = 14;
 const int cDown = 10;
 const int cUp = 15;
+
+const int xMod1 = 5;
+const int xMod2 = 6;
+const int yMod1 = 7;
+const int yMod2 = 8;
 const int tiltMod = 0;
 
 // Potentiometer low/high press-order states:
@@ -53,14 +56,20 @@ int cYLastValue = masterPotMiddle;
 
 // Modifier values:
 double mod1Decimal = 0.3125;
-double mod2Decimal = 0.4125;
+double mod2Decimal = 0.4250;
 double combinedMod1TiltDecimal = 0.6500;
 double combinedMod2TiltDecimal = 0.8500;
 double combinedModDecimal = 0.6500;
-double tiltDecimal = 0.3500;
+double tiltDecimal = 0.3250;
 
 // C-Stick Y axis skew for angled smashes:
 double cYAxisSkew = 0.6500;
+
+// Timers for maximum speed of updating pots:
+Metro lsXTimer = Metro (0.001);
+Metro lsYTimer = Metro (0.001);
+Metro cXTimer = Metro (0.001);
+Metro cYTimer = Metro (0.001);
 
 void setup()
 {
@@ -68,14 +77,16 @@ void setup()
     pinMode (lsRight, INPUT_PULLUP);
     pinMode (lsDown, INPUT_PULLUP);
     pinMode (lsUp, INPUT_PULLUP);
-    pinMode (xMod1, INPUT_PULLUP);
-    pinMode (xMod2, INPUT_PULLUP);
-    pinMode (yMod1, INPUT_PULLUP);
-    pinMode (yMod2, INPUT_PULLUP);
+    
     pinMode (cLeft, INPUT_PULLUP);
     pinMode (cRight, INPUT_PULLUP);
     pinMode (cDown, INPUT_PULLUP);
     pinMode (cUp, INPUT_PULLUP);
+    
+    pinMode (xMod1, INPUT_PULLUP);
+    pinMode (xMod2, INPUT_PULLUP);
+    pinMode (yMod1, INPUT_PULLUP);
+    pinMode (yMod2, INPUT_PULLUP);   
     pinMode (tiltMod, INPUT_PULLUP);
 
     pinMode (lsXOutPin, OUTPUT);
@@ -89,8 +100,7 @@ void setup()
     writeToDigitalPot (lsYOutPin, masterPotMiddle);
     writeToDigitalPot (cXOutPin, masterPotMiddle);
     writeToDigitalPot (cYOutPin, masterPotMiddle);
-    
-    
+        
     // Setup for Project M mode:
     bool xMod1IsPressed = !digitalRead (xMod1);
     bool yMod2IsPressed = !digitalRead (yMod2);
@@ -112,22 +122,30 @@ void loop()
     applyCStickModifiers (cXValue, cYValue, lsYValue);
     applyLeftStickModifiers (lsXValue, lsYValue);
 
-    if (lsXValue != lsXLastValue)
+    if (lsXValue != lsXLastValue
+     && lsXTimer.check()        )
     {
         writeToDigitalPot (lsXOutPin, lsXValue);
+        lsXTimer.reset();
     }
-    if (lsYValue != lsYLastValue)
+    if (lsYValue != lsYLastValue
+     && lsYTimer.check()        )
     {
         writeToDigitalPot (lsYOutPin, lsYValue);
+        lsYTimer.reset();
     }
     
-    if (cXValue != cXLastValue)
+    if (cXValue != cXLastValue
+     && cXTimer.check()       )
     {
         writeToDigitalPot (cXOutPin, cXValue);
+        cXTimer.reset();
     }
-    if (cYValue != cYLastValue)
+    if (cYValue != cYLastValue
+     && cYTimer.check()       )
     {
         writeToDigitalPot (cYOutPin, cYValue);
+        cYTimer.reset();
     }
 
     lsXLastValue = lsXValue;
