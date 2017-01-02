@@ -457,7 +457,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod1TiltDecimal);
+        applyModToPot (xAxisValue, combinedMod1TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, tiltDecimal);
         return;
     }
 
@@ -467,7 +468,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod2TiltDecimal);
+        applyModToPot (xAxisValue, combinedMod2TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, tiltDecimal);
         return;
     }
 
@@ -477,7 +479,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModDecimal);
+        applyModToPot (xAxisValue, combinedModDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, tiltDecimal);
         return;
     }
 
@@ -487,7 +490,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (yAxisValue, combinedMod1TiltDecimal);
+        applyModToPot (xAxisValue, tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod1TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -497,8 +501,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod1TiltDecimal);
-        applyModToPot (yAxisValue, combinedMod1TiltDecimal);
+        applyModToPot (xAxisValue, combinedMod1TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod1TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -508,8 +512,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod2TiltDecimal);
-        applyModToPot (yAxisValue, combinedMod1TiltDecimal);
+        applyModToPot (xAxisValue, combinedMod2TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod1TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -519,8 +523,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModDecimal);
-        applyModToPot (yAxisValue, combinedMod1TiltDecimal);
+        applyModToPot (xAxisValue, combinedModDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod1TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -530,7 +534,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (yAxisValue, combinedMod2TiltDecimal);
+        applyModToPot (xAxisValue, tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod2TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -540,8 +545,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod1TiltDecimal);
-        applyModToPot (yAxisValue, combinedMod2TiltDecimal);
+        applyModToPot (xAxisValue, combinedMod1TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod2TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -551,8 +556,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod2TiltDecimal);
-        applyModToPot (yAxisValue, combinedMod2TiltDecimal);
+        applyModToPot (xAxisValue, combinedMod2TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod2TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -562,8 +567,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModDecimal);
-        applyModToPot (yAxisValue, combinedMod2TiltDecimal);
+        applyModToPot (xAxisValue, combinedModDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedMod2TiltDecimal * tiltDecimal);
         return;
     }
 
@@ -573,7 +578,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (yAxisValue, combinedModDecimal);
+        applyModToPot (xAxisValue, tiltDecimal);
+        applyModToPot (yAxisValue, combinedModDecimal * tiltDecimal);
         return;
     }
 
@@ -583,8 +589,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod1TiltDecimal);
-        applyModToPot (yAxisValue, combinedModDecimal);
+        applyModToPot (xAxisValue, combinedMod1TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedModDecimal * tiltDecimal);
         return;
     }
 
@@ -594,8 +600,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedMod2TiltDecimal);
-        applyModToPot (yAxisValue, combinedModDecimal);
+        applyModToPot (xAxisValue, combinedMod2TiltDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedModDecimal * tiltDecimal);
         return;
     }
 
@@ -605,8 +611,8 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModDecimal);
-        applyModToPot (yAxisValue, combinedModDecimal);
+        applyModToPot (xAxisValue, combinedModDecimal * tiltDecimal);
+        applyModToPot (yAxisValue, combinedModDecimal * tiltDecimal);
         return;
     }
 }
