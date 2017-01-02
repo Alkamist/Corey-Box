@@ -71,6 +71,7 @@ Metro lsYTimer = Metro (0.001);
 Metro cXTimer = Metro (0.001);
 Metro cYTimer = Metro (0.001);
 
+// This function runs one time when you plug in the controller:
 void setup()
 {
     pinMode (lsLeft, INPUT_PULLUP);
@@ -96,6 +97,7 @@ void setup()
 
     SPI.begin();
 
+    // Initialize the value of each potentiometer to the center:
     writeToDigitalPot (lsXOutPin, masterPotMiddle);
     writeToDigitalPot (lsYOutPin, masterPotMiddle);
     writeToDigitalPot (cXOutPin, masterPotMiddle);
@@ -104,7 +106,9 @@ void setup()
     // Setup for Project M mode:
     bool xMod1IsPressed = !digitalRead (xMod1);
     bool yMod2IsPressed = !digitalRead (yMod2);
-    
+
+    // This initiates Project M mode if xMod1 and yMod2
+    // are held down when you plug in the controller:
     if (xMod1IsPressed && yMod2IsPressed)
     {
         mod2Decimal = 0.5500;
@@ -112,16 +116,22 @@ void setup()
     }
 }
 
+// This is the main loop that is running every clock cycle:
 void loop()
 {
+    // Determine the 7 bit value of each pot based on button presses:
     int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
     int lsYValue = getPotValue (lsDown, lsUp, lsYOrder);
     int cXValue = getPotValue (cLeft, cRight, cXOrder);
     int cYValue = getPotValue (cDown, cUp, cYOrder);
 
+    // Apply the modifers to each stick:
     applyCStickModifiers (cXValue, cYValue, lsYValue);
     applyLeftStickModifiers (lsXValue, lsYValue);
 
+    // Write the values to each pot and get rid of redundant
+    // values. Also check each pot timer to ensure we aren't
+    // writing to the pots faster than our maximum write speed:
     if (lsXValue != lsXLastValue
      && lsXTimer.check()        )
     {
@@ -148,12 +158,14 @@ void loop()
         cYTimer.reset();
     }
 
+    // Update the previous values of each pot:
     lsXLastValue = lsXValue;
     lsYLastValue = lsYValue;
     cYLastValue = cYValue;
     cXLastValue = cXValue;
 }
 
+// This function writes to the given potentiometer:
 void writeToDigitalPot (int writePin, int inputValue)
 {
     digitalWrite (writePin, LOW);
@@ -164,6 +176,8 @@ void writeToDigitalPot (int writePin, int inputValue)
     digitalWrite (writePin, HIGH);
 }
 
+// This function determines the value of a given potentiometer
+// based on order of button presses:
 int getPotValue (int potLowPin, int potHighPin, int &potPressOrder)
 {
     bool lowIsPressed = !digitalRead (potLowPin);
@@ -210,6 +224,8 @@ int getPotValue (int potLowPin, int potHighPin, int &potPressOrder)
     return masterPotMiddle;
 }
 
+// This function applies a given modifier value to a given
+// pot value:
 void applyModToPot (int &inputPotValue, double inputModDecimal)
 {
     if (inputPotValue < masterPotMiddle)
@@ -224,6 +240,10 @@ void applyModToPot (int &inputPotValue, double inputModDecimal)
     }
 }
 
+// This function applies the c-stick modifiers.
+// The current purpose of this is to allow for tilted
+// smashes based on input from the left stick and tilt
+// button:
 void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue)
 {
     bool tiltModIsPressed = !digitalRead (tiltMod);
@@ -238,6 +258,10 @@ void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue)
     }
 }
 
+// This function applies the left stick modifiers.
+// There is an if statement and corresponding action
+// for every single possibility of button presses that 
+// has to do with the left stick:
 void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
 {
     bool xMod1IsPressed = !digitalRead (xMod1);
