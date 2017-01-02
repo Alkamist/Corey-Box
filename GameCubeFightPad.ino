@@ -1,9 +1,9 @@
 #include <SPI.h>
-#include <Metro.h>
 
 // Forward declarations:
 void writeToDigitalPot (int writePin, int inputValue);
 int getPotValue (int potLowPin, int potHighPin, int &potPressOrder);
+int getLsXPotValue();
 void applyModToPot (int &inputPotValue, double inputModDecimal);
 void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue);
 void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue);
@@ -66,10 +66,11 @@ double tiltDecimal = 0.3875;
 double cYAxisSkew = 0.6500;
 
 // Timers for maximum speed of updating pots:
-Metro lsXTimer = Metro (0.001);
-Metro lsYTimer = Metro (0.001);
-Metro cXTimer = Metro (0.001);
-Metro cYTimer = Metro (0.001);
+const int maxPotUpdateSpeedInms = 1;
+elapsedMillis lsXTimeCounter;
+elapsedMillis lsYTimeCounter;
+elapsedMillis cXTimeCounter;
+elapsedMillis cYTimeCounter;
 
 // This function runs one time when you plug in the controller:
 void setup()
@@ -119,7 +120,7 @@ void setup()
 // This is the main loop that is running every clock cycle:
 void loop()
 {
-    // Determine the 7 bit value of each pot based on button presses:
+    // Determine the numerical value of each pot based on button presses:
     int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
     int lsYValue = getPotValue (lsDown, lsUp, lsYOrder);
     int cXValue = getPotValue (cLeft, cRight, cXOrder);
@@ -133,36 +134,34 @@ void loop()
     // values. Also check each pot timer to ensure we aren't
     // writing to the pots faster than our maximum write speed:
     if (lsXValue != lsXLastValue
-     && lsXTimer.check()        )
+     && lsXTimeCounter >= maxPotUpdateSpeedInms)
     {
         writeToDigitalPot (lsXOutPin, lsXValue);
-        lsXTimer.reset();
+        lsXTimeCounter = 0;
+        lsXLastValue = lsXValue;
     }
     if (lsYValue != lsYLastValue
-     && lsYTimer.check()        )
+     && lsYTimeCounter >= maxPotUpdateSpeedInms)
     {
         writeToDigitalPot (lsYOutPin, lsYValue);
-        lsYTimer.reset();
+        lsYTimeCounter = 0;
+        lsYLastValue = lsYValue;
     }
     
     if (cXValue != cXLastValue
-     && cXTimer.check()       )
+     && cXTimeCounter >= maxPotUpdateSpeedInms)
     {
         writeToDigitalPot (cXOutPin, cXValue);
-        cXTimer.reset();
+        cXTimeCounter = 0;
+        cXLastValue = cXValue;
     }
     if (cYValue != cYLastValue
-     && cYTimer.check()       )
+     && cYTimeCounter >= maxPotUpdateSpeedInms)
     {
         writeToDigitalPot (cYOutPin, cYValue);
-        cYTimer.reset();
+        cYTimeCounter = 0;
+        cYLastValue = cYValue;
     }
-
-    // Update the previous values of each pot:
-    lsXLastValue = lsXValue;
-    lsYLastValue = lsYValue;
-    cYLastValue = cYValue;
-    cXLastValue = cXValue;
 }
 
 // This function writes to the given potentiometer:
