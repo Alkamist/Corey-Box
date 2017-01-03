@@ -14,6 +14,8 @@ const int masterPotMiddle = ceil (masterPotResolution * 0.5);
 const int masterPotMinimum = 6;
 const int masterPotMaximum = 122;
 
+const double maximumPotDecimal = 0.95;
+
 const byte potWriteAddress = 0x00;
 
 // Slave Select Pins:
@@ -53,6 +55,8 @@ int lsXLastValue = masterPotMiddle;
 int lsYLastValue = masterPotMiddle;
 int cXLastValue = masterPotMiddle;
 int cYLastValue = masterPotMiddle;
+int previousUnmoddedLsXValue = masterPotMiddle;
+int previousUnmoddedLsYValue = masterPotMiddle;
 
 // Modifier values:
 double mod1Decimal = 0.3125;
@@ -68,11 +72,15 @@ double combinedModTiltDecimal = 0.2875;
 double cYAxisSkew = 0.6500;
 
 // Timers for maximum speed of updating pots:
-const int maxPotUpdateSpeedInms = 1;
+const unsigned int maxPotUpdateSpeedInms = 1;
 elapsedMillis lsXTimeCounter;
 elapsedMillis lsYTimeCounter;
 elapsedMillis cXTimeCounter;
 elapsedMillis cYTimeCounter;
+
+// Tilt timer set up:
+unsigned int tiltTimeInms = 85;
+elapsedMillis tiltTimeCounter;
 
 // This function runs one time when you plug in the controller:
 void setup()
@@ -134,6 +142,15 @@ void loop()
     int cXValue = getPotValue (cLeft, cRight, cXOrder);
     int cYValue = getPotValue (cDown, cUp, cYOrder);
 
+    if (lsXValue != previousUnmoddedLsXValue
+     || lsYValue != previousUnmoddedLsYValue)
+    {
+        tiltTimeCounter = 0;
+    }
+
+    previousUnmoddedLsXValue = lsXValue;
+    previousUnmoddedLsYValue = lsYValue;
+
     // Apply the modifers to each stick:
     applyCStickModifiers (cXValue, cYValue, lsYValue);
     applyLeftStickModifiers (lsXValue, lsYValue);
@@ -146,14 +163,14 @@ void loop()
     {
         writeToDigitalPot (lsXOutPin, lsXValue);
         lsXTimeCounter = 0;
-        lsXLastValue = lsXValue;
+        lsXLastValue = lsXValue;      
     }
     if (lsYValue != lsYLastValue
      && lsYTimeCounter >= maxPotUpdateSpeedInms)
     {
         writeToDigitalPot (lsYOutPin, lsYValue);
         lsYTimeCounter = 0;
-        lsYLastValue = lsYValue;
+        lsYLastValue = lsYValue;       
     }
     
     if (cXValue != cXLastValue
@@ -454,9 +471,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, tiltDecimal);
-        applyModToPot (yAxisValue, tiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, maximumPotDecimal);
+            applyModToPot (yAxisValue, maximumPotDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, tiltDecimal);
+            applyModToPot (yAxisValue, tiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -465,9 +491,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod1TiltDecimal);
-        applyModToPot (yAxisValue, tiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod1Decimal);
+            applyModToPot (yAxisValue, maximumPotDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod1TiltDecimal);
+            applyModToPot (yAxisValue, tiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -476,9 +511,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod2TiltDecimal);
-        applyModToPot (yAxisValue, tiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod2Decimal);
+            applyModToPot (yAxisValue, maximumPotDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod2TiltDecimal);
+            applyModToPot (yAxisValue, tiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -487,9 +531,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModTiltDecimal);
-        applyModToPot (yAxisValue, tiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, combinedModDecimal);
+            applyModToPot (yAxisValue, maximumPotDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, combinedModTiltDecimal);
+            applyModToPot (yAxisValue, tiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -498,9 +551,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, tiltDecimal);
-        applyModToPot (yAxisValue, mod1TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, maximumPotDecimal);
+            applyModToPot (yAxisValue, mod1Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, tiltDecimal);
+            applyModToPot (yAxisValue, mod1TiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -509,9 +571,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod1TiltDecimal);
-        applyModToPot (yAxisValue, mod1TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod1Decimal);
+            applyModToPot (yAxisValue, mod1Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod1TiltDecimal);
+            applyModToPot (yAxisValue, mod1TiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -520,9 +591,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod2TiltDecimal);
-        applyModToPot (yAxisValue, mod1TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod2Decimal);
+            applyModToPot (yAxisValue, mod1Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod2TiltDecimal);
+            applyModToPot (yAxisValue, mod1TiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -531,9 +611,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModTiltDecimal);
-        applyModToPot (yAxisValue, mod1TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, combinedModDecimal);
+            applyModToPot (yAxisValue, mod1Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, combinedModTiltDecimal);
+            applyModToPot (yAxisValue, mod1TiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -542,9 +631,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, tiltDecimal);
-        applyModToPot (yAxisValue, mod2TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, maximumPotDecimal);
+            applyModToPot (yAxisValue, mod2Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, tiltDecimal);
+            applyModToPot (yAxisValue, mod2TiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -553,9 +651,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod1TiltDecimal);
-        applyModToPot (yAxisValue, mod2TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod1Decimal);
+            applyModToPot (yAxisValue, mod2Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod1TiltDecimal);
+            applyModToPot (yAxisValue, mod2TiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -564,9 +671,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod2TiltDecimal);
-        applyModToPot (yAxisValue, mod2TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod2Decimal);
+            applyModToPot (yAxisValue, mod2Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod2TiltDecimal);
+            applyModToPot (yAxisValue, mod2TiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -575,9 +691,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModTiltDecimal);
-        applyModToPot (yAxisValue, mod2TiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, combinedModDecimal);
+            applyModToPot (yAxisValue, mod2Decimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, combinedModTiltDecimal);
+            applyModToPot (yAxisValue, mod2TiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -586,9 +711,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, tiltDecimal);
-        applyModToPot (yAxisValue, combinedModTiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, maximumPotDecimal);
+            applyModToPot (yAxisValue, combinedModDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, tiltDecimal);
+            applyModToPot (yAxisValue, combinedModTiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -597,9 +731,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod1TiltDecimal);
-        applyModToPot (yAxisValue, combinedModTiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod1Decimal);
+            applyModToPot (yAxisValue, combinedModDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod1TiltDecimal);
+            applyModToPot (yAxisValue, combinedModTiltDecimal);
+            return;
+        }
     }
 
     if (!xMod1IsPressed
@@ -608,9 +751,18 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, mod2TiltDecimal);
-        applyModToPot (yAxisValue, combinedModTiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, mod2Decimal);
+            applyModToPot (yAxisValue, combinedModDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, mod2TiltDecimal);
+            applyModToPot (yAxisValue, combinedModTiltDecimal);
+            return;
+        }
     }
 
     if (xMod1IsPressed
@@ -619,8 +771,17 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && tiltModIsPressed)
     {
-        applyModToPot (xAxisValue, combinedModTiltDecimal);
-        applyModToPot (yAxisValue, combinedModTiltDecimal);
-        return;
+        if (tiltTimeCounter >= tiltTimeInms)
+        {
+            applyModToPot (xAxisValue, combinedModDecimal);
+            applyModToPot (yAxisValue, combinedModDecimal);
+            return;
+        }
+        else
+        {
+            applyModToPot (xAxisValue, combinedModTiltDecimal);
+            applyModToPot (yAxisValue, combinedModTiltDecimal);
+            return;
+        }
     }
 }
