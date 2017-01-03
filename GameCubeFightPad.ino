@@ -79,7 +79,7 @@ elapsedMillis cXTimeCounter;
 elapsedMillis cYTimeCounter;
 
 // Tilt timer set up:
-unsigned int tiltTimeInms = 85;
+unsigned int tiltTimeInms = 104;
 elapsedMillis tiltTimeCounter;
 
 // This function runs one time when you plug in the controller:
