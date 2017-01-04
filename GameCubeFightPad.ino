@@ -3,7 +3,6 @@
 // Forward declarations:
 void writeToDigitalPot (int writePin, int inputValue);
 int getPotValue (int potLowPin, int potHighPin, int &potPressOrder);
-int getLsXPotValue();
 void applyModToPot (int &inputPotValue, double inputModDecimal);
 void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue);
 void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue);
@@ -82,11 +81,6 @@ elapsedMillis cYTimeCounter;
 unsigned int tiltTimeInms = 104;
 elapsedMillis tiltTimeCounter;
 
-// Anti-pivot timer:
-const int antiPivotWaitTimeInMs = 28;
-bool preventPivot = false;
-elapsedMillis antiPivotTimeCounter;
-
 // This function runs one time when you plug in the controller:
 void setup()
 {
@@ -142,7 +136,7 @@ void setup()
 void loop()
 {
     // Determine the numerical value of each pot based on button presses:
-    int lsXValue = getLsXPotValue();
+    int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
     int lsYValue = getPotValue (lsDown, lsUp, lsYOrder);
     int cXValue = getPotValue (cLeft, cRight, cXOrder);
     int cYValue = getPotValue (cDown, cUp, cYOrder);
@@ -247,82 +241,6 @@ int getPotValue (int potLowPin, int potHighPin, int &potPressOrder)
     if (lowIsPressed && highIsPressed && (potPressOrder == -1))
     {
         potPressOrder = -1;
-        return masterPotMiddle;
-    }
-
-    return masterPotMiddle;
-}
-
-// This function determines the value of specifically the
-// left stick X axis potentiometer:
-int getLsXPotValue()
-{
-    bool lowIsPressed = !digitalRead (lsLeft);
-    bool highIsPressed = !digitalRead (lsRight);
-    bool lowWasPressedFirst = lowIsPressed && (lsXOrder == 0);
-    bool highWasPressedFirst = highIsPressed && (lsXOrder == 1);
-
-    // Low Cases
-    if (lowIsPressed && highWasPressedFirst)
-    {
-        lsXOrder = 1;
-        antiPivotTimeCounter = 0;
-        preventPivot = true;
-        return masterPotMinimum;
-    }
-    if (lowIsPressed && !highIsPressed)
-    {
-        if (antiPivotTimeCounter >= antiPivotWaitTimeInMs
-        || !preventPivot                                
-        || lsXOrder == 1                                  )
-        {
-            lsXOrder = 0;
-            preventPivot = false;
-            return masterPotMinimum;
-        }
-        else
-        {
-            lsXOrder = 0;
-            return masterPotMaximum;
-        }
-    }
-
-    // High Cases
-    if (lowWasPressedFirst && highIsPressed)
-    {
-        lsXOrder = 0;
-        antiPivotTimeCounter = 0;
-        preventPivot = true;
-        return masterPotMaximum;
-    }
-    if (!lowIsPressed && highIsPressed)
-    {
-        if (antiPivotTimeCounter >= antiPivotWaitTimeInMs
-        || !preventPivot                                
-        || lsXOrder == 0                                  )
-        {
-            lsXOrder = 1;
-            preventPivot = false;
-            return masterPotMaximum;
-        }
-        else
-        {
-            lsXOrder = 1;
-            return masterPotMinimum;
-        }
-    }
-
-    // Middle Cases
-    if (!lowIsPressed && !highIsPressed)
-    {
-        lsXOrder = -1;
-        preventPivot = false;
-        return masterPotMiddle;
-    }
-    if (lowIsPressed && highIsPressed && (lsXOrder == -1))
-    {
-        lsXOrder = -1;
-        preventPivot = false;
         return masterPotMiddle;
     }
 
