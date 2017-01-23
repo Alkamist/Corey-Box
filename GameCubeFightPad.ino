@@ -8,8 +8,6 @@ void applyCStickModifiers (int cXAxisValue, int &cYAxisValue, int lsYAxisValue);
 void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue);
 
 // Setup potentiometer values:
-const double maximumPotDecimal = 0.95;
-
 const int masterPotResolution = 128;
 const int masterPotMiddle = 64;
 const int masterPotMinimum = 6;
@@ -58,9 +56,10 @@ int previousUnmoddedLsXValue = masterPotMiddle;
 int previousUnmoddedLsYValue = masterPotMiddle;
 
 // Modifier values:
+double maximumPotDecimal = 0.95;
 double mod1Decimal = 0.3125;
 double mod2Decimal = 0.4250;
-double combinedModDecimal = 0.7500;
+double combinedModDecimal = 0.7000;
 
 double tiltDecimal = 0.3875;
 double mod1TiltDecimal = 0.1875;
@@ -123,7 +122,7 @@ void setup()
     {
         mod1Decimal = 0.3125;
         mod2Decimal = 0.5500;
-        combinedModDecimal = 0.7500;
+        combinedModDecimal = 0.6750;
 
         tiltDecimal = 0.4625;
         mod1TiltDecimal = 0.2125;
@@ -310,6 +309,7 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !tiltModIsPressed)
     {
         applyModToPot (xAxisValue, mod1Decimal);
+        applyModToPot (yAxisValue, maximumPotDecimal);
         return;
     }
 
@@ -320,6 +320,7 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !tiltModIsPressed)
     {
         applyModToPot (xAxisValue, mod2Decimal);
+        applyModToPot (yAxisValue, maximumPotDecimal);
         return;
     }
 
@@ -330,6 +331,7 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !tiltModIsPressed)
     {
         applyModToPot (xAxisValue, combinedModDecimal);
+        applyModToPot (yAxisValue, maximumPotDecimal);
         return;
     }
 
@@ -339,6 +341,7 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
+        applyModToPot (xAxisValue, maximumPotDecimal);
         applyModToPot (yAxisValue, mod1Decimal);
         return;
     }
@@ -382,6 +385,7 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
+        applyModToPot (xAxisValue, maximumPotDecimal);
         applyModToPot (yAxisValue, mod2Decimal);
         return;
     }
@@ -425,6 +429,7 @@ void applyLeftStickModifiers (int &xAxisValue, int &yAxisValue)
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
+        applyModToPot (xAxisValue, maximumPotDecimal);
         applyModToPot (yAxisValue, combinedModDecimal);
         return;
     }
