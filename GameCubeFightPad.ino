@@ -1,3 +1,4 @@
+#include <Bounce.h>
 #include <SPI.h>
 
 // Forward declarations:
@@ -37,6 +38,16 @@ const int xMod2 = 6;
 const int yMod1 = 7;
 const int yMod2 = 5;
 const int tiltMod = 0;
+
+const int shortHopButtonPin = 17;
+const int shortHopButtonSignal = 16;
+
+// Timer for the short hop button:
+unsigned int shortHopTimeInms = 25;
+elapsedMillis shortHopTimeCounter;
+
+// Button setup for using falling edge of the short hop button:
+Bounce shortHopButton = Bounce (shortHopButtonPin , 8);
 
 // Potentiometer low/high press-order states:
 // 0 means low was pressed first.
@@ -104,6 +115,9 @@ void setup()
     pinMode (cXOutPin, OUTPUT);
     pinMode (cYOutPin, OUTPUT);
 
+    pinMode (shortHopButtonSignal, INPUT);
+    pinMode (shortHopButtonPin, INPUT_PULLUP);
+
     SPI.begin();
 
     // Initialize the value of each potentiometer to the center:
@@ -134,6 +148,21 @@ void setup()
 // This is the main loop that is running every clock cycle:
 void loop()
 {
+    // Handle the short hop button:
+    shortHopButton.update();
+
+    if (shortHopButton.fallingEdge())
+    {
+        shortHopTimeCounter = 0;
+    }
+
+    if (shortHopTimeCounter <= shortHopTimeInms)
+        pinMode (shortHopButtonSignal, OUTPUT);
+    else
+    {
+        pinMode (shortHopButtonSignal, INPUT);
+    }
+    
     // Determine the numerical value of each pot based on button presses:
     int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
     int lsYValue = getPotValue (lsDown, lsUp, lsYOrder);
