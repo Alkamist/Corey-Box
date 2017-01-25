@@ -39,15 +39,28 @@ const int yMod1 = 7;
 const int yMod2 = 5;
 const int tiltMod = 0;
 
-const int shortHopButtonPin = 17;
-const int shortHopButtonSignal = 16;
+// Jump buttons:
+const int fullHopButtonSignal = 16;
+const int shortHopButtonSignal = 17;
+const int fullHopButtonPin = 18;
+const int shortHopButtonPin = 19;
 
-// Timer for the short hop button:
+// Timers for jump buttons:
 unsigned int shortHopTimeInms = 25;
 elapsedMillis shortHopTimeCounter;
+unsigned int fullHopTimeInms = 160;
+elapsedMillis fullHopTimeCounter;
+unsigned int fullHopResetTimeInms = 25;
+elapsedMillis fullHopResetTimeCounter;
+elapsedMillis fullHopFinishTimer;
 
-// Button setup for using falling edge of the short hop button:
+// Jump button setup:
 Bounce shortHopButton = Bounce (shortHopButtonPin , 8);
+Bounce fullHopButton = Bounce (fullHopButtonPin , 8);
+
+// Full hop bools:
+bool fullHopIsActive = false;
+bool resetFullHop = false;
 
 // Potentiometer low/high press-order states:
 // 0 means low was pressed first.
@@ -117,6 +130,8 @@ void setup()
 
     pinMode (shortHopButtonSignal, INPUT);
     pinMode (shortHopButtonPin, INPUT_PULLUP);
+    pinMode (fullHopButtonSignal, INPUT);
+    pinMode (fullHopButtonPin, INPUT_PULLUP);
 
     SPI.begin();
 
@@ -148,8 +163,9 @@ void setup()
 // This is the main loop that is running every clock cycle:
 void loop()
 {
-    // Handle the short hop button:
+    //------------- Jump Buttons -------------
     shortHopButton.update();
+    fullHopButton.update();
 
     if (shortHopButton.fallingEdge())
     {
@@ -162,6 +178,51 @@ void loop()
     {
         pinMode (shortHopButtonSignal, INPUT);
     }
+
+    if (fullHopButton.fallingEdge())
+    {
+        if (fullHopIsActive
+         || (fullHopFinishTimer <= fullHopResetTimeInms))
+        {
+            resetFullHop = true;
+        }
+        else
+        {
+            fullHopTimeCounter = 0;
+        }
+    }
+
+    if (resetFullHop)
+    {
+        resetFullHop = false;
+        fullHopResetTimeCounter = 0;
+    }
+
+    if (fullHopResetTimeCounter <= fullHopResetTimeInms)
+    {
+        pinMode (fullHopButtonSignal, INPUT);
+        fullHopTimeCounter = 0;
+    }
+    else
+    {
+        if (fullHopTimeCounter <= fullHopTimeInms)
+        {
+            pinMode (fullHopButtonSignal, OUTPUT);
+            fullHopIsActive = true;
+        }
+        else
+        {
+            pinMode (fullHopButtonSignal, INPUT);
+
+            if (fullHopIsActive)
+            {
+                fullHopFinishTimer = 0;
+            }
+            
+            fullHopIsActive = false;
+        }
+    }
+    //-----------------------------------------
     
     // Determine the numerical value of each pot based on button presses:
     int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
