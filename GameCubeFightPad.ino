@@ -1,3 +1,4 @@
+#include <Bounce.h>
 #include <SPI.h>
 
 // Forward declarations:
@@ -37,6 +38,32 @@ const int xMod2 = 6;
 const int yMod1 = 7;
 const int yMod2 = 5;
 const int tiltMod = 0;
+
+// Extra buttons:
+const int rButtonSignal = 16;
+const int lButtonSignal = 17;
+const int rButtonPin = 18;
+const int lButtonPin = 19;
+
+// Timers for extra buttons:
+unsigned int extraButtonHoldTime = 108;
+unsigned int lButtonDelayTime = 17;
+unsigned int lButtonHoldTime = 17;
+elapsedMillis rButtonHoldCounter;
+elapsedMillis lButtonDelayCounter;
+
+// Extra button setup:
+Bounce rButton = Bounce (rButtonPin , 8);
+Bounce lButton = Bounce (lButtonPin , 8);
+
+// Extra button bools:
+bool pressRButton = false;
+bool pressRButtonPrevious = false;
+bool rButtonIsPressed = false;
+bool pressLButton = false;
+bool pressLButtonPrevious = false;
+bool lButtonIsPressed = false;
+bool lButtonWasPressed = false;
 
 // Potentiometer low/high press-order states:
 // 0 means low was pressed first.
@@ -104,6 +131,11 @@ void setup()
     pinMode (cXOutPin, OUTPUT);
     pinMode (cYOutPin, OUTPUT);
 
+    pinMode (rButtonSignal, INPUT);
+    pinMode (rButtonPin, INPUT_PULLUP);
+    pinMode (lButtonSignal, INPUT);
+    pinMode (lButtonPin, INPUT_PULLUP);
+
     SPI.begin();
 
     // Initialize the value of each potentiometer to the center:
@@ -134,6 +166,80 @@ void setup()
 // This is the main loop that is running every clock cycle:
 void loop()
 {
+    // ---------------- Extra Buttons ----------------  
+    rButton.update();
+    lButton.update();
+
+    if (rButton.fallingEdge())
+    {
+        rButtonIsPressed = true;
+    }
+
+    if (rButton.risingEdge())
+    {
+        rButtonIsPressed = false;
+
+        if (!digitalRead (tiltMod))
+            rButtonHoldCounter = 0;
+    }
+        
+    if (rButtonHoldCounter <= extraButtonHoldTime
+     || rButtonIsPressed)
+        pressRButton = true;
+    else
+        pressRButton = false;
+
+    if (pressRButton != pressRButtonPrevious)
+    {
+        if (pressRButton)
+            pinMode (rButtonSignal, OUTPUT);
+        else
+            pinMode (rButtonSignal, INPUT);
+    }
+
+    pressRButtonPrevious = pressRButton;
+
+
+    if (lButton.fallingEdge())
+    {
+        lButtonIsPressed = true;
+        lButtonWasPressed = true;
+
+        lButtonDelayCounter = 0;
+    }
+
+    if (lButton.risingEdge())
+        lButtonIsPressed = false;
+        
+    if (lButtonDelayCounter >= lButtonDelayTime
+    && (lButtonIsPressed || lButtonWasPressed))
+    {
+        if (lButtonIsPressed)
+            pressLButton = true;
+
+        if (lButtonWasPressed
+         && lButtonDelayCounter <= (lButtonDelayTime + lButtonHoldTime))
+            pressLButton = true;
+
+        if (lButtonWasPressed
+         && lButtonDelayCounter >= (lButtonDelayTime + lButtonHoldTime))
+            lButtonWasPressed = false;
+    }
+    else
+        pressLButton = false;
+
+    if (pressLButton != pressLButtonPrevious)
+    {
+        if (pressLButton)
+            pinMode (lButtonSignal, OUTPUT);
+        else
+            pinMode (lButtonSignal, INPUT);
+    }
+
+    pressLButtonPrevious = pressLButton;
+
+    // -----------------------------------------------
+    
     // Determine the numerical value of each pot based on button presses:
     int lsXValue = getPotValue (lsLeft, lsRight, lsXOrder);
     int lsYValue = getPotValue (lsDown, lsUp, lsYOrder);
