@@ -107,6 +107,10 @@ elapsedMillis cYTimeCounter;
 unsigned int tiltTimeInms = 104;
 elapsedMillis tiltTimeCounter;
 
+bool tiltIsTempDisabled = false;
+unsigned int tiltTempDisableTime = 50;
+elapsedMillis tiltTempDisableTimeCounter;
+
 // This function runs one time when you plug in the controller:
 void setup()
 {
@@ -206,6 +210,9 @@ void loop()
         lButtonWasPressed = true;
 
         lButtonDelayCounter = 0;
+        
+        tiltIsTempDisabled = true;
+        tiltTempDisableTimeCounter = 0;
     }
 
     if (lButton.risingEdge())
@@ -248,9 +255,14 @@ void loop()
 
     if (lsXValue != previousUnmoddedLsXValue
      || lsYValue != previousUnmoddedLsYValue)
-    {
         tiltTimeCounter = 0;
-    }
+
+    if (tiltTempDisableTimeCounter >= tiltTempDisableTime
+     && tiltIsTempDisabled != false)
+        tiltIsTempDisabled = false;
+    
+    if (tiltIsTempDisabled)
+        tiltTimeCounter = tiltTimeInms + 1;
 
     previousUnmoddedLsXValue = lsXValue;
     previousUnmoddedLsYValue = lsYValue;
