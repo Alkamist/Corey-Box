@@ -47,7 +47,7 @@ const int lButtonPin = 19;
 
 // Timers for extra buttons:
 unsigned int extraButtonHoldTime = 108;
-unsigned int lButtonDelayTime = 17;
+unsigned int lButtonDelayTime = 0;
 unsigned int lButtonHoldTime = 17;
 elapsedMillis rButtonHoldCounter;
 elapsedMillis lButtonDelayCounter;
