@@ -102,9 +102,9 @@ public:
     inline void resetTiltTimer() { mTiltTimeCounter = 0; }
 
     inline void setTiltTempDisableTime (unsigned int inputTime) { mTiltTempDisableTime = inputTime; }
-    inline void tempDisableTilt() 
-    { 
-        mTiltTempDisabled = true; 
+    inline void tempDisableTilt()
+    {
+        mTiltTempDisabled = true;
         mTiltTempDisableCounter = 0;
     }
 
@@ -168,7 +168,7 @@ void AxisModSystem::processCurrentValues()
 {
     if (mTiltTempDisableCounter >= mTiltTempDisableTime)
         mTiltTempDisabled = false;
-        
+
     applyLeftStickModifiers();
     applyCStickMods();
 }

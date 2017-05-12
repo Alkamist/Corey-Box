@@ -74,14 +74,14 @@ AxisModSystem axisMods (tiltMod,
                         xMod2,
                         yMod1,
                         yMod2);
-                        
+
 // Create extra button system
 ExtraButtonSystem extraButtonSystem (lButtonPin,
                                      lButtonSignal,
                                      rButtonPin,
                                      rButtonSignal,
                                      tiltMod);
-                                     
+
 // This function runs one time when you plug in the controller
 void setup()
 {
@@ -89,16 +89,16 @@ void setup()
     pinMode (lsRight, INPUT_PULLUP);
     pinMode (lsDown, INPUT_PULLUP);
     pinMode (lsUp, INPUT_PULLUP);
-    
+
     pinMode (cLeft, INPUT_PULLUP);
     pinMode (cRight, INPUT_PULLUP);
     pinMode (cDown, INPUT_PULLUP);
     pinMode (cUp, INPUT_PULLUP);
-    
+
     pinMode (xMod1, INPUT_PULLUP);
     pinMode (xMod2, INPUT_PULLUP);
     pinMode (yMod1, INPUT_PULLUP);
-    pinMode (yMod2, INPUT_PULLUP);   
+    pinMode (yMod2, INPUT_PULLUP);
     pinMode (tiltMod, INPUT_PULLUP);
 
     pinMode (lsXOutPin, OUTPUT);
@@ -111,7 +111,7 @@ void setup()
     pinMode (lButtonSignal, INPUT);
     pinMode (lButtonPin, INPUT_PULLUP);
 
-    // Set the amount of time in ms R will continue to be held after 
+    // Set the amount of time in ms R will continue to be held after
     // being released while holding tilt.
     extraButtonSystem.getRButton().setExtraHoldTime (108);
 
@@ -145,7 +145,6 @@ void setup()
     }
 
     SPI.begin();
-    Serial.begin (9600);
 
     // Initialize the pots so they start in the right place.
     // This has to be done after SPI.begin()
@@ -159,7 +158,7 @@ void setup()
 void loop()
 {
     extraButtonSystem.update();
-  
+
     lsXController.processCurrentValue();
     lsYController.processCurrentValue();
     cXController.processCurrentValue();
@@ -174,15 +173,15 @@ void loop()
         axisMods.resetTiltTimer();
 
     if (extraButtonSystem.tiltIsTempDisabled())
-        axisMods.tempDisableTilt(); 
-        
+        axisMods.tempDisableTilt();
+
     axisMods.processCurrentValues();
 
     lsX.setCurrentValue (axisMods.getCurrentLsXValue());
     lsY.setCurrentValue (axisMods.getCurrentLsYValue());
     cX.setCurrentValue (axisMods.getCurrentCXValue());
     cY.setCurrentValue (axisMods.getCurrentCYValue());
-    
+
     lsX.endLoop();
     lsY.endLoop();
     cX.endLoop();

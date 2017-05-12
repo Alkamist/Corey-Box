@@ -28,9 +28,9 @@ private:
     unsigned int mRButtonSignalPin;
 
     bool mTempDisableTilt;
-    
+
     void processButtons();
-    
+
 };
 
 
@@ -53,7 +53,7 @@ void ExtraButtonSystem::update()
     mLButton.update();
     mRButton.update();
     mTiltButton.update();
-    
+
     processButtons();
 }
 
@@ -61,7 +61,7 @@ void ExtraButtonSystem::processButtons()
 {
     if (mRButton.wasJustPressed())
         pinMode (mRButtonSignalPin, OUTPUT);
-        
+
     if (!mRButton.isHeldDown())
     {
         if (mRButton.wasJustReleased() && !mTiltButton.isHeldDown())
@@ -84,9 +84,9 @@ void ExtraButtonSystem::processButtons()
     }
     else
         mTempDisableTilt = false;
-        
+
     if (mLButton.wasJustReleased())
         pinMode (mLButtonSignalPin, INPUT);
 }
-    
+
 #endif // EXTRABUTTONSYSTEM_H

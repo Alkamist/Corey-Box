@@ -8,7 +8,7 @@ public:
     SimpleButton (unsigned int pin);
 
     void update();
-    
+
     inline bool isHeldDown()      { return mIsHeldDown; }
     inline bool wasJustPressed()  { return mWasJustPressed; }
     inline bool wasJustReleased() { return mWasJustReleased; }
@@ -32,7 +32,7 @@ private:
     bool mIsHeldDownExtra;
     bool mWasPreviouslyHeldDownExtra;
     bool mWasJustReleasedExtra;
-    
+
     elapsedMillis mStateTimer;
     elapsedMillis mExtraHoldTimeCounter;
     unsigned int mExtraHoldTime;
@@ -94,7 +94,7 @@ void SimpleButton::update()
         mWasJustReleasedExtra = true;
     else
         mWasJustReleasedExtra = false;
-    
+
     mWasPreviouslyHeldDownExtra = mIsHeldDownExtra;
 }
 
