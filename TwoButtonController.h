@@ -49,7 +49,7 @@ void TwoButtonController::processCurrentValue()
     if (lowIsPressed && highWasPressedFirst)
     {
         mPressOrder = 1;
-        mCurrentValue = 1.00;
+        mCurrentValue = 0.0;
     }
     if (lowIsPressed && !highIsPressed)
     {

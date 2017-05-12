@@ -101,6 +101,13 @@ public:
     inline void setModList (ModList inputModList) { mModList = inputModList; }
     inline void resetTiltTimer() { mTiltTimeCounter = 0; }
 
+    inline void setTiltTempDisableTime (unsigned int inputTime) { mTiltTempDisableTime = inputTime; }
+    inline void tempDisableTilt() 
+    { 
+        mTiltTempDisabled = true; 
+        mTiltTempDisableCounter = 0;
+    }
+
     inline void setCurrentLsXValue (double inputValue) { mCurrentLsXValue = inputValue; }
     inline void setCurrentLsYValue (double inputValue) { mCurrentLsYValue = inputValue; }
     inline void setCurrentCXValue (double inputValue) { mCurrentCXValue = inputValue; }
@@ -126,6 +133,9 @@ private:
     unsigned int mYMod1Pin;
     unsigned int mYMod2Pin;
 
+    bool mTiltTempDisabled;
+    unsigned int mTiltTempDisableTime;
+    elapsedMillis mTiltTempDisableCounter;
     elapsedMillis mTiltTimeCounter;
 
     void appyModValue (double &axisValue, double mod);
@@ -149,13 +159,18 @@ AxisModSystem::AxisModSystem (unsigned int tiltPin,
    mCurrentLsXValue (0.50),
    mCurrentLsYValue (0.50),
    mCurrentCXValue (0.50),
-   mCurrentCYValue (0.50)
+   mCurrentCYValue (0.50),
+   mTiltTempDisableTime (50),
+   mTiltTempDisabled (false)
 {}
 
 void AxisModSystem::processCurrentValues()
 {
-    applyCStickMods();
+    if (mTiltTempDisableCounter >= mTiltTempDisableTime)
+        mTiltTempDisabled = false;
+        
     applyLeftStickModifiers();
+    applyCStickMods();
 }
 
 void AxisModSystem::appyModValue (double &axisValue, double mod)
@@ -200,7 +215,7 @@ void AxisModSystem::applyLeftStickModifiers()
     bool xMod2IsPressed = !digitalRead (mXMod2Pin);
     bool yMod1IsPressed = !digitalRead (mYMod1Pin);
     bool yMod2IsPressed = !digitalRead (mYMod2Pin);
-    bool tiltModIsPressed = !digitalRead (mTiltPin);
+    bool tiltModIsPressed = !digitalRead (mTiltPin) && !mTiltTempDisabled;
 
     // Tilt mod not pressed:
     if (!xMod1IsPressed

@@ -1,9 +1,9 @@
-//#include <Bounce2.h>
 #include <SPI.h>
 
 #include "DigiPot.h"
 #include "TwoButtonController.h"
 #include "AxisModSystem.h"
+#include "ExtraButtonSystem.h"
 
 ModList meleeModList (0.9500,
                       0.3125,
@@ -44,6 +44,12 @@ const unsigned int yMod1 = 7;
 const unsigned int yMod2 = 5;
 const unsigned int tiltMod = 0;
 
+// Extra buttons:
+const int rButtonSignal = 16;
+const int lButtonSignal = 17;
+const int rButtonPin = 18;
+const int lButtonPin = 19;
+
 // Slave select pins
 const unsigned int lsXOutPin = 21;
 const unsigned int lsYOutPin = 20;
@@ -68,7 +74,14 @@ AxisModSystem axisMods (tiltMod,
                         xMod2,
                         yMod1,
                         yMod2);
-
+                        
+// Create extra button system
+ExtraButtonSystem extraButtonSystem (lButtonPin,
+                                     lButtonSignal,
+                                     rButtonPin,
+                                     rButtonSignal,
+                                     tiltMod);
+                                     
 // This function runs one time when you plug in the controller
 void setup()
 {
@@ -93,10 +106,18 @@ void setup()
     pinMode (cXOutPin, OUTPUT);
     pinMode (cYOutPin, OUTPUT);
 
-    //pinMode (rButtonSignal, INPUT);
-    //pinMode (rButtonPin, INPUT_PULLUP);
-    //pinMode (lButtonSignal, INPUT);
-    //pinMode (lButtonPin, INPUT_PULLUP);
+    pinMode (rButtonSignal, INPUT);
+    pinMode (rButtonPin, INPUT_PULLUP);
+    pinMode (lButtonSignal, INPUT);
+    pinMode (lButtonPin, INPUT_PULLUP);
+
+    // Set the amount of time in ms R will continue to be held after 
+    // being released while holding tilt.
+    extraButtonSystem.getRButton().setExtraHoldTime (108);
+
+    // Set the amount of time the tilt modifier will temporarily
+    // be disabled after pushing L.
+    axisMods.setTiltTempDisableTime (50);
 
     // Set the potentiometer max ranges to Melee values by default
     lsX.setRange (meleeModList.getMaxiumumValue());
@@ -137,6 +158,8 @@ void setup()
 // This is the main loop that is running every clock cycle
 void loop()
 {
+    extraButtonSystem.update();
+  
     lsXController.processCurrentValue();
     lsYController.processCurrentValue();
     cXController.processCurrentValue();
@@ -149,7 +172,10 @@ void loop()
 
     if (lsXController.hasChanged() || lsYController.hasChanged())
         axisMods.resetTiltTimer();
-      
+
+    if (extraButtonSystem.tiltIsTempDisabled())
+        axisMods.tempDisableTilt(); 
+        
     axisMods.processCurrentValues();
 
     lsX.setCurrentValue (axisMods.getCurrentLsXValue());
