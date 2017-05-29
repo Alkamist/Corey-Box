@@ -4,98 +4,94 @@
 class SimpleButton
 {
 public:
-
     SimpleButton (unsigned int pin);
 
     void update();
 
-    inline bool isHeldDown()      { return mIsHeldDown; }
-    inline bool wasJustPressed()  { return mWasJustPressed; }
-    inline bool wasJustReleased() { return mWasJustReleased; }
+    inline bool isHeldDown()      { return _isHeldDown; }
+    inline bool wasJustPressed()  { return _wasJustPressed; }
+    inline bool wasJustReleased() { return _wasJustReleased; }
 
-    inline bool isHeldDownExtra()      { return mIsHeldDown; }
-    inline bool wasJustReleasedExtra() { return mWasJustReleasedExtra; }
+    inline bool isHeldDownExtra()      { return _isHeldDown; }
+    inline bool wasJustReleasedExtra() { return _wasJustReleasedExtra; }
 
-    inline void setExtraHoldTime (unsigned int extraTime) { mExtraHoldTime = extraTime; }
+    inline void setExtraHoldTime (unsigned int extraTime) { _extraHoldTime = extraTime; }
 
-    inline elapsedMillis getStateTimer() { return mStateTimer; }
-
+    inline elapsedMillis getStateTimer() { return _stateTimer; }
 private:
+    unsigned int _pin;
 
-    unsigned int mPin;
+    bool _isHeldDown;
+    bool _wasPreviouslyHeldDown;
+    bool _wasJustPressed;
+    bool _wasJustReleased;
 
-    bool mIsHeldDown;
-    bool mWasPreviouslyHeldDown;
-    bool mWasJustPressed;
-    bool mWasJustReleased;
+    bool _isHeldDownExtra;
+    bool _wasPreviouslyHeldDownExtra;
+    bool _wasJustReleasedExtra;
 
-    bool mIsHeldDownExtra;
-    bool mWasPreviouslyHeldDownExtra;
-    bool mWasJustReleasedExtra;
-
-    elapsedMillis mStateTimer;
-    elapsedMillis mExtraHoldTimeCounter;
-    unsigned int mExtraHoldTime;
-
+    elapsedMillis _stateTimer;
+    elapsedMillis _extraHoldTimeCounter;
+    unsigned int _extraHoldTime;
 };
 
 
 
 SimpleButton::SimpleButton (unsigned int pin)
- : mPin (pin),
-   mWasJustPressed (false),
-   mWasJustReleased (false),
-   mIsHeldDown (false),
-   mWasPreviouslyHeldDown (false),
-   mExtraHoldTime (0)
+ : _pin (pin),
+   _wasJustPressed (false),
+   _wasJustReleased (false),
+   _isHeldDown (false),
+   _wasPreviouslyHeldDown (false),
+   _extraHoldTime (0)
 {}
 
 void SimpleButton::update()
 {
-    mIsHeldDown = !digitalRead (mPin);
+    _isHeldDown = !digitalRead (_pin);
 
-    if (mIsHeldDown)
+    if (_isHeldDown)
     {
-        mWasJustReleased = false;
+        _wasJustReleased = false;
 
-        if (mWasPreviouslyHeldDown)
-            mWasJustPressed = false;
+        if (_wasPreviouslyHeldDown)
+            _wasJustPressed = false;
         else
-            mWasJustPressed = true;
+            _wasJustPressed = true;
     }
     else
     {
-        mWasJustPressed = false;
+        _wasJustPressed = false;
 
-        if (mWasPreviouslyHeldDown)
-            mWasJustReleased = true;
+        if (_wasPreviouslyHeldDown)
+            _wasJustReleased = true;
         else
-            mWasJustReleased = false;
+            _wasJustReleased = false;
     }
 
-    if (mWasJustPressed || mWasJustReleased)
-        mStateTimer = 0;
+    if (_wasJustPressed || _wasJustReleased)
+        _stateTimer = 0;
 
-    mWasPreviouslyHeldDown = mIsHeldDown;
+    _wasPreviouslyHeldDown = _isHeldDown;
 
     // =============== Extra Time ===============
 
-    if (mWasJustReleased)
+    if (_wasJustReleased)
     {
-        mIsHeldDownExtra = true;
-        mExtraHoldTimeCounter = 0;
+        _isHeldDownExtra = true;
+        _extraHoldTimeCounter = 0;
     }
 
-    if (mExtraHoldTimeCounter > mExtraHoldTime)
-        mIsHeldDownExtra = false;
+    if (_extraHoldTimeCounter > _extraHoldTime)
+        _isHeldDownExtra = false;
 
-    if ((mIsHeldDownExtra == false)
-     && (mWasPreviouslyHeldDownExtra == true))
-        mWasJustReleasedExtra = true;
+    if ((_isHeldDownExtra == false)
+     && (_wasPreviouslyHeldDownExtra == true))
+        _wasJustReleasedExtra = true;
     else
-        mWasJustReleasedExtra = false;
+        _wasJustReleasedExtra = false;
 
-    mWasPreviouslyHeldDownExtra = mIsHeldDownExtra;
+    _wasPreviouslyHeldDownExtra = _isHeldDownExtra;
 }
 
 #endif // SIMPLEBUTTON_H

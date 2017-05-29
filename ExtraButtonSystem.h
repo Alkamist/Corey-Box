@@ -6,7 +6,6 @@
 class ExtraButtonSystem
 {
 public:
-
     ExtraButtonSystem (unsigned int lButtonPin,
                        unsigned int lButtonSignalPin,
                        unsigned int rButtonPin,
@@ -15,22 +14,19 @@ public:
 
     void update();
 
-    inline bool tiltIsTempDisabled() { return mTempDisableTilt; }
-    inline SimpleButton& getRButton() { return mRButton; }
-
+    inline bool tiltIsTempDisabled() { return _tempDisableTilt; }
+    inline SimpleButton& getRButton() { return _rButton; }
 private:
+    SimpleButton _rButton;
+    SimpleButton _lButton;
+    SimpleButton _tiltButton;
 
-    SimpleButton mRButton;
-    SimpleButton mLButton;
-    SimpleButton mTiltButton;
+    unsigned int _lButtonSignalPin;
+    unsigned int _rButtonSignalPin;
 
-    unsigned int mLButtonSignalPin;
-    unsigned int mRButtonSignalPin;
-
-    bool mTempDisableTilt;
+    bool _tempDisableTilt;
 
     void processButtons();
-
 };
 
 
@@ -40,53 +36,53 @@ ExtraButtonSystem::ExtraButtonSystem (unsigned int lButtonPin,
                                       unsigned int rButtonPin,
                                       unsigned int rButtonSignalPin,
                                       unsigned int tiltButtonPin)
- : mLButton (lButtonPin),
-   mLButtonSignalPin (lButtonSignalPin),
-   mRButton (rButtonPin),
-   mRButtonSignalPin (rButtonSignalPin),
-   mTiltButton (tiltButtonPin),
-   mTempDisableTilt (false)
+ : _lButton (lButtonPin),
+   _lButtonSignalPin (lButtonSignalPin),
+   _rButton (rButtonPin),
+   _rButtonSignalPin (rButtonSignalPin),
+   _tiltButton (tiltButtonPin),
+   _tempDisableTilt (false)
 {}
 
 void ExtraButtonSystem::update()
 {
-    mLButton.update();
-    mRButton.update();
-    mTiltButton.update();
+    _lButton.update();
+    _rButton.update();
+    _tiltButton.update();
 
     processButtons();
 }
 
 void ExtraButtonSystem::processButtons()
 {
-    if (mRButton.wasJustPressed())
-        pinMode (mRButtonSignalPin, OUTPUT);
+    if (_rButton.wasJustPressed())
+        pinMode (_rButtonSignalPin, OUTPUT);
 
-    if (!mRButton.isHeldDown())
+    if (!_rButton.isHeldDown())
     {
-        if (mRButton.wasJustReleased() && !mTiltButton.isHeldDown())
+        if (_rButton.wasJustReleased() && !_tiltButton.isHeldDown())
         {
-            pinMode (mRButtonSignalPin, INPUT);
+            pinMode (_rButtonSignalPin, INPUT);
             return;
         }
 
-        if (mRButton.wasJustReleasedExtra())
+        if (_rButton.wasJustReleasedExtra())
         {
-            pinMode (mRButtonSignalPin, INPUT);
+            pinMode (_rButtonSignalPin, INPUT);
             return;
         }
     }
 
-    if (mLButton.wasJustPressed())
+    if (_lButton.wasJustPressed())
     {
-        mTempDisableTilt = true;
-        pinMode (mLButtonSignalPin, OUTPUT);
+        _tempDisableTilt = true;
+        pinMode (_lButtonSignalPin, OUTPUT);
     }
     else
-        mTempDisableTilt = false;
+        _tempDisableTilt = false;
 
-    if (mLButton.wasJustReleased())
-        pinMode (mLButtonSignalPin, INPUT);
+    if (_lButton.wasJustReleased())
+        pinMode (_lButtonSignalPin, INPUT);
 }
 
 #endif // EXTRABUTTONSYSTEM_H

@@ -4,55 +4,51 @@
 class DigiPot
 {
 public:
-
     DigiPot (unsigned int inputResolution, unsigned int inputPin);
 
     void init();
     void endLoop();
 
-    inline void setRestPosition (double inputDecimal) { mRestPosition = getValueByDecimal (inputDecimal); }
-    inline void setMinimum (double inputDecimal) { mMinimum = getValueByDecimal (inputDecimal); }
-    inline void setMaximum (double inputDecimal) { mMaximum = getValueByDecimal (inputDecimal); }
+    inline void setRestPosition (double inputDecimal) { _restPosition = getValueByDecimal (inputDecimal); }
+    inline void setMinimum (double inputDecimal) { _minimum = getValueByDecimal (inputDecimal); }
+    inline void setMaximum (double inputDecimal) { _maximum = getValueByDecimal (inputDecimal); }
     void setRange (double inputDecimal);
     void setCurrentValue (double inputDecimal);
 
-    inline void setMaximumUpdateSpeed (unsigned int inputUpdateSpeed) { mMaximumUpdateSpeed = inputUpdateSpeed; }
+    inline void setMaximumUpdateSpeed (unsigned int inputUpdateSpeed) { _maximumUpdateSpeed = inputUpdateSpeed; }
 
-    inline unsigned int getResolution() { return mResolution; }
-    inline unsigned int getRestPosition() { return mRestPosition; }
-    inline unsigned int getMinimum() { return mMinimum; }
-    inline unsigned int getMaximum() { return mMaximum; }
-    inline double getCurrentValue() { return mCurrentValue; }
-
+    inline unsigned int getResolution() { return _resolution; }
+    inline unsigned int getRestPosition() { return _restPosition; }
+    inline unsigned int getMinimum() { return _minimum; }
+    inline unsigned int getMaximum() { return _maximum; }
+    inline double getCurrentValue() { return _currentValue; }
 private:
+    unsigned int _resolution;
+    unsigned int _restPosition;
+    unsigned int _minimum;
+    unsigned int _maximum;
+    unsigned int _currentValue;
+    unsigned int _previousValue;
 
-    unsigned int mResolution;
-    unsigned int mRestPosition;
-    unsigned int mMinimum;
-    unsigned int mMaximum;
-    unsigned int mCurrentValue;
-    unsigned int mPreviousValue;
+    unsigned int _maximumUpdateSpeed;
+    elapsedMillis _timeCounter;
 
-    unsigned int mMaximumUpdateSpeed;
-    elapsedMillis mTimeCounter;
+    bool _hasChanged;
 
-    bool mHasChanged;
-
-    unsigned int mSlaveSelectPin;
-    const byte mWriteAddress = 0x00;
+    unsigned int _slaveSelectPin;
+    const byte _writeAddress = 0x00;
 
     void writeCurrentValue();
-    inline void setPreviousValue (double inputDecimal) { mPreviousValue = getValueByDecimal (inputDecimal); }
+    inline void setPreviousValue (double inputDecimal) { _previousValue = getValueByDecimal (inputDecimal); }
     unsigned int getValueByDecimal (double inputDecimal);
-
 };
 
 
 
 DigiPot::DigiPot (unsigned int inputResolution, unsigned int inputPin)
- : mResolution (inputResolution),
-   mSlaveSelectPin (inputPin),
-   mHasChanged (false)
+ : _resolution (inputResolution),
+   _slaveSelectPin (inputPin),
+   _hasChanged (false)
 {
     setRange (1.00);
     setRestPosition (0.50);
@@ -68,28 +64,28 @@ void DigiPot::init()
 
 void DigiPot::endLoop()
 {
-    if (mCurrentValue != mPreviousValue)
-        mHasChanged = true;
+    if (_currentValue != _previousValue)
+        _hasChanged = true;
 
-    if (mHasChanged
-     && mTimeCounter >= mMaximumUpdateSpeed)
+    if (_hasChanged
+     && _timeCounter >= _maximumUpdateSpeed)
     {
         writeCurrentValue();
-        mTimeCounter = 0;
-        mHasChanged = false;
+        _timeCounter = 0;
+        _hasChanged = false;
     }
 
-    mPreviousValue = mCurrentValue;
+    _previousValue = _currentValue;
 }
 
 void DigiPot::writeCurrentValue()
 {
-    digitalWrite (mSlaveSelectPin, LOW);
+    digitalWrite (_slaveSelectPin, LOW);
 
-    SPI.transfer (mWriteAddress);
-    SPI.transfer (mCurrentValue);
+    SPI.transfer (_writeAddress);
+    SPI.transfer (_currentValue);
 
-    digitalWrite (mSlaveSelectPin, HIGH);
+    digitalWrite (_slaveSelectPin, HIGH);
 }
 
 void DigiPot::setRange (double inputDecimal)
@@ -101,20 +97,20 @@ void DigiPot::setRange (double inputDecimal)
 
     double minimumDecimal = 1.00 - inputDecimal;
 
-    mMinimum = getValueByDecimal (minimumDecimal);
-    mMaximum = getValueByDecimal (inputDecimal);
+    _minimum = getValueByDecimal (minimumDecimal);
+    _maximum = getValueByDecimal (inputDecimal);
 }
 
 void DigiPot::setCurrentValue (double inputDecimal)
 {
     unsigned int newCurrentValue = getValueByDecimal (inputDecimal);
 
-    if (newCurrentValue > mMaximum)
-        newCurrentValue = mMaximum;
-    if (newCurrentValue < mMinimum)
-        newCurrentValue = mMinimum;
+    if (newCurrentValue > _maximum)
+        newCurrentValue = _maximum;
+    if (newCurrentValue < _minimum)
+        newCurrentValue = _minimum;
 
-    mCurrentValue = newCurrentValue;
+    _currentValue = newCurrentValue;
 }
 
 unsigned int DigiPot::getValueByDecimal (double inputDecimal)
@@ -123,7 +119,7 @@ unsigned int DigiPot::getValueByDecimal (double inputDecimal)
     // The + 0.5 at the end ensures proper rounding
     // of positive numbers. Since we are using
     // an unsigned int that's ok.
-    return mResolution * inputDecimal - 1 + 0.5;
+    return _resolution * inputDecimal - 1 + 0.5;
 }
 
 #endif // DIGIPOT_H

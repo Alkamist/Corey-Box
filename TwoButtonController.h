@@ -4,89 +4,85 @@
 class TwoButtonController
 {
 public:
-
     TwoButtonController (unsigned int lowPin, unsigned int highPin);
 
     void processCurrentValue();
 
-    inline double getCurrentValue() { return mCurrentValue; }
+    inline double getCurrentValue() { return _currentValue; }
 
-    inline bool hasChanged() { return mHasChanged; }
-
+    inline bool hasChanged() { return _hasChanged; }
 private:
+    double _currentValue;
+    double _previousValue;
+    bool _hasChanged;
 
-    double mCurrentValue;
-    double mPreviousValue;
-    bool mHasChanged;
-
-    unsigned int mLowPin;
-    unsigned int mHighPin;
+    unsigned int _lowPin;
+    unsigned int _highPin;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
     // 1 means high was pressed first.
     // -1 means neither was pressed first.
-    int mPressOrder = -1;
-
+    int _pressOrder = -1;
 };
 
 
 
 TwoButtonController::TwoButtonController (unsigned int lowPin, unsigned int highPin)
- : mLowPin (lowPin),
-   mHighPin (highPin),
-   mHasChanged (false)
+ : _lowPin (lowPin),
+   _highPin (highPin),
+   _hasChanged (false)
 {}
 
 void TwoButtonController::processCurrentValue()
 {
-    bool lowIsPressed = !digitalRead (mLowPin);
-    bool highIsPressed = !digitalRead (mHighPin);
-    bool lowWasPressedFirst = lowIsPressed && (mPressOrder == 0);
-    bool highWasPressedFirst = highIsPressed && (mPressOrder == 1);
+    bool lowIsPressed = !digitalRead (_lowPin);
+    bool highIsPressed = !digitalRead (_highPin);
+    bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
+    bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
 
     // Low Cases
     if (lowIsPressed && highWasPressedFirst)
     {
-        mPressOrder = 1;
-        mCurrentValue = 0.0;
+        _pressOrder = 1;
+        _currentValue = 0.0;
     }
-    if (lowIsPressed && !highIsPressed)
+    else if (lowIsPressed && !highIsPressed)
     {
-        mPressOrder = 0;
-        mCurrentValue = 0.0;
+        _pressOrder = 0;
+        _currentValue = 0.0;
     }
 
     // High Cases
-    if (lowWasPressedFirst && highIsPressed)
+    else if (lowWasPressedFirst && highIsPressed)
     {
-        mPressOrder = 0;
-        mCurrentValue = 1.00;
+        _pressOrder = 0;
+        _currentValue = 1.00;
     }
-    if (!lowIsPressed && highIsPressed)
+    else if (!lowIsPressed && highIsPressed)
     {
-        mPressOrder = 1;
-        mCurrentValue = 1.00;
+        _pressOrder = 1;
+        _currentValue = 1.00;
     }
 
     // Middle Cases
-    if (!lowIsPressed && !highIsPressed)
+    else if (!lowIsPressed && !highIsPressed)
     {
-        mPressOrder = -1;
-        mCurrentValue = 0.50;
+        _pressOrder = -1;
+        _currentValue = 0.50;
     }
-    if (lowIsPressed && highIsPressed && (mPressOrder == -1))
+    else if (lowIsPressed && highIsPressed && (_pressOrder == -1))
     {
-        mPressOrder = -1;
-        mCurrentValue = 0.50;
+        _pressOrder = -1;
+        _currentValue = 0.50;
     }
 
-    if (mCurrentValue != mPreviousValue)
-        mHasChanged = true;
+    if (_currentValue != _previousValue)
+        _hasChanged = true;
     else
-        mHasChanged = false;
+        _hasChanged = false;
 
-    mPreviousValue = mCurrentValue;
+    _previousValue = _currentValue;
 }
 
 #endif // TWOBUTTONCONTROLLER_H
