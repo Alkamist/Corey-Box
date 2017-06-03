@@ -1,97 +1,54 @@
 #ifndef SIMPLEBUTTON_H
 #define SIMPLEBUTTON_H
 
+#include "UpdatedBool.h"
+
+// This class represents a simple button that can be manipulated
+// by using the setValue() method.
 class SimpleButton
 {
 public:
-    SimpleButton (unsigned int pin);
-
     void update();
 
-    inline bool isHeldDown()      { return _isHeldDown; }
-    inline bool wasJustPressed()  { return _wasJustPressed; }
-    inline bool wasJustReleased() { return _wasJustReleased; }
+    inline void setValue(bool value) { _pressed.set(value); }
 
-    inline bool isHeldDownExtra()      { return _isHeldDown; }
-    inline bool wasJustReleasedExtra() { return _wasJustReleasedExtra; }
+    inline bool pressed()            { return _pressed.isTrue(); }
+    inline bool justPressed()        { return _justPressed.isTrue(); }
+    inline bool justReleased()       { return _justReleased.isTrue(); }
 
-    inline void setExtraHoldTime (unsigned int extraTime) { _extraHoldTime = extraTime; }
+    inline void resetTimer()         { _timer = 0; }
+    inline elapsedMillis getTimer()  { return _timer; }
 
-    inline elapsedMillis getStateTimer() { return _stateTimer; }
 private:
-    unsigned int _pin;
+    UpdatedBool _pressed;
+    UpdatedBool _justPressed;
+    UpdatedBool _justReleased;
 
-    bool _isHeldDown;
-    bool _wasPreviouslyHeldDown;
-    bool _wasJustPressed;
-    bool _wasJustReleased;
-
-    bool _isHeldDownExtra;
-    bool _wasPreviouslyHeldDownExtra;
-    bool _wasJustReleasedExtra;
-
-    elapsedMillis _stateTimer;
-    elapsedMillis _extraHoldTimeCounter;
-    unsigned int _extraHoldTime;
+    elapsedMillis _timer;
 };
 
 
 
-SimpleButton::SimpleButton (unsigned int pin)
- : _pin (pin),
-   _wasJustPressed (false),
-   _wasJustReleased (false),
-   _isHeldDown (false),
-   _wasPreviouslyHeldDown (false),
-   _extraHoldTime (0)
-{}
-
 void SimpleButton::update()
 {
-    _isHeldDown = !digitalRead (_pin);
-
-    if (_isHeldDown)
+    if (_pressed.hasChanged())
     {
-        _wasJustReleased = false;
+        resetTimer();
 
-        if (_wasPreviouslyHeldDown)
-            _wasJustPressed = false;
+        if (_pressed.isTrue())
+            _justPressed.set(true);
         else
-            _wasJustPressed = true;
+            _justReleased.set(true);
     }
     else
     {
-        _wasJustPressed = false;
-
-        if (_wasPreviouslyHeldDown)
-            _wasJustReleased = true;
-        else
-            _wasJustReleased = false;
+        _justPressed.set(false);
+        _justReleased.set(false);
     }
 
-    if (_wasJustPressed || _wasJustReleased)
-        _stateTimer = 0;
-
-    _wasPreviouslyHeldDown = _isHeldDown;
-
-    // =============== Extra Time ===============
-
-    if (_wasJustReleased)
-    {
-        _isHeldDownExtra = true;
-        _extraHoldTimeCounter = 0;
-    }
-
-    if (_extraHoldTimeCounter > _extraHoldTime)
-        _isHeldDownExtra = false;
-
-    if ((_isHeldDownExtra == false)
-     && (_wasPreviouslyHeldDownExtra == true))
-        _wasJustReleasedExtra = true;
-    else
-        _wasJustReleasedExtra = false;
-
-    _wasPreviouslyHeldDownExtra = _isHeldDownExtra;
+    _pressed.update();
+    _justPressed.update();
+    _justReleased.update();
 }
 
 #endif // SIMPLEBUTTON_H

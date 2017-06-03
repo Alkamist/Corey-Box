@@ -123,7 +123,7 @@ private:
     elapsedMillis _tiltTempDisableCounter;
     elapsedMillis _tiltTimeCounter;
 
-    void appyModValue(double &axisValue, double mod);
+    void applyModValue(double &axisValue, double mod);
     void applyCStickMods();
     void applyLeftStickModifiers();
 };
@@ -148,7 +148,7 @@ void AxisModSystem::processCurrentValues()
     applyCStickMods();
 }
 
-void AxisModSystem::appyModValue(double &axisValue, double mod)
+void AxisModSystem::applyModValue(double &axisValue, double mod)
 {
     if (axisValue < 0.50)
     {
@@ -175,7 +175,7 @@ void AxisModSystem::applyCStickMods()
      && _currentLsYValue != 0.50)
     {
         _currentCYValue = _currentLsYValue;
-        appyModValue(_currentCYValue, _modList.getCYAxisSkew());
+        applyModValue(_currentCYValue, _modList.getCYAxisSkew());
         return;
     }
 }
@@ -208,8 +208,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod1());
-        appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+        applyModValue(_currentLsXValue, _modList.getMod1());
+        applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
         return;
     }
 
@@ -219,8 +219,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod2());
-        appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+        applyModValue(_currentLsXValue, _modList.getMod2());
+        applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
         return;
     }
 
@@ -230,8 +230,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getCombinedMod());
-        appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+        applyModValue(_currentLsXValue, _modList.getCombinedMod());
+        applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
         return;
     }
 
@@ -241,8 +241,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-        appyModValue(_currentLsYValue, _modList.getMod1());
+        applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+        applyModValue(_currentLsYValue, _modList.getMod1());
         return;
     }
 
@@ -252,8 +252,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod1());
-        appyModValue(_currentLsYValue, _modList.getMod1());
+        applyModValue(_currentLsXValue, _modList.getMod1());
+        applyModValue(_currentLsYValue, _modList.getMod1());
         return;
     }
 
@@ -263,8 +263,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod2());
-        appyModValue(_currentLsYValue, _modList.getMod1());
+        applyModValue(_currentLsXValue, _modList.getMod2());
+        applyModValue(_currentLsYValue, _modList.getMod1());
         return;
     }
 
@@ -274,8 +274,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && !yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getCombinedMod());
-        appyModValue(_currentLsYValue, _modList.getMod1());
+        applyModValue(_currentLsXValue, _modList.getCombinedMod());
+        applyModValue(_currentLsYValue, _modList.getMod1());
         return;
     }
 
@@ -285,8 +285,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-        appyModValue(_currentLsYValue, _modList.getMod2());
+        applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+        applyModValue(_currentLsYValue, _modList.getMod2());
         return;
     }
 
@@ -296,8 +296,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod1());
-        appyModValue(_currentLsYValue, _modList.getMod2());
+        applyModValue(_currentLsXValue, _modList.getMod1());
+        applyModValue(_currentLsYValue, _modList.getMod2());
         return;
     }
 
@@ -307,8 +307,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod2());
-        appyModValue(_currentLsYValue, _modList.getMod2());
+        applyModValue(_currentLsXValue, _modList.getMod2());
+        applyModValue(_currentLsYValue, _modList.getMod2());
         return;
     }
 
@@ -318,8 +318,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getCombinedMod());
-        appyModValue(_currentLsYValue, _modList.getMod2());
+        applyModValue(_currentLsXValue, _modList.getCombinedMod());
+        applyModValue(_currentLsYValue, _modList.getMod2());
         return;
     }
 
@@ -329,8 +329,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-        appyModValue(_currentLsYValue, _modList.getCombinedMod());
+        applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+        applyModValue(_currentLsYValue, _modList.getCombinedMod());
         return;
     }
 
@@ -340,8 +340,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod1());
-        appyModValue(_currentLsYValue, _modList.getCombinedMod());
+        applyModValue(_currentLsXValue, _modList.getMod1());
+        applyModValue(_currentLsYValue, _modList.getCombinedMod());
         return;
     }
 
@@ -351,8 +351,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getMod2());
-        appyModValue(_currentLsYValue, _modList.getCombinedMod());
+        applyModValue(_currentLsXValue, _modList.getMod2());
+        applyModValue(_currentLsYValue, _modList.getCombinedMod());
         return;
     }
 
@@ -362,8 +362,8 @@ void AxisModSystem::applyLeftStickModifiers()
      && yMod2IsPressed
      && !tiltModIsPressed)
     {
-        appyModValue(_currentLsXValue, _modList.getCombinedMod());
-        appyModValue(_currentLsYValue, _modList.getCombinedMod());
+        applyModValue(_currentLsXValue, _modList.getCombinedMod());
+        applyModValue(_currentLsYValue, _modList.getCombinedMod());
         return;
     }
 
@@ -377,14 +377,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-            appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getTilt());
-            appyModValue(_currentLsYValue, _modList.getTilt());
+            applyModValue(_currentLsXValue, _modList.getTilt());
+            applyModValue(_currentLsYValue, _modList.getTilt());
             return;
         }
     }
@@ -397,14 +397,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod1());
-            appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsXValue, _modList.getMod1());
+            applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod1Tilt());
-            appyModValue(_currentLsYValue, _modList.getTilt());
+            applyModValue(_currentLsXValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsYValue, _modList.getTilt());
             return;
         }
     }
@@ -417,14 +417,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod2());
-            appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsXValue, _modList.getMod2());
+            applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod2Tilt());
-            appyModValue(_currentLsYValue, _modList.getTilt());
+            applyModValue(_currentLsXValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsYValue, _modList.getTilt());
             return;
         }
     }
@@ -437,14 +437,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedMod());
-            appyModValue(_currentLsYValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsXValue, _modList.getCombinedMod());
+            applyModValue(_currentLsYValue, _modList.getMaxiumumValue());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedModTilt());
-            appyModValue(_currentLsYValue, _modList.getTilt());
+            applyModValue(_currentLsXValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsYValue, _modList.getTilt());
             return;
         }
     }
@@ -457,14 +457,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-            appyModValue(_currentLsYValue, _modList.getMod1());
+            applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsYValue, _modList.getMod1());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getTilt());
-            appyModValue(_currentLsYValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsXValue, _modList.getTilt());
+            applyModValue(_currentLsYValue, _modList.getMod1Tilt());
             return;
         }
     }
@@ -477,14 +477,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod1());
-            appyModValue(_currentLsYValue, _modList.getMod1());
+            applyModValue(_currentLsXValue, _modList.getMod1());
+            applyModValue(_currentLsYValue, _modList.getMod1());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod1Tilt());
-            appyModValue(_currentLsYValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsXValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsYValue, _modList.getMod1Tilt());
             return;
         }
     }
@@ -497,14 +497,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod2());
-            appyModValue(_currentLsYValue, _modList.getMod1());
+            applyModValue(_currentLsXValue, _modList.getMod2());
+            applyModValue(_currentLsYValue, _modList.getMod1());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod2Tilt());
-            appyModValue(_currentLsYValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsXValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsYValue, _modList.getMod1Tilt());
             return;
         }
     }
@@ -517,14 +517,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedMod());
-            appyModValue(_currentLsYValue, _modList.getMod1());
+            applyModValue(_currentLsXValue, _modList.getCombinedMod());
+            applyModValue(_currentLsYValue, _modList.getMod1());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedModTilt());
-            appyModValue(_currentLsYValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsXValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsYValue, _modList.getMod1Tilt());
             return;
         }
     }
@@ -537,14 +537,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-            appyModValue(_currentLsYValue, _modList.getMod2());
+            applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsYValue, _modList.getMod2());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getTilt());
-            appyModValue(_currentLsYValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsXValue, _modList.getTilt());
+            applyModValue(_currentLsYValue, _modList.getMod2Tilt());
             return;
         }
     }
@@ -557,14 +557,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod1());
-            appyModValue(_currentLsYValue, _modList.getMod2());
+            applyModValue(_currentLsXValue, _modList.getMod1());
+            applyModValue(_currentLsYValue, _modList.getMod2());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod1Tilt());
-            appyModValue(_currentLsYValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsXValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsYValue, _modList.getMod2Tilt());
             return;
         }
     }
@@ -577,14 +577,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod2());
-            appyModValue(_currentLsYValue, _modList.getMod2());
+            applyModValue(_currentLsXValue, _modList.getMod2());
+            applyModValue(_currentLsYValue, _modList.getMod2());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod2Tilt());
-            appyModValue(_currentLsYValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsXValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsYValue, _modList.getMod2Tilt());
             return;
         }
     }
@@ -597,14 +597,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedMod());
-            appyModValue(_currentLsYValue, _modList.getMod2());
+            applyModValue(_currentLsXValue, _modList.getCombinedMod());
+            applyModValue(_currentLsYValue, _modList.getMod2());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedModTilt());
-            appyModValue(_currentLsYValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsXValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsYValue, _modList.getMod2Tilt());
             return;
         }
     }
@@ -617,14 +617,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMaxiumumValue());
-            appyModValue(_currentLsYValue, _modList.getCombinedMod());
+            applyModValue(_currentLsXValue, _modList.getMaxiumumValue());
+            applyModValue(_currentLsYValue, _modList.getCombinedMod());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getTilt());
-            appyModValue(_currentLsYValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsXValue, _modList.getTilt());
+            applyModValue(_currentLsYValue, _modList.getCombinedModTilt());
             return;
         }
     }
@@ -637,14 +637,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod1());
-            appyModValue(_currentLsYValue, _modList.getCombinedMod());
+            applyModValue(_currentLsXValue, _modList.getMod1());
+            applyModValue(_currentLsYValue, _modList.getCombinedMod());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod1Tilt());
-            appyModValue(_currentLsYValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsXValue, _modList.getMod1Tilt());
+            applyModValue(_currentLsYValue, _modList.getCombinedModTilt());
             return;
         }
     }
@@ -657,14 +657,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getMod2());
-            appyModValue(_currentLsYValue, _modList.getCombinedMod());
+            applyModValue(_currentLsXValue, _modList.getMod2());
+            applyModValue(_currentLsYValue, _modList.getCombinedMod());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getMod2Tilt());
-            appyModValue(_currentLsYValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsXValue, _modList.getMod2Tilt());
+            applyModValue(_currentLsYValue, _modList.getCombinedModTilt());
             return;
         }
     }
@@ -677,14 +677,14 @@ void AxisModSystem::applyLeftStickModifiers()
     {
         if (_tiltTimeCounter >= _modList.getTiltTime())
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedMod());
-            appyModValue(_currentLsYValue, _modList.getCombinedMod());
+            applyModValue(_currentLsXValue, _modList.getCombinedMod());
+            applyModValue(_currentLsYValue, _modList.getCombinedMod());
             return;
         }
         else
         {
-            appyModValue(_currentLsXValue, _modList.getCombinedModTilt());
-            appyModValue(_currentLsYValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsXValue, _modList.getCombinedModTilt());
+            applyModValue(_currentLsYValue, _modList.getCombinedModTilt());
             return;
         }
     }

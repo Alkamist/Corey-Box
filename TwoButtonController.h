@@ -4,7 +4,7 @@
 class TwoButtonController
 {
 public:
-    TwoButtonController (unsigned int lowPin, unsigned int highPin);
+    TwoButtonController(unsigned int lowPin, unsigned int highPin);
 
     void processCurrentValue();
 
@@ -28,7 +28,7 @@ private:
 
 
 
-TwoButtonController::TwoButtonController (unsigned int lowPin, unsigned int highPin)
+TwoButtonController::TwoButtonController(unsigned int lowPin, unsigned int highPin)
  : _lowPin (lowPin),
    _highPin (highPin),
    _hasChanged (false)
@@ -36,8 +36,8 @@ TwoButtonController::TwoButtonController (unsigned int lowPin, unsigned int high
 
 void TwoButtonController::processCurrentValue()
 {
-    bool lowIsPressed = !digitalRead (_lowPin);
-    bool highIsPressed = !digitalRead (_highPin);
+    bool lowIsPressed = !digitalRead(_lowPin);
+    bool highIsPressed = !digitalRead(_highPin);
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
 

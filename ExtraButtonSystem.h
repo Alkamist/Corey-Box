@@ -2,122 +2,95 @@
 #define EXTRABUTTONSYSTEM_H
 
 #include "Globals.h"
-#include "SimpleButton.h"
-#include "SpamButton.h"
+#include "MasterButton.h"
+#include "UpdatedBool.h"
 
+// This class handles the interactions between L, R, and Tilt
 class ExtraButtonSystem
 {
 public:
-    ExtraButtonSystem ();
+    ExtraButtonSystem();
 
     void update();
 
     inline bool tiltIsTempDisabled() { return _tempDisableTilt; }
-    inline SimpleButton& getRButton() { return _rButton; }
+    inline MasterButton& getRButton() { return _rButton; }
 private:
-    SimpleButton _rButton;
-    SpamButton _lButton;
-    SimpleButton _tiltButton;
+    MasterButton _rButton;
+    MasterButton _lButton;
+    MasterButton _tiltButton;
+
+    UpdatedBool _lPressed;
+    UpdatedBool _rPressed;
 
     bool _tempDisableTilt;
-    bool _rIsLetGo;
-    bool _lIsLetGo;
 
     void processButtons();
+    void handleButtonOutput();
 };
 
 
 
-ExtraButtonSystem::ExtraButtonSystem ()
- : _lButton(L_BUTTON_PIN),
-   _rButton(R_BUTTON_PIN),
-   _tiltButton(TILT_MOD_PIN),
-   _tempDisableTilt(false),
-   _rIsLetGo(false),
-   _lIsLetGo(false)
-{
-    _lButton.setSpamSpeedHz(30);
-    _lButton.setSpamCount(2);
-}
+ExtraButtonSystem::ExtraButtonSystem()
+ : _tempDisableTilt(false)
+{}
 
 void ExtraButtonSystem::update()
 {
+    processButtons();
+
+    _lButton.simpleButton().setValue(!digitalRead(L_BUTTON_PIN));
+    _rButton.simpleButton().setValue(!digitalRead(R_BUTTON_PIN));
+
     _lButton.update();
     _rButton.update();
     _tiltButton.update();
 
-    processButtons();
+    _lPressed.update();
+    _rPressed.update();
 }
 
 void ExtraButtonSystem::processButtons()
 {
-    if (_rButton.wasJustPressed())
-        pinMode (R_BUTTON_SIGNAL_PIN, OUTPUT);
+    // R
 
-    if (!_rButton.isHeldDown())
-    {
-        if (_rButton.wasJustReleased() && !_tiltButton.isHeldDown())
-        {
-            pinMode (R_BUTTON_SIGNAL_PIN, INPUT);
-            return;
-        }
+    if (_rButton.simpleButton().pressed())
+        _rPressed.set(true);
+    else
+        _rPressed.set(false);
 
-        if (_rButton.wasJustReleasedExtra())
-        {
-            pinMode (R_BUTTON_SIGNAL_PIN, INPUT);
-            return;
-        }
-    }
+    // L
 
-    // Let go of R after spamming if it is not held down
-    if (!_lButton.isSpamming()
-     && !_rButton.isHeldDown()
-     && _rIsLetGo == false)
-    {
-        pinMode (R_BUTTON_SIGNAL_PIN, INPUT);
-        _rIsLetGo = true;
-    }
-
-    // Let go of L after spamming if it is not held down
-    if (!_lButton.isSpamming()
-     && !_lButton.isHeldDown()
-     && _lIsLetGo == false)
-    {
-        pinMode (L_BUTTON_SIGNAL_PIN, INPUT);
-        _lIsLetGo = true;
-    }
+    if (_lButton.simpleButton().pressed())
+        _lPressed.set(true);
+    else
+        _lPressed.set(false);
 
     // Temporarily disable tilt if L is pressed
-    if (_lButton.wasJustPressed())
-    {
+    if (_lButton.simpleButton().justPressed())
         _tempDisableTilt = true;
-        _lIsLetGo = false;
-    }
     else
         _tempDisableTilt = false;
 
-    bool spamOverrideCombo = !digitalRead (X_MOD1_PIN)
-                          && !digitalRead (Y_MOD2_PIN);
+    handleButtonOutput();
+}
 
-    if (spamOverrideCombo)
+void ExtraButtonSystem::handleButtonOutput()
+{
+    if (_lPressed.hasChanged())
     {
-        if (_lButton.wasJustPressed())
-            pinMode (L_BUTTON_SIGNAL_PIN, OUTPUT);
+        if (_lPressed.isTrue())
+            pinMode(L_BUTTON_SIGNAL_PIN, OUTPUT);
+        else
+            pinMode(L_BUTTON_SIGNAL_PIN, INPUT);
     }
-    else
+
+    if (_rPressed.hasChanged())
     {
-        // Alternate between spamming L and R
-        if (_lButton.spam_wasJustPressed())
-        {
-            pinMode (L_BUTTON_SIGNAL_PIN, OUTPUT);
-            pinMode (R_BUTTON_SIGNAL_PIN, INPUT);
-        }
-        else if (_lButton.spam_wasJustReleased())
-        {
-            pinMode (L_BUTTON_SIGNAL_PIN, INPUT);
-            pinMode (R_BUTTON_SIGNAL_PIN, OUTPUT);
-            _rIsLetGo = false;
-        }
+        if (_rPressed.isTrue())
+            pinMode(R_BUTTON_SIGNAL_PIN, OUTPUT);
+        else
+            pinMode(R_BUTTON_SIGNAL_PIN, INPUT);
     }
 }
 

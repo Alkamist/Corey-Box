@@ -109,7 +109,7 @@ void setup()
 
     // Set the amount of time in ms R will continue to be held after
     // being released while holding tilt.
-    extraButtonSystem.getRButton().setExtraHoldTime(R_EXTRA_HOLD_TIME);
+    //extraButtonSystem.getRButton().setExtraHoldTime(R_EXTRA_HOLD_TIME);
 
     // Set the amount of time the tilt modifier will temporarily
     // be disabled after pushing L.
