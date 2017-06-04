@@ -30,4 +30,27 @@ extern const unsigned int LSY_OUT_PIN;
 extern const unsigned int CX_OUT_PIN;
 extern const unsigned int CY_OUT_PIN;
 
+extern const unsigned int R_EXTRA_HOLD_TIME;
+extern const unsigned int TILT_TEMP_DISABLE_TIME;
+
+// Bounce objects
+extern Bounce LS_LEFT_BOUNCE;
+extern Bounce LS_RIGHT_BOUNCE;
+extern Bounce LS_DOWN_BOUNCE;
+extern Bounce LS_UP_BOUNCE;
+
+extern Bounce C_LEFT_BOUNCE;
+extern Bounce C_RIGHT_BOUNCE;
+extern Bounce C_DOWN_BOUNCE;
+extern Bounce C_UP_BOUNCE;
+
+extern Bounce X_MOD1_BOUNCE;
+extern Bounce X_MOD2_BOUNCE;
+extern Bounce Y_MOD1_BOUNCE;
+extern Bounce Y_MOD2_BOUNCE;
+extern Bounce TILT_BOUNCE;
+
+extern Bounce L_BUTTON_BOUNCE;
+extern Bounce R_BUTTON_BOUNCE;
+
 #endif // EXTRABUTTONSYSTEM_H

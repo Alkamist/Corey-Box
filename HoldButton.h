@@ -27,14 +27,13 @@ HoldButton::HoldButton()
 void HoldButton::hold(unsigned int millisToHold)
 {
     _millisToHold = millisToHold;
+    setValue(true);
     resetTimer();
 }
 
 void HoldButton::update()
 {
-    if (getTimer() < _millisToHold)
-        setValue(true);
-    else
+    if (getTimer() >= _millisToHold)
         setValue(false);
 
     SimpleButton::update();

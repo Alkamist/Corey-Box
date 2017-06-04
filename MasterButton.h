@@ -11,8 +11,6 @@
 class MasterButton
 {
 public:
-    MasterButton();
-
     void update();
 
     inline SimpleButton& simpleButton() { return _simpleButton; }
@@ -26,8 +24,6 @@ private:
 };
 
 
-
-MasterButton::MasterButton() {}
 
 void MasterButton::update()
 {

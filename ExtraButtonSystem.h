@@ -25,6 +25,9 @@ private:
 
     bool _tempDisableTilt;
 
+    elapsedMillis _rButtonSpamDelayTimer;
+    bool _rButtonSpamActivated;
+
     void processButtons();
     void handleButtonOutput();
 };
@@ -32,15 +35,15 @@ private:
 
 
 ExtraButtonSystem::ExtraButtonSystem()
- : _tempDisableTilt(false)
+ : _tempDisableTilt(false),
+   _rButtonSpamActivated(false)
 {}
 
 void ExtraButtonSystem::update()
 {
-    processButtons();
-
-    _lButton.simpleButton().setValue(!digitalRead(L_BUTTON_PIN));
-    _rButton.simpleButton().setValue(!digitalRead(R_BUTTON_PIN));
+    _tiltButton.simpleButton().setValue(!TILT_BOUNCE.read());
+    _lButton.simpleButton().setValue(!L_BUTTON_BOUNCE.read());
+    _rButton.simpleButton().setValue(!R_BUTTON_BOUNCE.read());
 
     _lButton.update();
     _rButton.update();
@@ -48,29 +51,57 @@ void ExtraButtonSystem::update()
 
     _lPressed.update();
     _rPressed.update();
+
+    processButtons();
 }
 
 void ExtraButtonSystem::processButtons()
 {
-    // R
+    int speedInHz = 30;
 
-    if (_rButton.simpleButton().pressed())
-        _rPressed.set(true);
+    if (_lButton.simpleButton().justPressed())
+    {
+        _lButton.spamButton().spam(2, speedInHz);
+
+        _rButtonSpamDelayTimer = 0;
+        _rButtonSpamActivated = false;
+
+        _tempDisableTilt = true;
+    }
     else
-        _rPressed.set(false);
+        _tempDisableTilt = false;
 
-    // L
-
-    if (_lButton.simpleButton().pressed())
+    if (_lButton.spamButton().pressed())
         _lPressed.set(true);
     else
         _lPressed.set(false);
 
-    // Temporarily disable tilt if L is pressed
-    if (_lButton.simpleButton().justPressed())
-        _tempDisableTilt = true;
+    if (_rButtonSpamDelayTimer >= _lButton.spamButton().getSpamInterval()
+    && !_rButtonSpamActivated)
+    {
+        _rButton.spamButton().spam(1, speedInHz);
+        _rButtonSpamActivated = true;
+    }
+
+    if (_rButton.simpleButton().justReleased()
+     && _tiltButton.simpleButton().pressed())
+        _rButton.holdButton().hold(R_EXTRA_HOLD_TIME);
+
+    if (_rButton.spamButton().isSpamming())
+    {
+        if (_rButton.spamButton().pressed())
+            _rPressed.set(true);
+        else
+            _rPressed.set(false);
+    }
     else
-        _tempDisableTilt = false;
+    {
+        if (_rButton.simpleButton().pressed()
+         || _rButton.holdButton().pressed())
+            _rPressed.set(true);
+        else
+            _rPressed.set(false);
+    }
 
     handleButtonOutput();
 }

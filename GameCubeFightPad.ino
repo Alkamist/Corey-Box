@@ -1,4 +1,5 @@
-  #include <SPI.h>
+#include <SPI.h>
+#include <Bounce2.h>
 
 #include "Globals.h"
 #include "DigiPot.h"
@@ -6,6 +7,11 @@
 #include "AxisModSystem.h"
 #include "ExtraButtonSystem.h"
 
+// Forward declarations
+void setupButtons();
+void updateButtons();
+
+// Mod lists
 ModList meleeModList(0.9500,
                      0.3125,
                      0.4250,
@@ -48,11 +54,31 @@ const unsigned int Y_MOD1_PIN = 7;
 const unsigned int Y_MOD2_PIN = 5;
 const unsigned int TILT_MOD_PIN = 0;
 
-// Extra buttons:
+// Extra buttons
 const unsigned int R_BUTTON_SIGNAL_PIN = 16;
 const unsigned int L_BUTTON_SIGNAL_PIN = 17;
 const unsigned int R_BUTTON_PIN = 18;
 const unsigned int L_BUTTON_PIN = 19;
+
+// Bounce objects
+Bounce LS_LEFT_BOUNCE = Bounce();
+Bounce LS_RIGHT_BOUNCE = Bounce();
+Bounce LS_DOWN_BOUNCE = Bounce();
+Bounce LS_UP_BOUNCE = Bounce();
+
+Bounce C_LEFT_BOUNCE = Bounce();
+Bounce C_RIGHT_BOUNCE = Bounce();
+Bounce C_DOWN_BOUNCE = Bounce();
+Bounce C_UP_BOUNCE = Bounce();
+
+Bounce X_MOD1_BOUNCE = Bounce();
+Bounce X_MOD2_BOUNCE = Bounce();
+Bounce Y_MOD1_BOUNCE = Bounce();
+Bounce Y_MOD2_BOUNCE = Bounce();
+Bounce TILT_BOUNCE = Bounce();
+
+Bounce L_BUTTON_BOUNCE = Bounce();
+Bounce R_BUTTON_BOUNCE = Bounce();
 
 // Slave select pins
 const unsigned int LSX_OUT_PIN = 21;
@@ -81,35 +107,12 @@ ExtraButtonSystem extraButtonSystem;
 // This function runs one time when you plug in the controller
 void setup()
 {
-    pinMode(LS_LEFT_PIN, INPUT_PULLUP);
-    pinMode(LS_RIGHT_PIN, INPUT_PULLUP);
-    pinMode(LS_DOWN_PIN, INPUT_PULLUP);
-    pinMode(LS_UP_PIN, INPUT_PULLUP);
-
-    pinMode(C_LEFT_PIN, INPUT_PULLUP);
-    pinMode(C_RIGHT_PIN, INPUT_PULLUP);
-    pinMode(C_DOWN_PIN, INPUT_PULLUP);
-    pinMode(C_UP_PIN, INPUT_PULLUP);
-
-    pinMode(X_MOD1_PIN, INPUT_PULLUP);
-    pinMode(X_MOD2_PIN, INPUT_PULLUP);
-    pinMode(Y_MOD1_PIN, INPUT_PULLUP);
-    pinMode(Y_MOD2_PIN, INPUT_PULLUP);
-    pinMode(TILT_MOD_PIN, INPUT_PULLUP);
+    setupButtons();
 
     pinMode(LSX_OUT_PIN, OUTPUT);
     pinMode(LSY_OUT_PIN, OUTPUT);
     pinMode(CX_OUT_PIN, OUTPUT);
     pinMode(CY_OUT_PIN, OUTPUT);
-
-    pinMode(R_BUTTON_SIGNAL_PIN, INPUT);
-    pinMode(R_BUTTON_PIN, INPUT_PULLUP);
-    pinMode(L_BUTTON_SIGNAL_PIN, INPUT);
-    pinMode(L_BUTTON_PIN, INPUT_PULLUP);
-
-    // Set the amount of time in ms R will continue to be held after
-    // being released while holding tilt.
-    //extraButtonSystem.getRButton().setExtraHoldTime(R_EXTRA_HOLD_TIME);
 
     // Set the amount of time the tilt modifier will temporarily
     // be disabled after pushing L.
@@ -153,6 +156,8 @@ void setup()
 // This is the main loop that is running every clock cycle
 void loop()
 {
+    updateButtons();
+
     extraButtonSystem.update();
 
     lsXController.processCurrentValue();
@@ -182,4 +187,99 @@ void loop()
     lsY.endLoop();
     cX.endLoop();
     cY.endLoop();
+}
+
+
+
+
+
+void setupButtons()
+{
+    pinMode(LS_LEFT_PIN, INPUT_PULLUP);
+    pinMode(LS_RIGHT_PIN, INPUT_PULLUP);
+    pinMode(LS_DOWN_PIN, INPUT_PULLUP);
+    pinMode(LS_UP_PIN, INPUT_PULLUP);
+
+    pinMode(C_LEFT_PIN, INPUT_PULLUP);
+    pinMode(C_RIGHT_PIN, INPUT_PULLUP);
+    pinMode(C_DOWN_PIN, INPUT_PULLUP);
+    pinMode(C_UP_PIN, INPUT_PULLUP);
+
+    pinMode(X_MOD1_PIN, INPUT_PULLUP);
+    pinMode(X_MOD2_PIN, INPUT_PULLUP);
+    pinMode(Y_MOD1_PIN, INPUT_PULLUP);
+    pinMode(Y_MOD2_PIN, INPUT_PULLUP);
+    pinMode(TILT_MOD_PIN, INPUT_PULLUP);
+
+    pinMode(R_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(L_BUTTON_PIN, INPUT_PULLUP);
+
+    pinMode(L_BUTTON_SIGNAL_PIN, INPUT);
+    pinMode(R_BUTTON_SIGNAL_PIN, INPUT);
+
+    // Bounces
+
+    int bounceInterval = 5;
+
+    LS_LEFT_BOUNCE.attach(LS_LEFT_PIN);
+    LS_RIGHT_BOUNCE.attach(LS_RIGHT_PIN);
+    LS_DOWN_BOUNCE.attach(LS_DOWN_PIN);
+    LS_UP_BOUNCE.attach(LS_UP_PIN);
+
+    C_LEFT_BOUNCE.attach(C_LEFT_PIN);
+    C_RIGHT_BOUNCE.attach(C_RIGHT_PIN);
+    C_DOWN_BOUNCE.attach(C_DOWN_PIN);
+    C_UP_BOUNCE.attach(C_UP_PIN);
+
+    X_MOD1_BOUNCE.attach(X_MOD1_PIN);
+    X_MOD2_BOUNCE.attach(X_MOD2_PIN);
+    Y_MOD1_BOUNCE.attach(Y_MOD1_PIN);
+    Y_MOD2_BOUNCE.attach(Y_MOD2_PIN);
+    TILT_BOUNCE.attach(TILT_MOD_PIN);
+
+    L_BUTTON_BOUNCE.attach(L_BUTTON_PIN);
+    R_BUTTON_BOUNCE.attach(R_BUTTON_PIN);
+
+
+
+    LS_LEFT_BOUNCE.interval(bounceInterval);
+    LS_RIGHT_BOUNCE.interval(bounceInterval);
+    LS_DOWN_BOUNCE.interval(bounceInterval);
+    LS_UP_BOUNCE.interval(bounceInterval);
+
+    C_LEFT_BOUNCE.interval(bounceInterval);
+    C_RIGHT_BOUNCE.interval(bounceInterval);
+    C_DOWN_BOUNCE.interval(bounceInterval);
+    C_UP_BOUNCE.interval(bounceInterval);
+
+    X_MOD1_BOUNCE.interval(bounceInterval);
+    X_MOD2_BOUNCE.interval(bounceInterval);
+    Y_MOD1_BOUNCE.interval(bounceInterval);
+    Y_MOD2_BOUNCE.interval(bounceInterval);
+    TILT_BOUNCE.interval(bounceInterval);
+
+    L_BUTTON_BOUNCE.interval(bounceInterval);
+    R_BUTTON_BOUNCE.interval(bounceInterval);
+}
+
+void updateButtons()
+{
+    LS_LEFT_BOUNCE.update();
+    LS_RIGHT_BOUNCE.update();
+    LS_DOWN_BOUNCE.update();
+    LS_UP_BOUNCE.update();
+
+    C_LEFT_BOUNCE.update();
+    C_RIGHT_BOUNCE.update();
+    C_DOWN_BOUNCE.update();
+    C_UP_BOUNCE.update();
+
+    X_MOD1_BOUNCE.update();
+    X_MOD2_BOUNCE.update();
+    Y_MOD1_BOUNCE.update();
+    Y_MOD2_BOUNCE.update();
+    TILT_BOUNCE.update();
+
+    L_BUTTON_BOUNCE.update();
+    R_BUTTON_BOUNCE.update();
 }

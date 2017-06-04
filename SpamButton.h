@@ -14,12 +14,16 @@ public:
 
     void spam(unsigned int numPresses, unsigned int speedInHz);
 
+    inline bool isSpamming() { return _isSpamming; }
+
+    inline unsigned int getSpamInterval() { return _spamInterval; }
+
 private:
     unsigned int _spamInterval;
     unsigned int _spamCount;
     unsigned int _spamCounter;
 
-    bool _startSpam;
+    bool _isSpamming;
 };
 
 
@@ -28,31 +32,41 @@ SpamButton::SpamButton()
  : _spamInterval(16),
    _spamCount(0),
    _spamCounter(0),
-   _startSpam(false)
+   _isSpamming(false)
  {}
 
 void SpamButton::spam(unsigned int numPresses, unsigned int speedInHz)
 {
-    _spamCounter = 0;
+    _spamCounter = 1;
     _spamCount = numPresses;
-    _spamInterval = 1000 / (speedInHz * 2.0);
+    _spamInterval = 1000 / (speedInHz * 2);
 
-    _startSpam = true;
+    setValue(true);
+    _isSpamming = true;
     resetTimer();
 }
 
 void SpamButton::update()
 {
-    if ((getTimer() >= _spamInterval && _spamCounter < _spamCount)
-      || _startSpam)
+    if (_spamCounter > _spamCount)
     {
-        ++_spamCounter;
-        _startSpam = false;
+        _isSpamming = false;
+        setValue(false);
+    }
 
+    if ((getTimer() >= _spamInterval) && _isSpamming)
+    {
         if (pressed())
-            setValue(true);
-        else
+        {
             setValue(false);
+            resetTimer();
+        }
+        else
+        {
+            ++_spamCounter;
+            setValue(true);
+            resetTimer();
+        }
     }
 
     SimpleButton::update();
