@@ -24,9 +24,7 @@ private:
     UpdatedBool _rPressed;
 
     bool _tempDisableTilt;
-
-    elapsedMillis _rButtonSpamDelayTimer;
-    bool _rButtonSpamActivated;
+    bool _lSpamStarted;
 
     void processButtons();
     void handleButtonOutput();
@@ -36,7 +34,7 @@ private:
 
 ExtraButtonSystem::ExtraButtonSystem()
  : _tempDisableTilt(false),
-   _rButtonSpamActivated(false)
+   _lSpamStarted(false)
 {}
 
 void ExtraButtonSystem::update()
@@ -58,36 +56,40 @@ void ExtraButtonSystem::update()
 void ExtraButtonSystem::processButtons()
 {
     int speedInHz = 30;
+    int lSpamCount = 1;
+    int rSpamCount = 1;
 
     if (_lButton.simpleButton().justPressed())
     {
-        _lButton.spamButton().spam(2, speedInHz);
+        _lButton.spamButton().spam(lSpamCount, speedInHz);
 
-        _rButtonSpamDelayTimer = 0;
-        _rButtonSpamActivated = false;
+        _lSpamStarted = true;
 
         _tempDisableTilt = true;
     }
     else
         _tempDisableTilt = false;
 
-    if (_lButton.spamButton().pressed())
-        _lPressed.set(true);
-    else
-        _lPressed.set(false);
-
-    if (_rButtonSpamDelayTimer >= _lButton.spamButton().getSpamInterval()
-    && !_rButtonSpamActivated)
+    if (_lButton.spamButton().firstPressJustEnded())
     {
-        _rButton.spamButton().spam(1, speedInHz);
-        _rButtonSpamActivated = true;
+        _lSpamStarted = false;
+        _rButton.spamButton().spam(rSpamCount, speedInHz);
     }
 
     if (_rButton.simpleButton().justReleased()
      && _tiltButton.simpleButton().pressed())
         _rButton.holdButton().hold(R_EXTRA_HOLD_TIME);
 
-    if (_rButton.spamButton().isSpamming())
+    //===================================================
+
+    if (_lButton.spamButton().pressed())
+        _lPressed.set(true);
+    else
+        _lPressed.set(false);
+
+    if ((!_rButton.spamButton().lastPressEnded()
+       || _lSpamStarted)
+       && rSpamCount > 0)
     {
         if (_rButton.spamButton().pressed())
             _rPressed.set(true);

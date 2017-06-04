@@ -94,7 +94,6 @@ public:
     inline void setModList(ModList inputModList) { _modList = inputModList; }
     inline void resetTiltTimer() { _tiltTimeCounter = 0; }
 
-    inline void setTiltTempDisableTime(unsigned int inputTime) { _tiltTempDisableTime = inputTime; }
     inline void tempDisableTilt()
     {
         _tiltTempDisabled = true;
@@ -119,7 +118,6 @@ private:
     double _currentCYValue;
 
     bool _tiltTempDisabled;
-    unsigned int _tiltTempDisableTime;
     elapsedMillis _tiltTempDisableCounter;
     elapsedMillis _tiltTimeCounter;
 
@@ -135,13 +133,12 @@ AxisModSystem::AxisModSystem ()
    _currentLsYValue(0.50),
    _currentCXValue(0.50),
    _currentCYValue(0.50),
-   _tiltTempDisableTime(50),
    _tiltTempDisabled(false)
 {}
 
 void AxisModSystem::processCurrentValues()
 {
-    if (_tiltTempDisableCounter >= _tiltTempDisableTime)
+    if (_tiltTempDisableCounter >= TILT_TEMP_DISABLE_TIME)
         _tiltTempDisabled = false;
 
     applyLeftStickModifiers();
@@ -168,7 +165,7 @@ void AxisModSystem::applyModValue(double &axisValue, double mod)
 // button:
 void AxisModSystem::applyCStickMods()
 {
-    bool tiltModIsPressed = !digitalRead(TILT_MOD_PIN);
+    bool tiltModIsPressed = !TILT_BOUNCE.read();
 
     if (tiltModIsPressed
      && _currentCXValue != 0.50
@@ -186,11 +183,11 @@ void AxisModSystem::applyCStickMods()
 // has to do with the left stick:
 void AxisModSystem::applyLeftStickModifiers()
 {
-    bool xMod1IsPressed = !digitalRead(X_MOD1_PIN);
-    bool xMod2IsPressed = !digitalRead(X_MOD2_PIN);
-    bool yMod1IsPressed = !digitalRead(Y_MOD1_PIN);
-    bool yMod2IsPressed = !digitalRead(Y_MOD2_PIN);
-    bool tiltModIsPressed = !digitalRead(TILT_MOD_PIN) && !_tiltTempDisabled;
+    bool xMod1IsPressed = !X_MOD1_BOUNCE.read();
+    bool xMod2IsPressed = !X_MOD2_BOUNCE.read();
+    bool yMod1IsPressed = !Y_MOD1_BOUNCE.read();
+    bool yMod2IsPressed = !Y_MOD2_BOUNCE.read();
+    bool tiltModIsPressed = !TILT_BOUNCE.read() && !_tiltTempDisabled;
 
     // Tilt mod not pressed:
     if (!xMod1IsPressed

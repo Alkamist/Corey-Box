@@ -93,10 +93,10 @@ DigiPot cX(128, CX_OUT_PIN);
 DigiPot cY(128, CY_OUT_PIN);
 
 // Create two button axis controllers
-TwoButtonController lsXController(LS_LEFT_PIN, LS_RIGHT_PIN);
-TwoButtonController lsYController(LS_DOWN_PIN, LS_UP_PIN);
-TwoButtonController cXController(C_LEFT_PIN, C_RIGHT_PIN);
-TwoButtonController cYController(C_DOWN_PIN, C_UP_PIN);
+TwoButtonController lsXController(LS_LEFT_BOUNCE, LS_RIGHT_BOUNCE);
+TwoButtonController lsYController(LS_DOWN_BOUNCE, LS_UP_BOUNCE);
+TwoButtonController cXController(C_LEFT_BOUNCE, C_RIGHT_BOUNCE);
+TwoButtonController cYController(C_DOWN_BOUNCE, C_UP_BOUNCE);
 
 // Create axis mod system
 AxisModSystem axisMods;
@@ -113,10 +113,6 @@ void setup()
     pinMode(LSY_OUT_PIN, OUTPUT);
     pinMode(CX_OUT_PIN, OUTPUT);
     pinMode(CY_OUT_PIN, OUTPUT);
-
-    // Set the amount of time the tilt modifier will temporarily
-    // be disabled after pushing L.
-    axisMods.setTiltTempDisableTime(TILT_TEMP_DISABLE_TIME);
 
     // Set the potentiometer max ranges to Melee values by default
     lsX.setRange(meleeModList.getMaxiumumValue());

@@ -1,10 +1,12 @@
 #ifndef TWOBUTTONCONTROLLER_H
 #define TWOBUTTONCONTROLLER_H
 
+//#include <Bounce2.h>
+
 class TwoButtonController
 {
 public:
-    TwoButtonController(unsigned int lowPin, unsigned int highPin);
+    TwoButtonController(Bounce& lowBounce, Bounce& highBounce);
 
     void processCurrentValue();
 
@@ -16,8 +18,8 @@ private:
     double _previousValue;
     bool _hasChanged;
 
-    unsigned int _lowPin;
-    unsigned int _highPin;
+    Bounce& _lowBounce;
+    Bounce& _highBounce;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
@@ -28,16 +30,16 @@ private:
 
 
 
-TwoButtonController::TwoButtonController(unsigned int lowPin, unsigned int highPin)
- : _lowPin (lowPin),
-   _highPin (highPin),
-   _hasChanged (false)
+TwoButtonController::TwoButtonController(Bounce& lowBounce, Bounce& highBounce)
+ : _hasChanged(false),
+   _lowBounce(lowBounce),
+   _highBounce(highBounce)
 {}
 
 void TwoButtonController::processCurrentValue()
 {
-    bool lowIsPressed = !digitalRead(_lowPin);
-    bool highIsPressed = !digitalRead(_highPin);
+    bool lowIsPressed = !_lowBounce.read();
+    bool highIsPressed = !_highBounce.read();
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
 
