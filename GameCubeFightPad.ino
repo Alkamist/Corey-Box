@@ -1,6 +1,7 @@
 #include "Nintendo.h"
 #include "VirtualController.h"
 #include "ButtonReader.h"
+#include "TwoButtonAxis.h"
 
 // Forward declarations
 void updateButtons();
@@ -29,40 +30,46 @@ ButtonReader cRightButton(10);
 ButtonReader cDownButton(11);
 ButtonReader cUpButton(12);
 
-ButtonReader aButtonButton(13);
-ButtonReader bButtonButton(14);
-ButtonReader xButtonButton(15);
-ButtonReader yButtonButton(16);
-ButtonReader zButtonButton(17);
-ButtonReader rButtonButton(18);
-ButtonReader lButtonButton(19);
-ButtonReader startButtonButton(20);
-ButtonReader dLeftButtonButton(21);
-ButtonReader dRightButtonButton(22);
-ButtonReader dDownButtonButton(23);
-ButtonReader dUpButtonButton(24);
+ButtonReader aButton(13);
+ButtonReader bButton(14);
+ButtonReader xButton(15);
+ButtonReader yButton(16);
+ButtonReader zButton(17);
+ButtonReader rButton(18);
+ButtonReader lButton(19);
+ButtonReader startButton(20);
+ButtonReader dLeftButton(21);
+ButtonReader dRightButton(22);
+ButtonReader dDownButton(23);
+ButtonReader dUpButton(24);
 
 VirtualController virtualController;
+
+TwoButtonAxis testTwoButtonAxis;
 
 // This function runs one time when you plug in the controller
 void setup()
 {
     Serial.begin(9600);
+
+    testTwoButtonAxis.setLowControl(lsLeftButton);
+    testTwoButtonAxis.setHighControl(lsRightButton);
 }
 
 // This is the main loop that is running every clock cycle
 void loop()
 {
     updateButtons();
+    testTwoButtonAxis.update();
 
-    bool test = lsLeftButton;
+    //uint8_t test = testTwoButtonAxis;
 
-    if (lsLeftButton.hasChanged())
-        Serial.println(test);
+    //if (testTwoButtonAxis.hasChanged())
+    //    Serial.println(test);
 
-    //virtualController.setA();
+    virtualController.setLsX(testTwoButtonAxis);
 
-    //gamecubeConsole.write(virtualController);
+    gamecubeConsole.write(virtualController);
 }
 
 
@@ -85,16 +92,16 @@ void updateButtons()
     cDownButton.update();
     cUpButton.update();
 
-    aButtonButton.update();
-    bButtonButton.update();
-    xButtonButton.update();
-    yButtonButton.update();
-    zButtonButton.update();
-    rButtonButton.update();
-    lButtonButton.update();
-    startButtonButton.update();
-    dLeftButtonButton.update();
-    dRightButtonButton.update();
-    dDownButtonButton.update();
-    dUpButtonButton.update();
+    aButton.update();
+    bButton.update();
+    xButton.update();
+    yButton.update();
+    zButton.update();
+    rButton.update();
+    lButton.update();
+    startButton.update();
+    dLeftButton.update();
+    dRightButton.update();
+    dDownButton.update();
+    dUpButton.update();
 }

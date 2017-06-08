@@ -13,6 +13,8 @@ class ControlValue : public UpdatedValue<double>
 public:
     ControlValue();
 
+    operator uint8_t() { return getValue() * 255; }
+
     void setValue(double value);
     void setValue(bool value);
     void setDeadZone(DeadZone deadZone);
