@@ -1,11 +1,11 @@
-#ifndef SIMPLEBUTTON_H
-#define SIMPLEBUTTON_H
+#ifndef DIGITALBUTTON_H
+#define DIGITALBUTTON_H
 
 #include "UpdatedBool.h"
 
 // This class represents a simple button that can be manipulated
 // by using the setValue() method.
-class SimpleButton
+class DigitalButton
 {
 public:
     void update();
@@ -29,7 +29,7 @@ private:
 
 
 
-void SimpleButton::update()
+void DigitalButton::update()
 {
     if (_pressed.hasChanged())
     {
@@ -51,4 +51,4 @@ void SimpleButton::update()
     _justReleased.update();
 }
 
-#endif // SIMPLEBUTTON_H
+#endif // DIGITALBUTTON_H

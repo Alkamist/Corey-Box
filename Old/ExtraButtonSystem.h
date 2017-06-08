@@ -14,7 +14,6 @@ public:
     void update();
 
     inline bool tiltIsTempDisabled() { return _tempDisableTilt; }
-    inline MasterButton& getRButton() { return _rButton; }
 private:
     MasterButton _rButton;
     MasterButton _lButton;
@@ -53,6 +52,12 @@ void ExtraButtonSystem::update()
     processButtons();
 }
 
+// This function handles the annoying logic for the L, R,
+// and Tilt buttons. R acts normally, but if tilt is held
+// down while R is released, R will hold down for a little
+// bit longer. L is complicated. If you push down L, it
+// alternate spamming L and R every frame for the amount
+// of pressed specified.
 void ExtraButtonSystem::processButtons()
 {
     int speedInHz = 30;
@@ -108,6 +113,8 @@ void ExtraButtonSystem::processButtons()
     handleButtonOutput();
 }
 
+// This function simply handles the output of the result
+// of the processButtons() function.
 void ExtraButtonSystem::handleButtonOutput()
 {
     if (_lPressed.hasChanged())

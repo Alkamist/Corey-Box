@@ -1,0 +1,9 @@
+Gamecube_N64_Status_t:
+
+raw8[3] ?
+raw16[0] ?
+struct:
+    device: 0000100100000000
+
+Gamecube_Report_t:
+
