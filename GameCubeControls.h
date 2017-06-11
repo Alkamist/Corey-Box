@@ -2,7 +2,6 @@
 #define GAMECUBECONTROLS_H
 
 #include "ControlValue.h"
-#include "AnalogAxis.h"
 
 class GameCubeControls
 {
@@ -26,10 +25,10 @@ public:
     // Analog values
     ControlValue lAnalog;
     ControlValue rAnalog;
-    AnalogAxis lsX;
-    AnalogAxis lsY;
-    AnalogAxis cX;
-    AnalogAxis cY;
+    ControlValue lsX;
+    ControlValue lsY;
+    ControlValue cX;
+    ControlValue cY;
 };
 
 

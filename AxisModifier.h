@@ -9,14 +9,17 @@
 class AxisModifier : public ControlValue
 {
 public:
+    AxisModifier(double value,
+                 ControlValue& activator);
+
     void update();
 
-    void setActivator(ControlValue activator) { _activator = activator; }
-
-    void applyModifier(ControlValue& axis);
+    void setActivator(ControlValue& activator) { _activator = &activator; }
+    ControlValue& getActivator()               { return *_activator; }
+    virtual void applyModifier(ControlValue& axis);
 
 private:
-    ControlValue _activator;
+    ControlValue* _activator;
 
     void modify(ControlValue& axis);
 };
@@ -28,8 +31,11 @@ void AxisModifier::update()
 
 void AxisModifier::applyModifier(ControlValue& axis)
 {
-    if (_activator.isActive())
-        modify(axis);
+    if (_activator != nullptr)
+    {
+        if (_activator->isActive())
+            modify(axis);
+    }
 }
 
 void AxisModifier::modify(ControlValue& axis)
@@ -49,5 +55,11 @@ void AxisModifier::modify(ControlValue& axis)
         return;
     }
 }
+
+AxisModifier::AxisModifier(double value,
+                           ControlValue& activator)
+: ControlValue(value),
+  _activator(&activator)
+{}
 
 #endif // AXISMODIFIER_H

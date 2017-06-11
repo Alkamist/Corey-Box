@@ -3,6 +3,7 @@
 
 #include "ButtonReader.h"
 #include "TwoButtonControl.h"
+#include "ModdedAxis.h"
 #include "AxisModifier.h"
 #include "GameCubeControls.h"
 
@@ -11,57 +12,52 @@ class ButtonOnlyController
 public:
     ButtonOnlyController();
 
-    GameCubeControls getControls() { return _controls; }
-
     void update();
 
+    GameCubeControls getControls() { return _controls; }
+
 private:
-    ButtonReader _tilt;
-    ButtonReader _lsLeft;
-    ButtonReader _lsRight;
-    ButtonReader _lsDown;
-    ButtonReader _lsUp;
+    ButtonReader _tiltButton;
+    //ButtonReader _shieldDropButton;
 
-    ButtonReader _xMod1;
-    ButtonReader _xMod2;
-    ButtonReader _yMod1;
-    ButtonReader _yMod2;
+    ButtonReader _lsLeftButton;
+    ButtonReader _lsRightButton;
+    ButtonReader _lsDownButton;
+    ButtonReader _lsUpButton;
 
-    ButtonReader _cLeft;
-    ButtonReader _cRight;
-    ButtonReader _cDown;
-    ButtonReader _cUp;
+    ButtonReader _xMod1Button;
+    ButtonReader _xMod2Button;
+    ButtonReader _yMod1Button;
+    ButtonReader _yMod2Button;
 
-    ButtonReader _a;
-    ButtonReader _b;
-    ButtonReader _x;
-    ButtonReader _y;
-    ButtonReader _z;
-    ButtonReader _r;
-    ButtonReader _l;
-    ButtonReader _start;
-    ButtonReader _dLeft;
-    ButtonReader _dRight;
-    ButtonReader _dDown;
-    ButtonReader _dUp;
+    ButtonReader _cLeftButton;
+    ButtonReader _cRightButton;
+    ButtonReader _cDownButton;
+    ButtonReader _cUpButton;
 
-    TwoButtonControl _lsX;
-    TwoButtonControl _lsY;
-    TwoButtonControl _cX;
-    TwoButtonControl _cY;
+    ButtonReader _aButton;
+    ButtonReader _bButton;
+    //ButtonReader _xButton;
+    ButtonReader _yButton;
+    ButtonReader _zButton;
+    ButtonReader _rButton;
+    ButtonReader _lButton;
+    ButtonReader _startButton;
+    //ButtonReader _dLeftButton;
+    //ButtonReader _dRightButton;
+    //ButtonReader _dDownButton;
+    //ButtonReader _dUpButton;
 
-    AxisModifier _mod1;
-    AxisModifier _mod2;
-    AxisModifier _mod3;
-    AxisModifier _tiltMod;
+    //CombinedModAxis _lsX;
+    //CombinedModAxis _lsY;
+    //TwoButtonControl _cX;
+    //CStickYAxis _cY;
 
     GameCubeControls _controls;
 
-    void updateAnalog();
     void updateButtons();
+    void updateAxes();
     void applyControls();
-    void bindTwoButtonControls();
-    void applyModifiers();
 };
 
 
@@ -69,134 +65,93 @@ private:
 void ButtonOnlyController::update()
 {
     updateButtons();
-    updateAnalog();
+    //_lsX.update();
+    //_lsY.update();
+    //_cX.update();
+    //_cY.update();
     _controls.update();
-
-    bindTwoButtonControls();
-    applyModifiers();
 
     applyControls();
 }
 
+void ButtonOnlyController::updateButtons()
+{
+    _tiltButton.update();
+    //_shieldDropButton.update();
+
+    _lsLeftButton.update();
+    _lsRightButton.update();
+    _lsDownButton.update();
+    _lsUpButton.update();
+
+    _xMod1Button.update();
+    _xMod2Button.update();
+    _yMod1Button.update();
+    _yMod2Button.update();
+
+    _cLeftButton.update();
+    _cRightButton.update();
+    _cDownButton.update();
+    _cUpButton.update();
+
+    _aButton.update();
+    _bButton.update();
+    //_xButton.update();
+    _yButton.update();
+    _zButton.update();
+    _rButton.update();
+    _lButton.update();
+    _startButton.update();
+    //_dLeftButton.update();
+    //_dRightButton.update();
+    //_dDownButton.update();
+    //_dUpButton.update();
+}
+
 void ButtonOnlyController::applyControls()
 {
-    _controls.a = _a;
-    _controls.b = _b;
-    _controls.x = _x;
-    _controls.y = _y;
-    _controls.z = _z;
-    _controls.l = _l;
-    _controls.r = _r;
-    _controls.start = _start;
-    _controls.dLeft = _dLeft;
-    _controls.dRight = _dRight;
-    _controls.dDown = _dDown;
-    _controls.dUp = _dUp;
-    //_controls.lAnalog;
-    //_controls.rAnalog;
+    _controls.a = _aButton;
+    _controls.b = _bButton;
+    //_controls.x = _xButton;
+    _controls.y = _yButton;
+    _controls.z = _zButton;
+    _controls.l = _lButton;
+    _controls.r = _rButton;
+    _controls.start = _startButton;
+    //_controls.dLeft = _dLeftButton;
+    //_controls.dRight = _dRightButton;
+    //_controls.dDown = _dDownButton;
+    //_controls.dUp = _dUpButton;
+    //_controls.lAnalogButton;
+    //_controls.rAnalogButton;
     _controls.lsX = _lsX;
     _controls.lsY = _lsY;
     _controls.cX = _cX;
     _controls.cY = _cY;
 }
 
-void ButtonOnlyController::bindTwoButtonControls()
-{
-    _lsX.setLowControl(_lsLeft);
-    _lsX.setHighControl(_lsRight);
-
-    _lsY.setLowControl(_lsDown);
-    _lsY.setHighControl(_lsUp);
-
-    _cX.setLowControl(_cLeft);
-    _cX.setHighControl(_cRight);
-
-    _cY.setLowControl(_cDown);
-    _cY.setHighControl(_cUp);
-}
-
-void ButtonOnlyController::applyModifiers()
-{
-
-}
-
-void ButtonOnlyController::updateAnalog()
-{
-    _lsX.update();
-    _lsY.update();
-    _cX.update();
-    _cY.update();
-
-    _mod1.update();
-    _mod2.update();
-    _mod3.update();
-    _tiltMod.update();
-}
-
-void ButtonOnlyController::updateButtons()
-{
-    _tilt.update();
-    _lsLeft.update();
-    _lsRight.update();
-    _lsDown.update();
-    _lsUp.update();
-
-    _xMod1.update();
-    _xMod2.update();
-    _yMod1.update();
-    _yMod2.update();
-
-    _cLeft.update();
-    _cRight.update();
-    _cDown.update();
-    _cUp.update();
-
-    _a.update();
-    _b.update();
-    _x.update();
-    _y.update();
-    _z.update();
-    _r.update();
-    _l.update();
-    _start.update();
-    _dLeft.update();
-    _dRight.update();
-    _dDown.update();
-    _dUp.update();
-}
-
 // Don't use pin 6 or 26
 ButtonOnlyController::ButtonOnlyController()
-: _tilt(27),
-  _lsLeft(0),
-  _lsRight(3),
-  _lsDown(1),
-  _lsUp(2),
-  _xMod1(8),
-  _xMod2(5),
-  _yMod1(7),
-  _yMod2(4),
-  _cLeft(9),
-  _cRight(11),
-  _cDown(10),
-  _cUp(12),
-  _a(14),
-  _b(13),
-  _x(16),
-  _y(17),
-  _z(18),
-  _r(19),
-  _l(15),
-  _start(20),
-  _dLeft(21),
-  _dRight(24),
-  _dDown(22),
-  _dUp(23)
-{
-    _mod1.setValue(0.25);
-    _mod2.setValue(0.50);
-    _mod3.setValue(0.75);
-    _tiltMod.setValue(0.40);
-}
+: _tiltButton(27),
+  _lsLeftButton(0),
+  _lsRightButton(3),
+  _lsDownButton(1),
+  _lsUpButton(2),
+  _xMod1Button(8),
+  _xMod2Button(5),
+  _yMod1Button(7),
+  _yMod2Button(4),
+  _cLeftButton(9),
+  _cRightButton(11),
+  _cDownButton(10),
+  _cUpButton(12),
+  _aButton(14),
+  _bButton(13),
+  _yButton(17),
+  _zButton(18),
+  _rButton(19),
+  _lButton(15),
+  _startButton(20)
+{}
 
 #endif // BUTTONONLYCONTROLLER_H

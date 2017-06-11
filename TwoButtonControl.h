@@ -2,26 +2,32 @@
 #define TWOBUTTONCONTROL_H
 
 #include "ControlValue.h"
-#include "AnalogAxis.h"
 
 // This class is responsible for the base logic of how
 // two buttons interact with a joystick axis.
-class TwoButtonControl : public AnalogAxis
+class TwoButtonControl : public ControlValue
 {
 public:
     TwoButtonControl()
-    : AnalogAxis(),
+    : ControlValue(0.5, 0.5),
+      _pressOrder(-1)
+    {}
+
+    TwoButtonControl(ControlValue& lowControl, ControlValue& highControl)
+    : ControlValue(0.5, 0.5),
+      _lowControl(&lowControl),
+      _highControl(&highControl),
       _pressOrder(-1)
     {}
 
     void update();
 
-    void setLowControl(ControlValue control)  { _lowControl = control; }
-    void setHighControl(ControlValue control) { _highControl = control; }
+    void setLowControl(ControlValue& control)  { _lowControl = &control; }
+    void setHighControl(ControlValue& control) { _highControl = &control; }
 
 private:
-    ControlValue _lowControl;
-    ControlValue _highControl;
+    ControlValue* _lowControl;
+    ControlValue* _highControl;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
@@ -34,10 +40,17 @@ private:
 
 void TwoButtonControl::update()
 {
-    AnalogAxis::update();
+    ControlValue::update();
 
-    bool lowIsPressed = _lowControl.isActive();
-    bool highIsPressed = _highControl.isActive();
+    bool lowIsPressed = false;
+    bool highIsPressed = false;
+
+    if (_lowControl != nullptr)
+        lowIsPressed = _lowControl->isActive();
+
+    if (_highControl != nullptr)
+        highIsPressed = _highControl->isActive();
+
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
 

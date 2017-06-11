@@ -11,7 +11,23 @@
 class ControlValue : public UpdatedValue<double>
 {
 public:
-    ControlValue();
+    ControlValue()
+    : UpdatedValue<double>(0.0)
+    {
+        initDeadZone(0.0);
+    }
+
+    ControlValue(double value)
+    : UpdatedValue<double>(value)
+    {
+        initDeadZone(0.0);
+    }
+
+    ControlValue(double value, double center)
+    : UpdatedValue<double>(value)
+    {
+        initDeadZone(center);
+    }
 
     ControlValue operator=(const double& value)
     {
@@ -31,7 +47,7 @@ public:
     operator double()  { return getValue(); }
     operator bool()    { return isActive(); }
 
-    void init();
+    void initDeadZone(double value);
     void resetValue()              { setValue(_deadZone.getCenter()); }
 
     void setValue(double value);
@@ -53,12 +69,10 @@ private:
 
 
 
-void ControlValue::init()
+void ControlValue::initDeadZone(double center)
 {
-    _deadZone.setCenter(0.0);
+    _deadZone.setCenter(center);
     _deadZone.setRange(0.1);
-
-    resetValue();
 }
 
 void ControlValue::setValue(double value)
@@ -111,12 +125,6 @@ void ControlValue::applyDeadZone()
 {
     if (_deadZone.check(getValue()))
         UpdatedValue<double>::setValue(_deadZone.getCenter());
-}
-
-ControlValue::ControlValue()
-: UpdatedValue<double>(0.0)
-{
-    init();
 }
 
 #endif // CONTROLVALUE_H
