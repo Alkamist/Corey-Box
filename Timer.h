@@ -4,12 +4,19 @@
 class Timer
 {
 public:
-    void reset()             { _timer = 0; }
+    explicit Timer(const unsigned int targetTime)
+    : _targetTime(targetTime)
+    {}
 
-    elapsedMillis getValue() { return _timer; }
+    void reset()                                      { _timer = 0; }
+    void setTargetTime(const unsigned int targetTime) { _targetTime = targetTime; }
+
+    const bool targetTimeReached() const              { return _timer >= _targetTime; }
+    const elapsedMillis& getValue() const             { return _timer; }
 
 private:
     elapsedMillis _timer;
+    unsigned int _targetTime;
 };
 
 #endif // TIMER_H

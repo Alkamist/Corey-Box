@@ -6,7 +6,7 @@ class Array
 {
 public:
     Array();
-    Array(int length);
+    explicit Array(int length);
     ~Array();
 
     T& operator[](int index);
@@ -18,7 +18,7 @@ public:
     void remove(int index);
     void insertAtBeginning(T value) { insertBefore(value, 0); }
     void insertAtEnd(T value)       { insertBefore(value, _length); }
-    int getLength()                 { return _length; }
+    const int getLength()           { return _length; }
 
 private:
     int _length;

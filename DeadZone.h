@@ -6,12 +6,12 @@ class DeadZone
 public:
     DeadZone();
 
-    bool check(double value);
+    const bool check(const double value) const;
 
-    double getCenter()           { return _center; }
+    const double getCenter() const     { return _center; }
 
-    void setCenter(double value) { _center = value; }
-    void setRange(double value)  { _range = value; }
+    void setCenter(const double value) { _center = value; }
+    void setRange(const double value)  { _range = value; }
 
 private:
     double _center;
@@ -20,7 +20,7 @@ private:
 
 
 
-bool DeadZone::check(double value)
+const bool DeadZone::check(const double value) const
 {
     bool inDeadZone = true;
 

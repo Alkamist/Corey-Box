@@ -1,7 +1,7 @@
 //#include "VirtualGameCubeController.h"
 //#include "ButtonOnlyController.h"
 
-#include "CombinedModAxis.h"
+#include "DoubleModAxis.h"
 #include "ButtonReader.h"
 #include "ControlValue.h"
 
@@ -21,12 +21,12 @@ ButtonReader mod2Activator(24);
 ButtonReader tiltButton(7);
 ButtonReader tiltTempDisableButton(17);
 
-CombinedModAxis combinedModAxis(lowButton,
-                                highButton,
-                                mod1Activator,
-                                mod2Activator,
-                                tiltButton,
-                                tiltTempDisableButton);
+DoubleModAxis combinedModAxis(lowButton,
+                                    highButton,
+                                    mod1Activator,
+                                    mod2Activator,
+                                    tiltButton,
+                                    tiltTempDisableButton);
 
 // This function runs one time when you plug in the controller
 void setup()

@@ -8,26 +8,18 @@
 class TwoButtonControl : public ControlValue
 {
 public:
-    TwoButtonControl()
-    : ControlValue(0.5, 0.5),
-      _pressOrder(-1)
-    {}
-
-    TwoButtonControl(ControlValue& lowControl, ControlValue& highControl)
-    : ControlValue(0.5, 0.5),
-      _lowControl(&lowControl),
-      _highControl(&highControl),
-      _pressOrder(-1)
-    {}
+    TwoButtonControl();
+    explicit TwoButtonControl(const ControlValue& lowControl,
+                              const ControlValue& highControl);
 
     void update();
 
-    void setLowControl(ControlValue& control)  { _lowControl = &control; }
-    void setHighControl(ControlValue& control) { _highControl = &control; }
+    void setLowControl(const ControlValue& control)  { _lowControl = &control; }
+    void setHighControl(const ControlValue& control) { _highControl = &control; }
 
 private:
-    ControlValue* _lowControl;
-    ControlValue* _highControl;
+    const ControlValue* _lowControl;
+    const ControlValue* _highControl;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
@@ -96,5 +88,20 @@ void TwoButtonControl::update()
         return;
     }
 }
+
+TwoButtonControl::TwoButtonControl()
+: ControlValue(0.5, 0.5),
+  _lowControl(nullptr),
+  _highControl(nullptr),
+  _pressOrder(-1)
+{}
+
+TwoButtonControl::TwoButtonControl(const ControlValue& lowControl,
+                                   const ControlValue& highControl)
+: ControlValue(0.5, 0.5),
+  _lowControl(&lowControl),
+  _highControl(&highControl),
+  _pressOrder(-1)
+{}
 
 #endif // TWOBUTTONCONTROL_H

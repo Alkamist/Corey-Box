@@ -11,55 +11,30 @@
 class ControlValue : public UpdatedValue<double>
 {
 public:
-    ControlValue()
-    : UpdatedValue<double>(0.0)
-    {
-        initDeadZone(0.0);
-    }
+    ControlValue();
+    explicit ControlValue(const double value);
+    explicit ControlValue(const double value, const double center);
 
-    ControlValue(double value)
-    : UpdatedValue<double>(value)
-    {
-        initDeadZone(0.0);
-    }
-
-    ControlValue(double value, double center)
-    : UpdatedValue<double>(value)
-    {
-        initDeadZone(center);
-    }
-
-    ControlValue operator=(const double& value)
-    {
-        setValue(value);
-
-        return *this;
-    }
-
-    ControlValue operator=(const bool& value)
-    {
-        setValue(value);
-
-        return *this;
-    }
+    ControlValue operator=(const double value);
+    ControlValue operator=(const bool value);
 
     operator uint8_t() { return getValue() * 255; }
     operator double()  { return getValue(); }
     operator bool()    { return isActive(); }
 
-    void initDeadZone(double value);
-    void resetValue()              { setValue(_deadZone.getCenter()); }
+    void initDeadZone(const double value);
+    void resetValue()                    { setValue(_deadZone.getCenter()); }
 
-    void setValue(double value);
-    void setValue(bool value);
-    double getDefaultValue()       { return _deadZone.getCenter(); }
+    void setValue(const double value);
+    void setValue(const bool value);
+    const double getDefaultValue() const { return _deadZone.getCenter(); }
 
-    void setDeadZone(DeadZone deadZone);
-    DeadZone getDeadZone()         { return _deadZone; }
+    void setDeadZone(const DeadZone deadZone);
+    DeadZone getDeadZone() const         { return _deadZone; }
 
-    bool isActive();
-    bool justActivated();
-    bool justDeactivated();
+    const bool isActive() const;
+    const bool justActivated() const;
+    const bool justDeactivated() const;
 
 private:
     DeadZone _deadZone;
@@ -69,20 +44,20 @@ private:
 
 
 
-void ControlValue::initDeadZone(double center)
+void ControlValue::initDeadZone(const double center)
 {
     _deadZone.setCenter(center);
     _deadZone.setRange(0.1);
 }
 
-void ControlValue::setValue(double value)
+void ControlValue::setValue(const double value)
 {
     UpdatedValue<double>::setValue(value);
 
     applyDeadZone();
 }
 
-void ControlValue::setValue(bool value)
+void ControlValue::setValue(const bool value)
 {
     if (value)
         setValue(1.0);
@@ -90,14 +65,14 @@ void ControlValue::setValue(bool value)
         setValue(0.0);
 }
 
-void ControlValue::setDeadZone(DeadZone deadZone)
+void ControlValue::setDeadZone(const DeadZone deadZone)
 {
     _deadZone = deadZone;
 
     applyDeadZone();
 }
 
-bool ControlValue::isActive()
+const bool ControlValue::isActive() const
 {
     if (!_deadZone.check(getValue()))
         return true;
@@ -105,7 +80,7 @@ bool ControlValue::isActive()
     return false;
 }
 
-bool ControlValue::justActivated()
+const bool ControlValue::justActivated() const
 {
     if (!_deadZone.check(getValue()) && _deadZone.check(getPreviousValue()))
         return true;
@@ -113,7 +88,7 @@ bool ControlValue::justActivated()
     return false;
 }
 
-bool ControlValue::justDeactivated()
+const bool ControlValue::justDeactivated() const
 {
     if (_deadZone.check(getValue()) && !_deadZone.check(getPreviousValue()))
         return true;
@@ -125,6 +100,38 @@ void ControlValue::applyDeadZone()
 {
     if (_deadZone.check(getValue()))
         UpdatedValue<double>::setValue(_deadZone.getCenter());
+}
+
+ControlValue::ControlValue()
+: UpdatedValue<double>(0.0)
+{
+    initDeadZone(0.0);
+}
+
+ControlValue::ControlValue(const double value)
+: UpdatedValue<double>(value)
+{
+    initDeadZone(0.0);
+}
+
+ControlValue::ControlValue(const double value, const double center)
+: UpdatedValue<double>(value)
+{
+    initDeadZone(center);
+}
+
+ControlValue ControlValue::operator=(const double value)
+{
+    setValue(value);
+
+    return *this;
+}
+
+ControlValue ControlValue::operator=(const bool value)
+{
+    setValue(value);
+
+    return *this;
 }
 
 #endif // CONTROLVALUE_H

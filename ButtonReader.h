@@ -11,7 +11,7 @@
 class ButtonReader : public ControlValue
 {
 public:
-    ButtonReader(unsigned int pin);
+    explicit ButtonReader(const unsigned int pin);
 
     void init();
     void update();
@@ -38,7 +38,7 @@ void ButtonReader::update()
     setValue(!_bounce.read());
 }
 
-ButtonReader::ButtonReader(unsigned int pin)
+ButtonReader::ButtonReader(const unsigned int pin)
 : ControlValue(),
   _pin(pin)
 {

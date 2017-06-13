@@ -7,7 +7,7 @@
 class VirtualGameCubeController : public CGamecubeConsole
 {
 public:
-    VirtualGameCubeController(const uint8_t pin);
+    explicit VirtualGameCubeController(const uint8_t pin);
 
     void update();
 

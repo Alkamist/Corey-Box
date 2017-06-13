@@ -9,27 +9,24 @@
 class AxisModifier : public ControlValue
 {
 public:
-    AxisModifier(double value,
-                 ControlValue& activator);
+    explicit AxisModifier(const double value);
+    explicit AxisModifier(const double value,
+                          const ControlValue& activator);
 
-    void update();
+    void setActivator(const ControlValue& activator) { _activator = &activator; }
 
-    void setActivator(ControlValue& activator) { _activator = &activator; }
-    ControlValue& getActivator()               { return *_activator; }
-    virtual void applyModifier(ControlValue& axis);
+    const ControlValue& getActivator() const         { return *_activator; }
+
+    void apply(ControlValue& axis) const;
+    virtual void modify(ControlValue& axis) const = 0;
 
 private:
-    ControlValue* _activator;
-
-    void modify(ControlValue& axis);
+    const ControlValue* _activator;
 };
 
-void AxisModifier::update()
-{
-    ControlValue::update();
-}
 
-void AxisModifier::applyModifier(ControlValue& axis)
+
+void AxisModifier::apply(ControlValue& axis) const
 {
     if (_activator != nullptr)
     {
@@ -38,26 +35,13 @@ void AxisModifier::applyModifier(ControlValue& axis)
     }
 }
 
-void AxisModifier::modify(ControlValue& axis)
-{
-    double modDecimal = getValue();
-    double axisCenter = axis.getDefaultValue();
-    double axisValue = axis.getValue();
+AxisModifier::AxisModifier(const double value)
+: ControlValue(value),
+  _activator(nullptr)
+{}
 
-    if (axisValue < axisCenter)
-    {
-        axis.setValue(axisCenter - axisCenter * modDecimal);
-        return;
-    }
-    if (axisValue > axisCenter)
-    {
-        axis.setValue(axisCenter + (1.0 - axisCenter) * modDecimal);
-        return;
-    }
-}
-
-AxisModifier::AxisModifier(double value,
-                           ControlValue& activator)
+AxisModifier::AxisModifier(const double value,
+                           const ControlValue& activator)
 : ControlValue(value),
   _activator(&activator)
 {}
