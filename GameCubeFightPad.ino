@@ -18,12 +18,11 @@ ButtonReader high(1);
 ButtonReader mod1(18);
 ButtonReader mod2(25);
 ButtonReader tilt(17);
-
-ControlValue empty;
+ButtonReader tiltTempDisable(11);
 
 DoubleModAxis testAxis(low, high,
                        mod1, mod2,
-                       tilt, empty);
+                       tilt, tiltTempDisable);
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -44,6 +43,7 @@ void loop()
     mod1.update();
     mod2.update();
     tilt.update();
+    tiltTempDisable.update();
 
     testAxis.update();
 
