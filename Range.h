@@ -7,16 +7,17 @@
 class Range
 {
 public:
-    Range(const Bounds& bounds);
-    Range(const CenterAndMagnitude& centerAndMagnitude);
+    Range();
+    explicit Range(const Bounds& bounds);
+    explicit Range(const CenterAndMagnitude& centerAndMagnitude);
 
     void enforceRange(double& value);
     const bool checkIfInRange(const double value) const;
 
-    void setCenter(const double value)     { _centerAndMagnitude.setCenter(value); }
-    void setMagnitude(const double value)  { _centerAndMagnitude.setMagnitude(value); }
-    void setLowerBound(const double value) { _bounds.setLowerBound(value); }
-    void setUpperBound(const double value) { _bounds.setUpperBound(value); }
+    void setCenter(const double value);
+    void setMagnitude(const double value);
+    void setLowerBound(const double value);
+    void setUpperBound(const double value);
 
     const double getCenter() const         { return _centerAndMagnitude.getCenter(); }
     const double getMagnitude() const      { return _centerAndMagnitude.getMagnitude(); }
@@ -54,6 +55,39 @@ const bool Range::checkIfInRange(const double value) const
 
     return valueIsWithinRange;
 }
+
+void Range::setCenter(const double value)
+{
+    _centerAndMagnitude.setCenter(value);
+
+    _bounds = Bounds(_centerAndMagnitude);
+}
+
+void Range::setMagnitude(const double value)
+{
+    _centerAndMagnitude.setMagnitude(value);
+
+    _bounds = Bounds(_centerAndMagnitude);
+}
+
+void Range::setLowerBound(const double value)
+{
+    _bounds.setLowerBound(value);
+
+    _centerAndMagnitude = CenterAndMagnitude(_bounds);
+}
+
+void Range::setUpperBound(const double value)
+{
+    _bounds.setUpperBound(value);
+
+    _centerAndMagnitude = CenterAndMagnitude(_bounds);
+}
+
+Range::Range()
+: _bounds(),
+  _centerAndMagnitude()
+{}
 
 Range::Range(const Bounds& bounds)
 : _bounds(bounds),

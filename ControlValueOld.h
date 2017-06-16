@@ -3,6 +3,7 @@
 
 #include "UpdatedValue.h"
 #include "Range.h"
+#include "ValueScaler.h"
 
 // A ControlValue is the base class of any value used to control things.
 // Its value ranges from 0 to 1 and it keeps track of various useful traits.
@@ -29,11 +30,13 @@ public:
 
 private:
     UpdatedValue<bool> _isActive;
+    UpdatedValue<double> _rawValue;
 
     Range _inactiveRange;
     Range _valueRange;
 
-    void inputValue(double value);
+    void setFromRawValue(const double value);
+    const double calculateScaledValue(const double value);
 };
 
 
@@ -44,58 +47,86 @@ void ControlValue::update()
     UpdatedValue<double>::update();
 
     _isActive.update();
+    _rawValue.update();
 }
 
 void ControlValue::setValue(double value)
 {
     _valueRange.enforceRange(value);
 
-    inputValue(value);
+    setFromRawValue(value);
 }
 
 void ControlValue::setValue(const bool value)
 {
     if (value == true)
-        inputValue(1.0);
+        setFromRawValue(1.0);
     else
-        inputValue(0.0);
+        setFromRawValue(0.0);
 }
 
-void ControlValue::inputValue(double value)
+void ControlValue::setFromRawValue(const double value)
 {
-    if (_inactiveRange.checkIfInRange(value))
-        _isActive.setValue(false);
-    else
-        _isActive.setValue(true);
+    _isActive = !_inactiveRange.checkIfInRange(value);
+    _rawValue = value;
 
-    UpdatedValue<double>::setValue(value);
+    double rescaledValue = calculateScaledValue(value);
+    UpdatedValue<double>::setValue(rescaledValue);
+}
+
+const double ControlValue::calculateScaledValue(const double value)
+{
+    double defaultValue = getDefaultValue();
+
+    if (value < defaultValue)
+    {
+        double boundOfInterest = _inactiveRange.getLowerBound();
+
+        Range oldRange(Bounds(boundOfInterest, 0.0));
+        Range newRange(Bounds(defaultValue, 0.0));
+
+        ValueScaler valueScaler(oldRange, newRange);
+
+        return valueScaler.rescaleValue(value);
+    }
+
+    if (value > defaultValue)
+    {
+        double boundOfInterest = _inactiveRange.getUpperBound();
+
+        Range oldRange(Bounds(boundOfInterest, 1.0));
+        Range newRange(Bounds(defaultValue, 1.0));
+
+        ValueScaler valueScaler(oldRange, newRange);
+
+        return valueScaler.rescaleValue(value);
+    }
+
+    return defaultValue;
 }
 
 ControlValue::ControlValue()
 : UpdatedValue<double>(0.0),
   _inactiveRange(CenterAndMagnitude(0.0, 0.2)),
   _valueRange(Bounds(0.0, 1.0)),
+  _rawValue(0.0),
   _isActive(false)
-{
-    setValue(0.0);
-}
+{}
 
 ControlValue::ControlValue(const double value)
-: UpdatedValue<double>(0.0),
+: UpdatedValue<double>(value),
   _inactiveRange(CenterAndMagnitude(0.0, 0.2)),
   _valueRange(Bounds(0.0, 1.0)),
+  _rawValue(0.0),
   _isActive(false)
-{
-    setValue(value);
-}
+{}
 
 ControlValue::ControlValue(const double value, const Range& inactiveRange)
-: UpdatedValue<double>(0.0),
+: UpdatedValue<double>(value),
   _inactiveRange(inactiveRange),
   _valueRange(Bounds(0.0, 1.0)),
+  _rawValue(value),
   _isActive(false)
-{
-    setValue(value);
-}
+{}
 
 #endif // CONTROLVALUE_H

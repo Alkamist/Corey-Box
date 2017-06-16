@@ -2,10 +2,7 @@
 //#include "ButtonOnlyController.h"
 
 #include "ButtonReader.h"
-#include "AnalogAxis.h"
-#include "TwoButtonControl.h"
-#include "AxisScaler.h"
-#include "ValueScaler.h"
+#include "DoubleModAxis.h"
 
 // Misc values
 //const unsigned int rExtraHoldTime = 108;
@@ -18,10 +15,15 @@
 
 ButtonReader low(0);
 ButtonReader high(1);
-ButtonReader mod(17);
+ButtonReader mod1(18);
+ButtonReader mod2(25);
+ButtonReader tilt(17);
 
-TwoButtonControl twoButtonControl(low, high);
-AxisScaler testScaler(0.5, mod);
+ControlValue empty;
+
+DoubleModAxis testAxis(low, high,
+                       mod1, mod2,
+                       tilt, empty);
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -39,12 +41,12 @@ void loop()
 
     low.update();
     high.update();
-    mod.update();
-    twoButtonControl.update();
-    testScaler.update();
+    mod1.update();
+    mod2.update();
+    tilt.update();
 
-    testScaler.apply(twoButtonControl);
+    testAxis.update();
 
-    if (twoButtonControl.hasChanged())
-        Serial.println(twoButtonControl.getValue());
+    if (testAxis.hasChanged())
+        Serial.println(testAxis.getValue());
 }

@@ -21,7 +21,7 @@ public:
 
     virtual void update();
 
-    virtual void modify(ControlValue& axis) const;
+    virtual void modify(AnalogAxis& axis) const;
 
     void setTimerReset(const ControlValue& control)   { _timerReset = &control; }
     void setTempDisabler(const ControlValue& control) { _tempDisabler = &control; }
@@ -52,7 +52,7 @@ void AxisTilter::update()
             _tiltTempDisableTimer.reset();
 }
 
-void AxisTilter::modify(ControlValue& axis) const
+void AxisTilter::modify(AnalogAxis& axis) const
 {
     bool tiltShouldOccur = getActivator().isActive()
                         && !_tiltTimer.targetTimeReached()

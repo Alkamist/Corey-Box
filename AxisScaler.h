@@ -2,6 +2,7 @@
 #define AXISSCALER_H
 
 #include "AxisModifier.h"
+#include "ValueScaler.h"
 
 class AxisScaler : public AxisModifier
 {
@@ -20,15 +21,35 @@ void AxisScaler::modify(AnalogAxis& axis) const
     double axisCenter = axis.getDefaultValue();
     double axisValue = axis.getValue();
 
+    Range oldRange;
+    Range newRange;
+
     if (axisValue < axisCenter)
     {
-        axis.setValue(axisCenter - axisCenter * modDecimal);
-        return;
+        double newBound = axisCenter - axisCenter * modDecimal;
+
+        oldRange.setLowerBound(0.0);
+        oldRange.setUpperBound(axisCenter);
+
+        newRange.setLowerBound(newBound);
+        newRange.setUpperBound(axisCenter);
     }
     if (axisValue > axisCenter)
     {
-        axis.setValue(axisCenter + (1.0 - axisCenter) * modDecimal);
-        return;
+        double newBound = axisCenter + (1.0 - axisCenter) * modDecimal;
+
+        oldRange.setLowerBound(axisCenter);
+        oldRange.setUpperBound(1.0);
+
+        newRange.setLowerBound(axisCenter);
+        newRange.setUpperBound(newBound);
+    }
+
+    if (axisValue != axisCenter)
+    {
+        ValueScaler valueScaler(oldRange, newRange);
+
+        axis.setValue(valueScaler.rescaleValue(axisValue));
     }
 }
 

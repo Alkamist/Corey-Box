@@ -16,11 +16,11 @@ public:
 
 
 AnalogAxis::AnalogAxis()
-: ControlValue(0.5, CenterAndMagnitude(0.5, 0.2))
+: ControlValue(0.5, Range(CenterAndMagnitude(0.5, 0.2)))
 {}
 
 AnalogAxis::AnalogAxis(const double value)
-: ControlValue(value, CenterAndMagnitude(0.5, 0.2))
+: ControlValue(value, Range(CenterAndMagnitude(0.5, 0.2)))
 {}
 
 AnalogAxis::AnalogAxis(const double value, const Range& inactiveRange)
