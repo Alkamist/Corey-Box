@@ -2,136 +2,131 @@
 #define CONTROLVALUE_H
 
 #include "UpdatedValue.h"
-#include "DeadZone.h"
+#include "Range.h"
+#include "ValueScaler.h"
 
-// This class is the base representation of a value that
-// can control things. This could represent a button, an
-// axis, or something else perhaps. It has a deadzone that
-// can be set that affects when the value is active or not.
+// A ControlValue is the base class of any value used to control things.
+// Its value ranges from 0 to 1 and it keeps track of various useful traits.
 class ControlValue : public UpdatedValue<double>
 {
 public:
     ControlValue();
     explicit ControlValue(const double value);
-    explicit ControlValue(const double value, const double center);
+    explicit ControlValue(const double value, const Range& inactiveRange);
 
-    ControlValue operator=(const double value);
-    ControlValue operator=(const bool value);
+    virtual void update();
 
-    operator uint8_t() { return getValue() * 255; }
-    operator double()  { return getValue(); }
-    operator bool()    { return isActive(); }
+    virtual void setValue(double value);
+    virtual void setValue(const bool value);
 
-    void initDeadZone(const double value);
-    void resetValue()                    { setValue(_deadZone.getCenter()); }
+    const double getDefaultValue() const               { return _inactiveRange.getCenter(); }
 
-    void setValue(const double value);
-    void setValue(const bool value);
-    const double getDefaultValue() const { return _deadZone.getCenter(); }
+    void setInactiveRange(const Range& inactiveRange)  { _inactiveRange = inactiveRange; }
 
-    void setDeadZone(const DeadZone deadZone);
-    DeadZone getDeadZone() const         { return _deadZone; }
-
-    const bool isActive() const;
-    const bool justActivated() const;
-    const bool justDeactivated() const;
+    const bool isActive() const                        { return _isActive.getValue(); }
+    const bool justActivated() const                   { return _isActive.hasChanged() && _isActive.getValue(); }
+    const bool justDeactivated() const                 { return _isActive.hasChanged() && !_isActive.getValue(); }
+    const unsigned int getTimeSinceStateChange() const { return _isActive.timeSinceChange(); }
 
 private:
-    DeadZone _deadZone;
+    UpdatedValue<bool> _isActive;
+    UpdatedValue<double> _rawValue;
 
-    void applyDeadZone();
+    Range _inactiveRange;
+    Range _valueRange;
+
+    void setFromRawValue(const double value);
+    const double calculateScaledValue(const double value);
 };
 
 
 
-void ControlValue::initDeadZone(const double center)
+
+void ControlValue::update()
 {
-    _deadZone.setCenter(center);
-    _deadZone.setRange(0.1);
+    UpdatedValue<double>::update();
+
+    _isActive.update();
+    _rawValue.update();
 }
 
-void ControlValue::setValue(const double value)
+void ControlValue::setValue(double value)
 {
-    UpdatedValue<double>::setValue(value);
+    _valueRange.enforceRange(value);
 
-    applyDeadZone();
+    setFromRawValue(value);
 }
 
 void ControlValue::setValue(const bool value)
 {
-    if (value)
-        setValue(1.0);
+    if (value == true)
+        setFromRawValue(1.0);
     else
-        setValue(0.0);
+        setFromRawValue(0.0);
 }
 
-void ControlValue::setDeadZone(const DeadZone deadZone)
+void ControlValue::setFromRawValue(const double value)
 {
-    _deadZone = deadZone;
+    _isActive = !_inactiveRange.checkIfInRange(value);
+    _rawValue = value;
 
-    applyDeadZone();
+    double rescaledValue = calculateScaledValue(value);
+    UpdatedValue<double>::setValue(rescaledValue);
 }
 
-const bool ControlValue::isActive() const
+const double ControlValue::calculateScaledValue(const double value)
 {
-    if (!_deadZone.check(getValue()))
-        return true;
+    double defaultValue = _inactiveRange.getCenter();
 
-    return false;
-}
+    if (value < defaultValue)
+    {
+        double boundOfInterest = _inactiveRange.getLowerBound();
 
-const bool ControlValue::justActivated() const
-{
-    if (!_deadZone.check(getValue()) && _deadZone.check(getPreviousValue()))
-        return true;
+        Range oldRange(Bounds(boundOfInterest, 0.0));
+        Range newRange(Bounds(defaultValue, 0.0));
 
-    return false;
-}
+        ValueScaler valueScaler(oldRange, newRange);
 
-const bool ControlValue::justDeactivated() const
-{
-    if (_deadZone.check(getValue()) && !_deadZone.check(getPreviousValue()))
-        return true;
+        return valueScaler.rescaleValue(value);
+    }
 
-    return false;
-}
+    if (value > defaultValue)
+    {
+        double boundOfInterest = _inactiveRange.getUpperBound();
 
-void ControlValue::applyDeadZone()
-{
-    if (_deadZone.check(getValue()))
-        UpdatedValue<double>::setValue(_deadZone.getCenter());
+        Range oldRange(Bounds(boundOfInterest, 1.0));
+        Range newRange(Bounds(defaultValue, 1.0));
+
+        ValueScaler valueScaler(oldRange, newRange);
+
+        return valueScaler.rescaleValue(value);
+    }
+
+    return defaultValue;
 }
 
 ControlValue::ControlValue()
-: UpdatedValue<double>(0.0)
-{
-    initDeadZone(0.0);
-}
+: UpdatedValue<double>(0.0),
+  _inactiveRange(CenterAndMagnitude(0.0, 0.2)),
+  _valueRange(Bounds(0.0, 1.0)),
+  _rawValue(0.0),
+  _isActive(false)
+{}
 
 ControlValue::ControlValue(const double value)
-: UpdatedValue<double>(value)
-{
-    initDeadZone(0.0);
-}
+: UpdatedValue<double>(value),
+  _inactiveRange(CenterAndMagnitude(0.0, 0.2)),
+  _valueRange(Bounds(0.0, 1.0)),
+  _rawValue(0.0),
+  _isActive(false)
+{}
 
-ControlValue::ControlValue(const double value, const double center)
-: UpdatedValue<double>(value)
-{
-    initDeadZone(center);
-}
-
-ControlValue ControlValue::operator=(const double value)
-{
-    setValue(value);
-
-    return *this;
-}
-
-ControlValue ControlValue::operator=(const bool value)
-{
-    setValue(value);
-
-    return *this;
-}
+ControlValue::ControlValue(const double value, const Range& inactiveRange)
+: UpdatedValue<double>(value),
+  _inactiveRange(inactiveRange),
+  _valueRange(Bounds(0.0, 1.0)),
+  _rawValue(value),
+  _isActive(false)
+{}
 
 #endif // CONTROLVALUE_H

@@ -3,9 +3,8 @@
 
 #include "ControlValue.h"
 
-class GameCubeControls
+struct GameCubeControls
 {
-public:
     void update();
 
     // Digital values

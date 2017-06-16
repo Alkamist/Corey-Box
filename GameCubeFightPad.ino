@@ -1,9 +1,11 @@
 //#include "VirtualGameCubeController.h"
 //#include "ButtonOnlyController.h"
 
-#include "DoubleModAxis.h"
 #include "ButtonReader.h"
-#include "ControlValue.h"
+#include "AnalogAxis.h"
+#include "TwoButtonControl.h"
+#include "AxisScaler.h"
+#include "ValueScaler.h"
 
 // Misc values
 //const unsigned int rExtraHoldTime = 108;
@@ -14,19 +16,12 @@
 
 //ButtonOnlyController controller;
 
-ButtonReader lowButton(0);
-ButtonReader highButton(1);
-ButtonReader mod1Activator(18);
-ButtonReader mod2Activator(24);
-ButtonReader tiltButton(7);
-ButtonReader tiltTempDisableButton(17);
+ButtonReader low(0);
+ButtonReader high(1);
+ButtonReader mod(17);
 
-DoubleModAxis combinedModAxis(lowButton,
-                                    highButton,
-                                    mod1Activator,
-                                    mod2Activator,
-                                    tiltButton,
-                                    tiltTempDisableButton);
+TwoButtonControl twoButtonControl(low, high);
+AxisScaler testScaler(0.5, mod);
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -37,22 +32,19 @@ void setup()
 // This is the main loop that is running every clock cycle
 void loop()
 {
-    lowButton.update();
-    highButton.update();
-    mod1Activator.update();
-    mod2Activator.update();
-    tiltButton.update();
-    tiltTempDisableButton.update();
-
-    combinedModAxis.update();
-
-    if (combinedModAxis.hasChanged())
-    {
-        Serial.println(combinedModAxis.getValue());
-    }
-
     //controller.update();
     //controllerOutput.update();
 
     //controllerOutput.setControls(controller.getControls());
+
+    low.update();
+    high.update();
+    mod.update();
+    twoButtonControl.update();
+    testScaler.update();
+
+    testScaler.apply(twoButtonControl);
+
+    if (twoButtonControl.hasChanged())
+        Serial.println(twoButtonControl.getValue());
 }

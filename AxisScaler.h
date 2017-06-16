@@ -7,15 +7,14 @@ class AxisScaler : public AxisModifier
 {
 public:
     explicit AxisScaler(const double value);
-    explicit AxisScaler(const double value,
-                        const ControlValue& activator);
+    explicit AxisScaler(const double value, const ControlValue& activator);
 
-    virtual void modify(ControlValue& axis) const;
+    virtual void modify(AnalogAxis& axis) const;
 };
 
 
 
-void AxisScaler::modify(ControlValue& axis) const
+void AxisScaler::modify(AnalogAxis& axis) const
 {
     double modDecimal = getValue();
     double axisCenter = axis.getDefaultValue();
@@ -37,8 +36,7 @@ AxisScaler::AxisScaler(const double value)
 : AxisModifier(value)
 {}
 
-AxisScaler::AxisScaler(const double value,
-                       const ControlValue& activator)
+AxisScaler::AxisScaler(const double value, const ControlValue& activator)
 : AxisModifier(value, activator)
 {}
 

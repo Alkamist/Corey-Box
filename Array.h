@@ -6,25 +6,25 @@ class Array
 {
 public:
     Array();
-    explicit Array(int length);
+    explicit Array(unsigned int length);
     ~Array();
 
-    T& operator[](int index);
+    T& operator[](unsigned int index);
 
     void erase();
-    void reallocate(int newLength);
-    void resize(int newLength);
-    void insertBefore(T value, int index);
-    void remove(int index);
+    void reallocate(unsigned int newLength);
+    void resize(unsigned int newLength);
+    void insertBefore(T value, unsigned int index);
+    void remove(unsigned int index);
     void insertAtBeginning(T value) { insertBefore(value, 0); }
     void insertAtEnd(T value)       { insertBefore(value, _length); }
-    const int getLength()           { return _length; }
+    const unsigned int getLength()           { return _length; }
 
 private:
-    int _length;
+    unsigned int _length;
     T* _data;
 
-    void enforceBounds(int& index);
+    void enforceBounds(unsigned int& index);
 };
 
 
@@ -35,7 +35,7 @@ Array<T>::Array()
 {}
 
 template <typename T>
-Array<T>::Array(int length)
+Array<T>::Array(unsigned int length)
 : _length(length)
 {
     _data = new T[length];
@@ -56,7 +56,7 @@ void Array<T>::erase()
 }
 
 template <typename T>
-T& Array<T>::operator[](int index)
+T& Array<T>::operator[](unsigned int index)
 {
     enforceBounds(index);
 
@@ -65,7 +65,7 @@ T& Array<T>::operator[](int index)
 
 // This resizes the array, destroying any existing content.
 template <typename T>
-void Array<T>::reallocate(int newLength)
+void Array<T>::reallocate(unsigned int newLength)
 {
     erase();
 
@@ -78,7 +78,7 @@ void Array<T>::reallocate(int newLength)
 
 // This resizes the array, keeping existing content intact.
 template <typename T>
-void Array<T>::resize(int newLength)
+void Array<T>::resize(unsigned int newLength)
 {
     if (newLength == _length)
         return;
@@ -98,9 +98,9 @@ void Array<T>::resize(int newLength)
 
     if (_length > 0)
     {
-        int elementsToCopy = (newLength > _length) ? _length : newLength;
+        unsigned int elementsToCopy = (newLength > _length) ? _length : newLength;
 
-        for (int index = 0; index < elementsToCopy; ++index)
+        for (unsigned int index = 0; index < elementsToCopy; ++index)
             data[index] = _data[index];
     }
 
@@ -111,7 +111,7 @@ void Array<T>::resize(int newLength)
 }
 
 template <typename T>
-void Array<T>::insertBefore(T value, int index)
+void Array<T>::insertBefore(T value, unsigned int index)
 {
     enforceBounds(index);
 
@@ -119,14 +119,14 @@ void Array<T>::insertBefore(T value, int index)
     T *data = new T[_length + 1];
 
     // Copy all of the elements up to the index.
-    for (int before = 0; before < index; ++before)
+    for (unsigned int before = 0; before < index; ++before)
         data[before] = _data[before];
 
-    // Insert our new element To the new array.
+    // Insert our new element into the new array.
     data[index] = value;
 
     // Copy all of the values after the inserted element.
-    for (int after = index; after < _length; ++after)
+    for (unsigned int after = index; after < _length; ++after)
         data[after + 1] = _data[after];
 
     // Finally, delete the old array, and use the new array instead.
@@ -136,7 +136,7 @@ void Array<T>::insertBefore(T value, int index)
 }
 
 template <typename T>
-void Array<T>::remove(int index)
+void Array<T>::remove(unsigned int index)
 {
     enforceBounds(index);
 
@@ -150,11 +150,11 @@ void Array<T>::remove(int index)
     T *data = new T[_length - 1];
 
     // Copy all of the elements up to the index.
-    for (int before = 0; before  < index; ++before)
+    for (unsigned int before = 0; before  < index; ++before)
         data[before] = _data[before];
 
     // Copy all of the values after the removed element.
-    for (int after = index + 1; after < _length; ++after )
+    for (unsigned int after = index + 1; after < _length; ++after )
         data[after - 1] = _data[after];
 
     // Finally, delete the old array, and use the new array instead.
@@ -164,7 +164,7 @@ void Array<T>::remove(int index)
 }
 
 template <typename T>
-void Array<T>::enforceBounds(int& index)
+void Array<T>::enforceBounds(unsigned int& index)
 {
     if (index < 0)
         index = 0;

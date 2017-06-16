@@ -2,6 +2,7 @@
 #define AXISMODIFIER_H
 
 #include "ControlValue.h"
+#include "AnalogAxis.h"
 
 // This class is a ControlValue that can modify another control
 // value based on what the AxisModifier's value is. It can be
@@ -10,15 +11,14 @@ class AxisModifier : public ControlValue
 {
 public:
     explicit AxisModifier(const double value);
-    explicit AxisModifier(const double value,
-                          const ControlValue& activator);
+    explicit AxisModifier(const double value, const ControlValue& activator);
 
     void setActivator(const ControlValue& activator) { _activator = &activator; }
 
     const ControlValue& getActivator() const         { return *_activator; }
 
-    void apply(ControlValue& axis) const;
-    virtual void modify(ControlValue& axis) const = 0;
+    void apply(AnalogAxis& axis) const;
+    virtual void modify(AnalogAxis& axis) const = 0;
 
 private:
     const ControlValue* _activator;
@@ -26,7 +26,7 @@ private:
 
 
 
-void AxisModifier::apply(ControlValue& axis) const
+void AxisModifier::apply(AnalogAxis& axis) const
 {
     if (_activator != nullptr)
     {
@@ -40,8 +40,7 @@ AxisModifier::AxisModifier(const double value)
   _activator(nullptr)
 {}
 
-AxisModifier::AxisModifier(const double value,
-                           const ControlValue& activator)
+AxisModifier::AxisModifier(const double value, const ControlValue& activator)
 : ControlValue(value),
   _activator(&activator)
 {}

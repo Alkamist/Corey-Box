@@ -14,7 +14,7 @@ public:
     explicit ButtonReader(const unsigned int pin);
 
     void init();
-    void update();
+    virtual void update();
 
 private:
     unsigned int _pin;
@@ -26,6 +26,8 @@ private:
 
 void ButtonReader::init()
 {
+    pinMode(_pin, INPUT_PULLUP);
+
     _bounce.attach(_pin);
     _bounce.interval(5);
 }
@@ -42,8 +44,6 @@ ButtonReader::ButtonReader(const unsigned int pin)
 : ControlValue(),
   _pin(pin)
 {
-    pinMode(_pin, INPUT_PULLUP);
-
     init();
 }
 

@@ -7,35 +7,56 @@
 // type everything uses. It is basically a primitive
 // value wrapper that keeps track of its previous
 // value last clock cycle, and can tell you whether
-// or not it has changed.
+// or not it has changed. It also keeps track of how
+// long it has been (in ms) since it has changed.
 template <class T>
 class UpdatedValue
 {
 public:
-    explicit UpdatedValue(const T value)
-    : _value(value)
-    {}
+    explicit UpdatedValue(const T value);
 
-    UpdatedValue<T>& operator=(const T value)
-    {
-        setValue(value);
+    UpdatedValue<T>& operator=(const T value);
+    operator T() const                         { return getValue(); }
 
-        return *this;
-    }
+    virtual void update();
 
-    operator T() const               { return getValue(); }
+    const bool hasChanged() const              { return _value != _previousValue; }
+    const unsigned int timeSinceChange() const { return _timeSinceChange.getValue(); }
 
-    virtual void update()            { _previousValue = _value; }
-
-    const bool hasChanged() const    { return _value != _previousValue; }
-
-    void setValue(const T value)     { _value = value; }
-    const T getValue() const         { return _value; }
-    const T getPreviousValue() const { return _previousValue; }
+    virtual void setValue(const T value)       { _value = value; }
+    const T getValue() const                   { return _value; }
+    const T getPreviousValue() const           { return _previousValue; }
 
 private:
     T _value;
     T _previousValue;
+
+    Timer _timeSinceChange;
 };
+
+
+template <typename T>
+void UpdatedValue<T>::update()
+{
+    if (hasChanged())
+        _timeSinceChange.reset();
+
+    _previousValue = _value;
+}
+
+template <typename T>
+UpdatedValue<T>::UpdatedValue(const T value)
+: _value(value),
+  _previousValue(value),
+  _timeSinceChange(0)
+{}
+
+template <typename T>
+UpdatedValue<T>& UpdatedValue<T>::operator=(const T value)
+{
+    setValue(value);
+
+    return *this;
+}
 
 #endif // UPDATEDVALUE_H

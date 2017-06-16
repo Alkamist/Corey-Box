@@ -1,18 +1,18 @@
 #ifndef TWOBUTTONCONTROL_H
 #define TWOBUTTONCONTROL_H
 
-#include "ControlValue.h"
+#include "AnalogAxis.h"
 
 // This class is responsible for the base logic of how
 // two buttons interact with a joystick axis.
-class TwoButtonControl : public ControlValue
+class TwoButtonControl : public AnalogAxis
 {
 public:
     TwoButtonControl();
     explicit TwoButtonControl(const ControlValue& lowControl,
                               const ControlValue& highControl);
 
-    void update();
+    virtual void update();
 
     void setLowControl(const ControlValue& control)  { _lowControl = &control; }
     void setHighControl(const ControlValue& control) { _highControl = &control; }
@@ -32,7 +32,7 @@ private:
 
 void TwoButtonControl::update()
 {
-    ControlValue::update();
+    AnalogAxis::update();
 
     bool lowIsPressed = false;
     bool highIsPressed = false;
@@ -90,7 +90,7 @@ void TwoButtonControl::update()
 }
 
 TwoButtonControl::TwoButtonControl()
-: ControlValue(0.5, 0.5),
+: AnalogAxis(),
   _lowControl(nullptr),
   _highControl(nullptr),
   _pressOrder(-1)
@@ -98,7 +98,7 @@ TwoButtonControl::TwoButtonControl()
 
 TwoButtonControl::TwoButtonControl(const ControlValue& lowControl,
                                    const ControlValue& highControl)
-: ControlValue(0.5, 0.5),
+: AnalogAxis(),
   _lowControl(&lowControl),
   _highControl(&highControl),
   _pressOrder(-1)
