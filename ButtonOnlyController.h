@@ -2,10 +2,9 @@
 #define BUTTONONLYCONTROLLER_H
 
 #include "ButtonReader.h"
-#include "TwoButtonControl.h"
-#include "ModdedAxis.h"
-#include "AxisModifier.h"
 #include "GameCubeControls.h"
+#include "ButtonOnlyCStick.h"
+#include "ButtonOnlyLeftStick.h"
 
 class ButtonOnlyController
 {
@@ -14,11 +13,11 @@ public:
 
     void update();
 
-    GameCubeControls getControls() { return _controls; }
+    const GameCubeControls& getControls() const { return _controls; }
 
 private:
     ButtonReader _tiltButton;
-    //ButtonReader _shieldDropButton;
+    ButtonReader _shieldDropButton;
 
     ButtonReader _lsLeftButton;
     ButtonReader _lsRightButton;
@@ -48,15 +47,12 @@ private:
     //ButtonReader _dDownButton;
     //ButtonReader _dUpButton;
 
-    //CombinedModAxis _lsX;
-    //CombinedModAxis _lsY;
-    //TwoButtonControl _cX;
-    //CStickYAxis _cY;
+    ButtonOnlyLeftStick _leftStick;
+    ButtonOnlyCStick _cStick;
 
     GameCubeControls _controls;
 
     void updateButtons();
-    void updateAxes();
     void applyControls();
 };
 
@@ -65,10 +61,8 @@ private:
 void ButtonOnlyController::update()
 {
     updateButtons();
-    //_lsX.update();
-    //_lsY.update();
-    //_cX.update();
-    //_cY.update();
+    _cStick.update();
+    _leftStick.update();
     _controls.update();
 
     applyControls();
@@ -77,7 +71,7 @@ void ButtonOnlyController::update()
 void ButtonOnlyController::updateButtons()
 {
     _tiltButton.update();
-    //_shieldDropButton.update();
+    _shieldDropButton.update();
 
     _lsLeftButton.update();
     _lsRightButton.update();
@@ -110,48 +104,59 @@ void ButtonOnlyController::updateButtons()
 
 void ButtonOnlyController::applyControls()
 {
-    _controls.a = _aButton;
-    _controls.b = _bButton;
-    //_controls.x = _xButton;
-    _controls.y = _yButton;
-    _controls.z = _zButton;
-    _controls.l = _lButton;
-    _controls.r = _rButton;
-    _controls.start = _startButton;
-    //_controls.dLeft = _dLeftButton;
-    //_controls.dRight = _dRightButton;
-    //_controls.dDown = _dDownButton;
-    //_controls.dUp = _dUpButton;
-    //_controls.lAnalogButton;
-    //_controls.rAnalogButton;
-    _controls.lsX = _lsX;
-    _controls.lsY = _lsY;
-    _controls.cX = _cX;
-    _controls.cY = _cY;
+    _controls.a.setValue(_aButton.isActive());
+    _controls.b.setValue(_bButton.isActive());
+    //_controls.x.setValue(_xButton);
+    _controls.y.setValue(_yButton.isActive());
+    _controls.z.setValue(_zButton.isActive());
+    _controls.l.setValue(_lButton.isActive());
+    _controls.r.setValue(_rButton.isActive());
+    _controls.start.setValue(_startButton.isActive());
+    //_controls.dLeft.setValue(_dLeftButton.isActive());
+    //_controls.dRight.setValue(_dRightButton.isActive());
+    //_controls.dDown.setValue(_dDownButton.isActive());
+    //_controls.dUp.setValue(_dUpButton.isActive());
+    //_controls.lAnalogButton);
+    //_controls.rAnalogButton);
+    _controls.lsX.setValue(_leftStick.getXValue());
+    _controls.lsY.setValue(_leftStick.getYValue());
+    _controls.cX.setValue(_cStick.getXValue());
+    _controls.cY.setValue(_cStick.getYValue());
 }
 
 // Don't use pin 6 or 26
 ButtonOnlyController::ButtonOnlyController()
 : _tiltButton(27),
-  _lsLeftButton(0),
-  _lsRightButton(3),
-  _lsDownButton(1),
-  _lsUpButton(2),
-  _xMod1Button(8),
-  _xMod2Button(5),
-  _yMod1Button(7),
-  _yMod2Button(4),
-  _cLeftButton(9),
-  _cRightButton(11),
-  _cDownButton(10),
+  _shieldDropButton(0),
+  _lsLeftButton(1),
+  _lsRightButton(4),
+  _lsDownButton(2),
+  _lsUpButton(3),
+  _xMod1Button(9),
+  _xMod2Button(7),
+  _yMod1Button(8),
+  _yMod2Button(5),
+  _cLeftButton(10),
+  _cRightButton(13),
+  _cDownButton(11),
   _cUpButton(12),
-  _aButton(14),
-  _bButton(13),
+  _aButton(15),
+  _bButton(14),
   _yButton(17),
   _zButton(18),
   _rButton(19),
-  _lButton(15),
-  _startButton(20)
+  _lButton(16),
+  _startButton(19),
+  _leftStick(_lsLeftButton, _lsRightButton,
+             _xMod1Button, _xMod2Button,
+             _lsDownButton, _lsUpButton,
+             _yMod1Button, _yMod2Button,
+             _tiltButton, _lButton,
+             _shieldDropButton),
+  _cStick(_cLeftButton, _cRightButton,
+          _cDownButton, _cUpButton,
+          _lsDownButton, _lsUpButton,
+          _tiltButton)
 {}
 
 #endif // BUTTONONLYCONTROLLER_H

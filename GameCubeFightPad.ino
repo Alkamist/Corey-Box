@@ -1,8 +1,8 @@
 //#include "VirtualGameCubeController.h"
 //#include "ButtonOnlyController.h"
 
+#include "WavedashMacro.h"
 #include "ButtonReader.h"
-#include "DoubleModAxis.h"
 
 // Misc values
 //const unsigned int rExtraHoldTime = 108;
@@ -13,16 +13,13 @@
 
 //ButtonOnlyController controller;
 
-ButtonReader low(0);
-ButtonReader high(1);
-ButtonReader mod1(18);
-ButtonReader mod2(25);
-ButtonReader tilt(17);
-ButtonReader tiltTempDisable(11);
+ButtonReader lButton(0);
+ButtonReader trimUp(17);
+ButtonReader trimDown(8);
 
-DoubleModAxis testAxis(low, high,
-                       mod1, mod2,
-                       tilt, tiltTempDisable);
+WavedashMacro wavedashMacro(lButton,
+                            trimUp,
+                            trimDown);
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -38,15 +35,23 @@ void loop()
 
     //controllerOutput.setControls(controller.getControls());
 
-    low.update();
-    high.update();
-    mod1.update();
-    mod2.update();
-    tilt.update();
-    tiltTempDisable.update();
+    //if (controller.getControls().lsY.hasChanged())
+    //    Serial.println(controller.getControls().lsY.getValue());
 
-    testAxis.update();
+    lButton.update();
+    trimUp.update();
+    trimDown.update();
+    wavedashMacro.update();
 
-    if (testAxis.hasChanged())
-        Serial.println(testAxis.getValue());
+    if (wavedashMacro.getJump().justActivated())
+    {
+        Serial.print("Jump: ");
+        Serial.println(wavedashMacro.getJump().getValue());
+    }
+
+    if (wavedashMacro.getAirDodge().justActivated())
+    {
+        Serial.print("Air Dodge: ");
+        Serial.println(wavedashMacro.getAirDodge().getValue());
+    }
 }

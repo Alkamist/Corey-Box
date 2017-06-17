@@ -16,9 +16,9 @@ public:
     void resize(unsigned int newLength);
     void insertBefore(T value, unsigned int index);
     void remove(unsigned int index);
-    void insertAtBeginning(T value) { insertBefore(value, 0); }
-    void insertAtEnd(T value)       { insertBefore(value, _length); }
-    const unsigned int getLength()           { return _length; }
+    void insertAtBeginning(T value)      { insertBefore(value, 0); }
+    void insertAtEnd(T value)            { insertBefore(value, _length); }
+    const unsigned int getLength() const { return _length; }
 
 private:
     unsigned int _length;
