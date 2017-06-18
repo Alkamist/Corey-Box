@@ -37,12 +37,12 @@ void VirtualGameCubeController::update()
     _rawData.report.dright = _controls.dRight;
     _rawData.report.ddown = _controls.dDown;
     _rawData.report.dup = _controls.dUp;
-    _rawData.report.left = _controls.lAnalog;
-    _rawData.report.right = _controls.rAnalog;
-    _rawData.report.xAxis = _controls.lsX;
-    _rawData.report.yAxis = _controls.lsY;
-    _rawData.report.cxAxis = _controls.cX;
-    _rawData.report.cyAxis = _controls.cY;
+    _rawData.report.left = _controls.lAnalog * 255;
+    _rawData.report.right = _controls.rAnalog * 255;
+    _rawData.report.xAxis = _controls.lsX * 255;
+    _rawData.report.yAxis = _controls.lsY * 255;
+    _rawData.report.cxAxis = _controls.cX * 255;
+    _rawData.report.cyAxis = _controls.cY * 255;
 
     write(_rawData);
 }

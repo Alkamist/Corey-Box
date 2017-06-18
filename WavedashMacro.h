@@ -8,8 +8,8 @@ class WavedashMacro
 {
 public:
     WavedashMacro(const ControlValue& activator,
-                  const ControlValue& trimUp,
-                  const ControlValue& trimDown);
+                  const ControlValue& trimDown,
+                  const ControlValue& trimUp);
 
     void update();
 
@@ -79,8 +79,8 @@ void WavedashMacro::initMacro()
 }
 
 WavedashMacro::WavedashMacro(const ControlValue& activator,
-                             const ControlValue& trimUp,
-                             const ControlValue& trimDown)
+                             const ControlValue& trimDown,
+                             const ControlValue& trimUp)
 : _airDodgeDelayFrames(3),
   _jump(activator),
   _airDodge(activator),

@@ -19,6 +19,8 @@ public:
 
     const bool isFinished() const               { return _isFinished; }
 
+    bool isInterruptible;
+
 private:
     const ControlValue* _activator;
 
@@ -41,7 +43,7 @@ void ControlMacro::update()
 {
     ControlValue::update();
 
-    if (_activator->justActivated() && _isFinished)
+    if (_activator->justActivated() && (_isFinished || isInterruptible))
         reset();
 
     if (!_isFinished)
@@ -103,6 +105,7 @@ ControlMacro::ControlMacro(const ControlValue& activator)
   _timer(0),
   _inputIndex(0),
   _isFinished(true),
+  isInterruptible(true),
   _applyValue(false)
 {}
 

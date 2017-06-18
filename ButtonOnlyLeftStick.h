@@ -3,6 +3,7 @@
 
 #include "DoubleModAxis.h"
 #include "Timer.h"
+#include "Frames.h"
 
 class ButtonOnlyLeftStick
 {
@@ -64,7 +65,7 @@ ButtonOnlyLeftStick::ButtonOnlyLeftStick(const ControlValue& xAxisLow, const Con
 : _xAxis(xAxisLow, xAxisHigh, xMod1, xMod2, tilt, tiltTempDisable),
   _yAxis(yAxisLow, yAxisHigh, yMod1, yMod2, tilt, tiltTempDisable),
   _shieldDrop(&shieldDrop),
-  _shieldDropTimer(24)
+  _shieldDropTimer(Frames(1, 60).getMillis())
 {}
 
 #endif // BUTTONONLYLEFTSTICK_H

@@ -7,6 +7,7 @@
 #include "AxisClamper.h"
 #include "TimedActivator.h"
 #include "TemporaryActivator.h"
+#include "Frames.h"
 
 class DoubleModAxis : public AnalogAxis
 {
@@ -96,8 +97,8 @@ DoubleModAxis::DoubleModAxis(const ControlValue& lowControl, const ControlValue&
   _mod2(0.60, _mod2Activator),
   _mod3(0.80, _mod3Activator),
   _tiltTempDisable(50, tiltTempDisableControl),
-  _tiltActivator(200, _tiltActivatorActivator, _twoButtonControl),
-  _tiltMod(0.10, _tiltActivator)
+  _tiltActivator(Frames(8, 60).getMillis(), _tiltActivatorActivator, _twoButtonControl),
+  _tiltMod(0.20, _tiltActivator)
 {}
 
 #endif // DOUBLEMODAXIS_H
