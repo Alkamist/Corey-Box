@@ -93,9 +93,9 @@ DoubleModAxis::DoubleModAxis(const ControlValue& lowControl, const ControlValue&
   _mod1Control(&mod1Control),
   _mod2Control(&mod2Control),
   _tiltControl(&tiltControl),
-  _mod1(0.40, _mod1Activator),
-  _mod2(0.60, _mod2Activator),
-  _mod3(0.80, _mod3Activator),
+  _mod1(0.3025, _mod1Activator),
+  _mod2(0.53, _mod2Activator),
+  _mod3(0.63, _mod3Activator),
   _tiltTempDisable(50, tiltTempDisableControl),
   _tiltActivator(Frames(8, 60).getMillis(), _tiltActivatorActivator, _twoButtonControl),
   _tiltMod(0.20, _tiltActivator)

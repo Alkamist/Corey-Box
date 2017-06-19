@@ -25,8 +25,6 @@ private:
 
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
-
-    Timer _shieldDropTimer;
 };
 
 
@@ -35,14 +33,11 @@ void ButtonOnlyLeftStick::update()
 {
     _xAxis.update();
     _yAxis.update();
-
-    if (_shieldDrop->justActivated())
-        _shieldDropTimer.reset();
 }
 
 ControlValue ButtonOnlyLeftStick::getXValue()
 {
-    if (!_shieldDropTimer.targetTimeReached())
+    if (_shieldDrop->isActive())
         _xAxis.setValue(0.5);
 
     return _xAxis;
@@ -50,8 +45,8 @@ ControlValue ButtonOnlyLeftStick::getXValue()
 
 ControlValue ButtonOnlyLeftStick::getYValue()
 {
-    if (!_shieldDropTimer.targetTimeReached())
-        _yAxis.setValue(0.4);
+    if (_shieldDrop->isActive())
+        _yAxis.setValue(0.29);
 
     return _yAxis;
 }
@@ -64,8 +59,7 @@ ButtonOnlyLeftStick::ButtonOnlyLeftStick(const ControlValue& xAxisLow, const Con
                                          const ControlValue& shieldDrop)
 : _xAxis(xAxisLow, xAxisHigh, xMod1, xMod2, tilt, tiltTempDisable),
   _yAxis(yAxisLow, yAxisHigh, yMod1, yMod2, tilt, tiltTempDisable),
-  _shieldDrop(&shieldDrop),
-  _shieldDropTimer(Frames(1, 60).getMillis())
+  _shieldDrop(&shieldDrop)
 {}
 
 #endif // BUTTONONLYLEFTSTICK_H

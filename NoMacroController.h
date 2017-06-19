@@ -1,16 +1,15 @@
-#ifndef BUTTONONLYCONTROLLER_H
-#define BUTTONONLYCONTROLLER_H
+#ifndef NOMACROCONTROLLER_H
+#define NOMACROCONTROLLER_H
 
 #include "ButtonReader.h"
 #include "GameCubeControls.h"
 #include "ButtonOnlyCStick.h"
 #include "ButtonOnlyLeftStick.h"
-#include "WavedashMacro.h"
 
-class ButtonOnlyController
+class NoMacroController
 {
 public:
-    ButtonOnlyController();
+    NoMacroController();
 
     void update();
 
@@ -50,71 +49,26 @@ private:
     ButtonOnlyLeftStick _leftStick;
     ButtonOnlyCStick _cStick;
 
-    ControlValue _wavedashTrimDown;
-    ControlValue _wavedashTrimUp;
-    WavedashMacro _wavedashMacro;
-
-    ControlValue _jumpActivator;
-    ControlValue _lActivator;
-
     GameCubeControls _controls;
 
     void updateButtons();
     void applyControls();
-    void resolveActivators();
 };
 
 
 
-void ButtonOnlyController::update()
+void NoMacroController::update()
 {
     updateButtons();
 
     _cStick.update();
     _leftStick.update();
     _controls.update();
-    _wavedashMacro.update();
-
-    resolveActivators();
 
     applyControls();
 }
 
-void ButtonOnlyController::resolveActivators()
-{
-    _wavedashTrimDown.update();
-    _wavedashTrimUp.update();
-    _jumpActivator.update();
-    _lActivator.update();
-
-    //================================================
-
-    bool allCButtonsAreHeld = _cLeftButton.isActive()
-                           && _cRightButton.isActive()
-                           && _cDownButton.isActive()
-                           && _cUpButton.isActive();
-
-    bool trimDown = allCButtonsAreHeld && _lsDownButton.isActive();
-    bool trimUp = allCButtonsAreHeld && _lsUpButton.isActive();
-
-    _wavedashTrimDown.setValue(trimDown);
-    _wavedashTrimUp.setValue(trimUp);
-
-    //================================================
-
-    bool pressJump = _wavedashMacro.getJump().isActive()
-                  || _jumpButton.isActive();
-
-    _jumpActivator.setValue(pressJump);
-
-    //================================================
-
-    bool pressL = _wavedashMacro.getAirDodge().isActive();
-
-    _lActivator.setValue(pressL);
-}
-
-void ButtonOnlyController::updateButtons()
+void NoMacroController::updateButtons()
 {
     _tiltButton.update();
     _shieldDropButton.update();
@@ -148,14 +102,14 @@ void ButtonOnlyController::updateButtons()
     _dUpButton.update();
 }
 
-void ButtonOnlyController::applyControls()
+void NoMacroController::applyControls()
 {
     _controls.a.setValue(_aButton.isActive());
     _controls.b.setValue(_bButton.isActive());
     //_controls.x.setValue(_xButton);
-    _controls.y.setValue(_jumpActivator.isActive());
+    _controls.y.setValue(_jumpButton.isActive());
     _controls.z.setValue(_zButton.isActive());
-    _controls.l.setValue(_lActivator.isActive());
+    _controls.l.setValue(_lButton.isActive());
     _controls.r.setValue(_rButton.isActive());
     _controls.start.setValue(_startButton.isActive());
     _controls.dLeft.setValue(_dLeftButton.isActive());
@@ -171,7 +125,7 @@ void ButtonOnlyController::applyControls()
 }
 
 // Don't use pin 6 or 26
-ButtonOnlyController::ButtonOnlyController()
+NoMacroController::NoMacroController()
 : _tiltButton(27),
   _lsLeftButton(0),
   _lsDownButton(1),
@@ -206,10 +160,7 @@ ButtonOnlyController::ButtonOnlyController()
   _cStick(_cLeftButton, _cRightButton,
           _cDownButton, _cUpButton,
           _lsDownButton, _lsUpButton,
-          _tiltButton),
-  _wavedashMacro(_lButton,
-                 _wavedashTrimDown,
-                 _wavedashTrimUp)
+          _tiltButton)
 {}
 
-#endif // BUTTONONLYCONTROLLER_H
+#endif // NOMACROCONTROLLER_H
