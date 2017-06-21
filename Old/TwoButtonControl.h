@@ -1,30 +1,25 @@
 #ifndef TWOBUTTONCONTROL_H
 #define TWOBUTTONCONTROL_H
 
-#include "Control.h"
+#include "AnalogAxis.h"
 
 // This class is responsible for the base logic of how
 // two buttons interact with a joystick axis.
-class TwoButtonControl : public Control
+class TwoButtonControl : public AnalogAxis
 {
 public:
-    TwoButtonControl()
-    : Control(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _pressOrder(-1),
-      _lowState(false),
-      _highState(false)
-    {}
+    TwoButtonControl();
+    explicit TwoButtonControl(const ControlValue& lowControl,
+                              const ControlValue& highControl);
 
     virtual void update();
 
-    void setLowState(const bool value);
-    void setHighState(const bool value);
-
-    void setStates(const bool low, const bool high);
+    void setLowControl(const ControlValue& control)  { _lowControl = &control; }
+    void setHighControl(const ControlValue& control) { _highControl = &control; }
 
 private:
-    bool _lowState;
-    bool _highState;
+    const ControlValue* _lowControl;
+    const ControlValue* _highControl;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
@@ -37,10 +32,16 @@ private:
 
 void TwoButtonControl::update()
 {
-    Control::update();
+    AnalogAxis::update();
 
-    bool lowIsPressed = _lowState;
-    bool highIsPressed = _highState;
+    bool lowIsPressed = false;
+    bool highIsPressed = false;
+
+    if (_lowControl != nullptr)
+        lowIsPressed = _lowControl->isActive();
+
+    if (_highControl != nullptr)
+        highIsPressed = _highControl->isActive();
 
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
@@ -49,13 +50,13 @@ void TwoButtonControl::update()
     if (lowIsPressed && highWasPressedFirst)
     {
         _pressOrder = 1;
-        setValue(-1.0);
+        setValue(0.0);
         return;
     }
     if (lowIsPressed && !highIsPressed)
     {
         _pressOrder = 0;
-        setValue(-1.0);
+        setValue(0.0);
         return;
     }
 
@@ -77,33 +78,30 @@ void TwoButtonControl::update()
     if (!lowIsPressed && !highIsPressed)
     {
         _pressOrder = -1;
-        setValue(0.0);
+        setValue(0.5);
         return;
     }
     if (lowIsPressed && highIsPressed && (_pressOrder == -1))
     {
         _pressOrder = -1;
-        setValue(0.0);
+        setValue(0.5);
         return;
     }
 }
 
-void TwoButtonControl::setLowState(const bool value)
-{
-    if (value != _lowState)
-        _lowState = value;
-}
+TwoButtonControl::TwoButtonControl()
+: AnalogAxis(),
+  _lowControl(nullptr),
+  _highControl(nullptr),
+  _pressOrder(-1)
+{}
 
-void TwoButtonControl::setHighState(const bool value)
-{
-    if (value != _highState)
-        _highState = value;
-}
-
-void TwoButtonControl::setStates(const bool low, const bool high)
-{
-    setLowState(low);
-    setHighState(high);
-}
+TwoButtonControl::TwoButtonControl(const ControlValue& lowControl,
+                                   const ControlValue& highControl)
+: AnalogAxis(),
+  _lowControl(&lowControl),
+  _highControl(&highControl),
+  _pressOrder(-1)
+{}
 
 #endif // TWOBUTTONCONTROL_H

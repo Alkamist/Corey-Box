@@ -13,26 +13,16 @@ template <class T>
 class UpdatedValue
 {
 public:
-    explicit UpdatedValue(const T value)
-    : _value(value),
-      _previousValue(value),
-      _timeSinceChange(0)
-    {}
+    explicit UpdatedValue(const T value);
 
-    virtual void update()
-    {
-        if (hasChanged())
-            _timeSinceChange.reset();
-
-        _previousValue = _value;
-    }
-
-    virtual void setValue(const T value)       { _value = value; }
-    virtual const T getValue() const           { return _value; }
-    const T getPreviousValue() const           { return _previousValue; }
+    virtual void update();
 
     const bool hasChanged() const              { return _value != _previousValue; }
     const unsigned int timeSinceChange() const { return _timeSinceChange.getValue(); }
+
+    virtual void setValue(const T value)       { _value = value; }
+    const T getValue() const                   { return _value; }
+    const T getPreviousValue() const           { return _previousValue; }
 
 private:
     T _value;
@@ -40,5 +30,22 @@ private:
 
     Timer _timeSinceChange;
 };
+
+
+template <typename T>
+void UpdatedValue<T>::update()
+{
+    if (hasChanged())
+        _timeSinceChange.reset();
+
+    _previousValue = _value;
+}
+
+template <typename T>
+UpdatedValue<T>::UpdatedValue(const T value)
+: _value(value),
+  _previousValue(value),
+  _timeSinceChange(0)
+{}
 
 #endif // UPDATEDVALUE_H

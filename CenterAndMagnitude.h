@@ -1,36 +1,40 @@
 #ifndef CENTERANDMAGNITUDE_H
 #define CENTERANDMAGNITUDE_H
 
+template <class T>
 class Bounds;
 
+template <class T>
 class CenterAndMagnitude
 {
 public:
     CenterAndMagnitude();
-    explicit CenterAndMagnitude(const double center, const double magnitude);
-    explicit CenterAndMagnitude(const Bounds& bounds);
+    explicit CenterAndMagnitude(const T center, const T magnitude);
+    explicit CenterAndMagnitude(const Bounds<T>& bounds);
 
-    void setCenter(const double center);
-    void setMagnitude(const double magnitude);
+    void setCenter(const T center);
+    void setMagnitude(const T magnitude);
 
-    const double getCenter() const;
-    const double getMagnitude() const;
+    const T getCenter() const;
+    const T getMagnitude() const;
 
 private:
-    double _center;
-    double _magnitude;
+    T _center;
+    T _magnitude;
 };
 
 
 
 #include "Bounds.h"
 
-void CenterAndMagnitude::setCenter(const double center)
+template <typename T>
+void CenterAndMagnitude<T>::setCenter(const T center)
 {
     _center = center;
 }
 
-void CenterAndMagnitude::setMagnitude(const double magnitude)
+template <typename T>
+void CenterAndMagnitude<T>::setMagnitude(const T magnitude)
 {
     if (magnitude < 0.0)
         _magnitude = -magnitude;
@@ -38,31 +42,36 @@ void CenterAndMagnitude::setMagnitude(const double magnitude)
         _magnitude = magnitude;
 }
 
-const double CenterAndMagnitude::getCenter() const
+template <typename T>
+const T CenterAndMagnitude<T>::getCenter() const
 {
     return _center;
 }
 
-const double CenterAndMagnitude::getMagnitude() const
+template <typename T>
+const T CenterAndMagnitude<T>::getMagnitude() const
 {
     return _magnitude;
 }
 
-CenterAndMagnitude::CenterAndMagnitude()
-: _center(0.0),
-  _magnitude(0.0)
+template <typename T>
+CenterAndMagnitude<T>::CenterAndMagnitude()
+: _center(0),
+  _magnitude(0)
 {}
 
-CenterAndMagnitude::CenterAndMagnitude(const double center, const double magnitude)
+template <typename T>
+CenterAndMagnitude<T>::CenterAndMagnitude(const T center, const T magnitude)
 : _center(center),
   _magnitude(magnitude)
 {
     setMagnitude(magnitude);
 }
 
-CenterAndMagnitude::CenterAndMagnitude(const Bounds& bounds)
-: _center(0.0),
-  _magnitude(0.0)
+template <typename T>
+CenterAndMagnitude<T>::CenterAndMagnitude(const Bounds<T>& bounds)
+: _center(0),
+  _magnitude(0)
 {
     _magnitude = bounds.getUpperBound() - bounds.getLowerBound();
     _center = bounds.getLowerBound() + _magnitude / 2.0;

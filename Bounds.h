@@ -1,31 +1,34 @@
 #ifndef BOUNDS_H
 #define BOUNDS_H
 
+template <class T>
 class CenterAndMagnitude;
 
+template <class T>
 class Bounds
 {
 public:
     Bounds();
-    explicit Bounds(const double bound1, const double bound2);
-    explicit Bounds(const CenterAndMagnitude& centerAndMagnitude);
+    explicit Bounds(const T bound1, const T bound2);
+    explicit Bounds(const CenterAndMagnitude<T>& centerAndMagnitude);
 
-    void setLowerBound(const double lowerBound);
-    void setUpperBound(const double upperBound);
+    void setLowerBound(const T lowerBound);
+    void setUpperBound(const T upperBound);
 
-    const double getLowerBound() const;
-    const double getUpperBound() const;
+    const T getLowerBound() const;
+    const T getUpperBound() const;
 
 private:
-    double _lowerBound;
-    double _upperBound;
+    T _lowerBound;
+    T _upperBound;
 };
 
 
 
 #include "CenterAndMagnitude.h"
 
-void Bounds::setLowerBound(const double lowerBound)
+template <typename T>
+void Bounds<T>::setLowerBound(const T lowerBound)
 {
     _lowerBound = lowerBound;
 
@@ -33,7 +36,8 @@ void Bounds::setLowerBound(const double lowerBound)
         _upperBound = _lowerBound;
 }
 
-void Bounds::setUpperBound(const double upperBound)
+template <typename T>
+void Bounds<T>::setUpperBound(const T upperBound)
 {
     _upperBound = upperBound;
 
@@ -41,24 +45,28 @@ void Bounds::setUpperBound(const double upperBound)
         _lowerBound = _upperBound;
 }
 
-const double Bounds::getLowerBound() const
+template <typename T>
+const T Bounds<T>::getLowerBound() const
 {
     return _lowerBound;
 }
 
-const double Bounds::getUpperBound() const
+template <typename T>
+const T Bounds<T>::getUpperBound() const
 {
     return _upperBound;
 }
 
-Bounds::Bounds()
-: _lowerBound(0.0),
-  _upperBound(0.0)
+template <typename T>
+Bounds<T>::Bounds()
+: _lowerBound(0),
+  _upperBound(0)
 {}
 
-Bounds::Bounds(const double bound1, const double bound2)
-: _lowerBound(0.0),
-  _upperBound(0.0)
+template <typename T>
+Bounds<T>::Bounds(const T bound1, const T bound2)
+: _lowerBound(0),
+  _upperBound(0)
 {
     if (bound1 < bound2)
     {
@@ -72,9 +80,10 @@ Bounds::Bounds(const double bound1, const double bound2)
     }
 }
 
-Bounds::Bounds(const CenterAndMagnitude& centerAndMagnitude)
-: _lowerBound(0.0),
-  _upperBound(0.0)
+template <typename T>
+Bounds<T>::Bounds(const CenterAndMagnitude<T>& centerAndMagnitude)
+: _lowerBound(0),
+  _upperBound(0)
 {
     setLowerBound(centerAndMagnitude.getCenter() - centerAndMagnitude.getMagnitude() / 2.0);
     setUpperBound(centerAndMagnitude.getCenter() + centerAndMagnitude.getMagnitude() / 2.0);

@@ -2,19 +2,16 @@
 #define BUTTONREADER_H
 
 #include <Bounce2.h>
-#include "ControlValue.h"
+#include "Control.h"
 
-// This class is a ControlValue that is tied to the
-// Bounce library. It is useful to accurately read
-// the value of a pin that is connected to a physical
-// button.
-class ButtonReader : public ControlValue
+class ButtonReader : public Control
 {
 public:
     explicit ButtonReader(const unsigned int pin);
 
-    void init();
     virtual void update();
+
+    void init();
 
 private:
     unsigned int _pin;
@@ -24,6 +21,14 @@ private:
 
 
 
+void ButtonReader::update()
+{
+    _bounce.update();
+    Control::update();
+
+    setValue(!_bounce.read());
+}
+
 void ButtonReader::init()
 {
     pinMode(_pin, INPUT_PULLUP);
@@ -32,16 +37,8 @@ void ButtonReader::init()
     _bounce.interval(5);
 }
 
-void ButtonReader::update()
-{
-    _bounce.update();
-    ControlValue::update();
-
-    setValue(!_bounce.read());
-}
-
 ButtonReader::ButtonReader(const unsigned int pin)
-: ControlValue(),
+: Control(),
   _pin(pin)
 {
     init();

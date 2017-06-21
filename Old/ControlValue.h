@@ -5,13 +5,15 @@
 #include "Range.h"
 
 // A ControlValue is the base class of any value used to control things.
-// Its value ranges from 0 to 1 and it keeps track of various useful traits.
+// You can define its inactive range, and it will keep track of various
+// helpful traits with respect to that range.
 class ControlValue : public UpdatedValue<double>
 {
 public:
     ControlValue();
     explicit ControlValue(const double value);
     explicit ControlValue(const double value, const Range& inactiveRange);
+    explicit ControlValue(const double value, const Range& inactiveRange, const Range& valueRange);
 
     virtual void update();
 
@@ -42,14 +44,11 @@ private:
 void ControlValue::update()
 {
     UpdatedValue<double>::update();
-
     _isActive.update();
 }
 
 void ControlValue::setValue(double value)
 {
-    _valueRange.enforceRange(value);
-
     inputValue(value);
 }
 
@@ -63,6 +62,8 @@ void ControlValue::setValue(const bool value)
 
 void ControlValue::inputValue(double value)
 {
+    _valueRange.enforceRange(value);
+
     if (_inactiveRange.checkIfInRange(value))
         _isActive.setValue(false);
     else
@@ -93,6 +94,15 @@ ControlValue::ControlValue(const double value, const Range& inactiveRange)
 : UpdatedValue<double>(0.0),
   _inactiveRange(inactiveRange),
   _valueRange(Bounds(0.0, 1.0)),
+  _isActive(false)
+{
+    setValue(value);
+}
+
+ControlValue::ControlValue(const double value, const Range& inactiveRange, const Range& valueRange)
+: UpdatedValue<double>(0.0),
+  _inactiveRange(inactiveRange),
+  _valueRange(valueRange),
   _isActive(false)
 {
     setValue(value);

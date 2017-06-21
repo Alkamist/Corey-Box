@@ -4,49 +4,52 @@
 #include "Bounds.h"
 #include "CenterAndMagnitude.h"
 
+template <class T>
 class Range
 {
 public:
     Range();
-    explicit Range(const Bounds& bounds);
-    explicit Range(const CenterAndMagnitude& centerAndMagnitude);
+    explicit Range(const Bounds<T>& bounds);
+    explicit Range(const CenterAndMagnitude<T>& centerAndMagnitude);
 
-    void enforceRange(double& value);
-    const bool checkIfInRange(const double value) const;
+    T enforceRange(const T value) const;
+    const bool checkIfInRange(const T value) const;
 
-    void setCenter(const double value);
-    void setMagnitude(const double value);
-    void setLowerBound(const double value);
-    void setUpperBound(const double value);
+    void set(const Range<T>& range);
+    void set(const Bounds<T>& bounds);
+    void set(const CenterAndMagnitude<T>& centerAndMagnitude);
+    void setCenter(const T value);
+    void setMagnitude(const T value);
+    void setLowerBound(const T value);
+    void setUpperBound(const T value);
 
-    const double getCenter() const         { return _centerAndMagnitude.getCenter(); }
-    const double getMagnitude() const      { return _centerAndMagnitude.getMagnitude(); }
-    const double getLowerBound() const     { return _bounds.getLowerBound(); }
-    const double getUpperBound() const     { return _bounds.getUpperBound(); }
+    const Bounds<T>& getBounds() const                         { return _bounds; }
+    const CenterAndMagnitude<T>& getCenterAndMagnitude() const { return _centerAndMagnitude; }
+    const T getCenter() const                                  { return _centerAndMagnitude.getCenter(); }
+    const T getMagnitude() const                               { return _centerAndMagnitude.getMagnitude(); }
+    const T getLowerBound() const                              { return _bounds.getLowerBound(); }
+    const T getUpperBound() const                              { return _bounds.getUpperBound(); }
 
 private:
-    Bounds _bounds;
-    CenterAndMagnitude _centerAndMagnitude;
+    Bounds<T> _bounds;
+    CenterAndMagnitude<T> _centerAndMagnitude;
 };
 
 
-
-void Range::enforceRange(double& value)
+template <typename T>
+T Range<T>::enforceRange(const T value) const
 {
     if (value < getLowerBound())
-    {
-        value = getLowerBound();
-        return;
-    }
+        return getLowerBound();
 
     if (value > getUpperBound())
-    {
-        value = getUpperBound();
-        return;
-    }
+        return getUpperBound();
+
+    return value;
 }
 
-const bool Range::checkIfInRange(const double value) const
+template <typename T>
+const bool Range<T>::checkIfInRange(const T value) const
 {
     bool valueIsAboveLowBound = value > getLowerBound();
     bool valueIsBelowHighBound = value < getUpperBound();
@@ -56,45 +59,70 @@ const bool Range::checkIfInRange(const double value) const
     return valueIsWithinRange;
 }
 
-void Range::setCenter(const double value)
+template <typename T>
+void Range<T>::set(const Range<T>& range)
+{
+    *this = range;
+}
+
+template <typename T>
+void Range<T>::set(const Bounds<T>& bounds)
+{
+    _bounds = bounds;
+}
+
+template <typename T>
+void Range<T>::set(const CenterAndMagnitude<T>& centerAndMagnitude)
+{
+    _centerAndMagnitude = centerAndMagnitude;
+}
+
+template <typename T>
+void Range<T>::setCenter(const T value)
 {
     _centerAndMagnitude.setCenter(value);
 
-    _bounds = Bounds(_centerAndMagnitude);
+    _bounds = Bounds<T>(_centerAndMagnitude);
 }
 
-void Range::setMagnitude(const double value)
+template <typename T>
+void Range<T>::setMagnitude(const T value)
 {
     _centerAndMagnitude.setMagnitude(value);
 
-    _bounds = Bounds(_centerAndMagnitude);
+    _bounds = Bounds<T>(_centerAndMagnitude);
 }
 
-void Range::setLowerBound(const double value)
+template <typename T>
+void Range<T>::setLowerBound(const T value)
 {
     _bounds.setLowerBound(value);
 
-    _centerAndMagnitude = CenterAndMagnitude(_bounds);
+    _centerAndMagnitude = CenterAndMagnitude<T>(_bounds);
 }
 
-void Range::setUpperBound(const double value)
+template <typename T>
+void Range<T>::setUpperBound(const T value)
 {
     _bounds.setUpperBound(value);
 
-    _centerAndMagnitude = CenterAndMagnitude(_bounds);
+    _centerAndMagnitude = CenterAndMagnitude<T>(_bounds);
 }
 
-Range::Range()
+template <typename T>
+Range<T>::Range()
 : _bounds(),
   _centerAndMagnitude()
 {}
 
-Range::Range(const Bounds& bounds)
+template <typename T>
+Range<T>::Range(const Bounds<T>& bounds)
 : _bounds(bounds),
   _centerAndMagnitude(bounds)
 {}
 
-Range::Range(const CenterAndMagnitude& centerAndMagnitude)
+template <typename T>
+Range<T>::Range(const CenterAndMagnitude<T>& centerAndMagnitude)
 : _bounds(centerAndMagnitude),
   _centerAndMagnitude(centerAndMagnitude)
 {}
