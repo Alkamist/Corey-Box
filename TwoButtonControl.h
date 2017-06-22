@@ -2,35 +2,33 @@
 #define TWOBUTTONCONTROL_H
 
 #include "Control.h"
+#include "ControlSlot.h"
 
 // This class is responsible for the base logic of how
 // two buttons interact with a joystick axis.
 class TwoButtonControl : public Control
 {
 public:
-    TwoButtonControl()
+    TwoButtonControl(const Control& low, const Control& high)
     : Control(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _pressOrder(-1),
-      _lowState(false),
-      _highState(false)
+      _lowControl(low),
+      _highControl(high)
     {}
 
     virtual void update();
 
-    void setLowState(const bool value);
-    void setHighState(const bool value);
-
-    void setStates(const bool low, const bool high);
-
 private:
-    bool _lowState;
-    bool _highState;
+    ControlSlot _lowControl;
+    ControlSlot _highControl;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
     // 1 means high was pressed first.
     // -1 means neither was pressed first.
     int _pressOrder;
+
+    void runLogic();
 };
 
 
@@ -39,8 +37,14 @@ void TwoButtonControl::update()
 {
     Control::update();
 
-    bool lowIsPressed = _lowState;
-    bool highIsPressed = _highState;
+    if (_lowControl.hasChanged() || _highControl.hasChanged())
+        runLogic();
+}
+
+void TwoButtonControl::runLogic()
+{
+    bool lowIsPressed = _lowControl.isActive();
+    bool highIsPressed = _highControl.isActive();
 
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
@@ -86,24 +90,6 @@ void TwoButtonControl::update()
         setValue(0.0);
         return;
     }
-}
-
-void TwoButtonControl::setLowState(const bool value)
-{
-    if (value != _lowState)
-        _lowState = value;
-}
-
-void TwoButtonControl::setHighState(const bool value)
-{
-    if (value != _highState)
-        _highState = value;
-}
-
-void TwoButtonControl::setStates(const bool low, const bool high)
-{
-    setLowState(low);
-    setHighState(high);
 }
 
 #endif // TWOBUTTONCONTROL_H
