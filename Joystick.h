@@ -5,7 +5,6 @@
 
 #include "Control.h"
 #include "ControlSlot.h"
-#include "Signum.h"
 
 class Joystick
 {
@@ -30,6 +29,12 @@ public:
     const bool justActivated() const   { return _state.justActivated(); }
     const bool justDeactivated() const { return _state.justDeactivated(); }
 
+    const double calculateDistance(const double x,
+                                   const double y)
+    {
+        return sqrt(square(x) + square(y));
+    }
+
 private:
     Control _xValue;
     Control _yValue;
@@ -43,9 +48,6 @@ private:
     double _distance;
 
     ControlState _state;
-
-    void calculateOtherAxis(Control& axisToSet, Control& otherAxis);
-    void calculateDistance() { _distance = sqrt(square(_xValue.getValue()) + square(_yValue.getValue())); }
 };
 
 
@@ -56,25 +58,14 @@ void Joystick::update()
     _yValue.update();
     _state.update();
 
-    if (_xControl.hasChanged())
+    if (_xControl.hasChanged() || _yControl.hasChanged())
     {
-        _xValue.setValue(_xControl);
-        calculateDistance();
-    }
-
-    if (_yControl.hasChanged())
-    {
-        _xValue.setValue(_yControl);
-        calculateDistance()
+        _xValue.setValue(_xControl.getControl());
+        _yValue.setValue(_yControl.getControl());
+        _distance = calculateDistance(_xValue.getValue(), _yValue.getValue());
     }
 
     _state.setValue(_distance > _inactiveRadius);
-}
-
-void Joystick::calculateOtherAxis(Control& axisToSet, Control& otherAxis)
-{
-    if (_distance > _maxRadius)
-        axisToSet.setValue(signum(axisToSet.getValue()) * sqrt(1.0 - square(otherAxis.getValue())));
 }
 
 #endif // JOYSTICK_H

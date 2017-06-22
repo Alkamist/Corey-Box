@@ -16,6 +16,8 @@ public:
 
     void setControl(const Control& control)    { _control = &control; }
 
+    const Control& getControl() const          { return *_control; }
+
     const double getValue() const              { return _control->getValue(); }
 
     const Range<double>& getValueRange() const { return _control->getValueRange(); }

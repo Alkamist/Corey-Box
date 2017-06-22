@@ -2,28 +2,42 @@
 //#include "NoMacroController.h"
 
 #include "ButtonReader.h"
-#include "TwoButtonControl.h"
-//#include "Joystick.h"
+#include "ButtonOnlyLeftStick.h"
 
-// Output pin for the gamecube
-//VirtualGameCubeController controllerOutput(26);
+ButtonReader tiltButton(27);
+ButtonReader lsLeftButton(0);
+ButtonReader lsDownButton(1);
+ButtonReader lsUpButton(2);
+ButtonReader lsRightButton(3);
+ButtonReader yMod2Button(4);
+ButtonReader xMod2Button(5);
+ButtonReader yMod1Button(7);
+ButtonReader xMod1Button(8);
+ButtonReader cLeftButton(9);
+ButtonReader cDownButton(10);
+ButtonReader cUpButton(11);
+ButtonReader cRightButton(12);
+ButtonReader bButton(13);
+ButtonReader aButton(14);
+ButtonReader lButton(15);
+ButtonReader jumpButton(16);
+ButtonReader zButton(17);
+ButtonReader rButton(25);
+ButtonReader startButton(24);
+ButtonReader dUpButton(23);
+ButtonReader dDownButton(22);
+ButtonReader dLeftButton(21);
+ButtonReader dRightButton(20);
+ButtonReader shieldDropButton(19);
 
-//NoMacroController controller;
+ButtonOnlyLeftStick testLeft(lsLeftButton, lsRightButton,
+                         lsDownButton, lsUpButton,
+                         xMod1Button, xMod2Button,
+                         yMod1Button, yMod2Button,
+                         tiltButton, lButton,
+                         shieldDropButton);
 
-/*ButtonReader left(0);
-ButtonReader down(1);
-ButtonReader up(2);
-ButtonReader right(3);
-
-TwoButtonControl xAxis;
-TwoButtonControl yAxis;
-
-Joystick testStick;*/
-
-ButtonReader low(0);
-ButtonReader high(1);
-
-TwoButtonControl test(low, high);
+void updateButtons();
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -36,13 +50,20 @@ void setup()
 // This is the main loop that is running every clock cycle
 void loop()
 {
-    low.update();
-    high.update();
+    updateButtons();
+    testLeft.update();
 
-    test.update();
+    if (testLeft.getXValue().hasChanged())
+    {
+        Serial.print("X: ");
+        Serial.println(testLeft.getXValue().getValue());
+    }
 
-    if (test.hasChanged())
-        Serial.println(test.getValue());
+    if (testLeft.getYValue().hasChanged())
+    {
+        Serial.print("Y: ");
+        Serial.println(testLeft.getYValue().getValue());
+    }
 
     //controller.update();
     //controllerOutput.update();
@@ -75,4 +96,37 @@ void loop()
 
     //if (controller.getControls().lsX.hasChanged())
     //    Serial.println(controller.getControls().lsX.getValue());
+}
+
+void updateButtons()
+{
+    tiltButton.update();
+    shieldDropButton.update();
+
+    lsLeftButton.update();
+    lsRightButton.update();
+    lsDownButton.update();
+    lsUpButton.update();
+
+    xMod1Button.update();
+    xMod2Button.update();
+    yMod1Button.update();
+    yMod2Button.update();
+
+    cLeftButton.update();
+    cRightButton.update();
+    cDownButton.update();
+    cUpButton.update();
+
+    aButton.update();
+    bButton.update();
+    jumpButton.update();
+    zButton.update();
+    rButton.update();
+    lButton.update();
+    startButton.update();
+    dLeftButton.update();
+    dRightButton.update();
+    dDownButton.update();
+    dUpButton.update();
 }

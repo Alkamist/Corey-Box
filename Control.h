@@ -85,6 +85,7 @@ Control::Control()
   _valueRange(Bounds<double>(0.0, 1.0))
 {
     setValue(0.0);
+    update();
 }
 
 Control::Control(const double value)
@@ -93,6 +94,7 @@ Control::Control(const double value)
   _valueRange(Bounds<double>(0.0, 1.0))
 {
     setValue(value);
+    update();
 }
 
 Control::Control(const bool value)
@@ -101,6 +103,7 @@ Control::Control(const bool value)
   _valueRange(Bounds<double>(0.0, 1.0))
 {
     setValue(value);
+    update();
 }
 
 Control::Control(const double value, const Range<double>& valueRange)
@@ -109,6 +112,7 @@ Control::Control(const double value, const Range<double>& valueRange)
   _valueRange(valueRange)
 {
     setValue(value);
+    update();
 }
 
 #endif // CONTROL_H
