@@ -12,7 +12,8 @@ public:
     : Joystick(),
       _xValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _tiltTemporaryActivator(Frames(5, 60).getMillis()),
+      _tiltX(Frames(7, 60).getMillis()),
+      _tiltY(Frames(7, 60).getMillis()),
       _tiltAmount(0.4)
     {}
 
@@ -21,7 +22,8 @@ public:
         Joystick::update();
         _xValue.update();
         _yValue.update();
-        _tiltTemporaryActivator.update();
+        _tiltX.update();
+        _tiltY.update();
     }
 
     virtual void setControls(const Control& xValue, const Control& yValue,
@@ -32,18 +34,15 @@ public:
 
         bool tiltResetX = _xValue.justActivated() || _xValue.justDeactivated() || _xValue.hasCrossedInactiveRange();
         bool tiltResetY = _yValue.justActivated() || _yValue.justDeactivated() || _yValue.hasCrossedInactiveRange();
-        bool tiltResetCondition = tiltResetX || tiltResetY;
 
-        _tiltTemporaryActivator.setControls(tiltResetCondition);
+        _tiltX.setControls(tiltResetX);
+        _tiltY.setControls(tiltResetY);
 
-        bool atLeastOneAxisIsActive = _xValue.isActive() || _yValue.isActive();
-        bool tiltShouldHappen = tiltCondition && atLeastOneAxisIsActive && _tiltTemporaryActivator;
-
-        if (tiltShouldHappen)
-        {
+        if (_tiltX && tiltCondition)
             clampAxis(_xValue);
+
+        if (_tiltY && tiltCondition)
             clampAxis(_yValue);
-        }
 
         Joystick::setControls(_xValue, _yValue);
     }
@@ -52,7 +51,8 @@ private:
     Control _xValue;
     Control _yValue;
 
-    TemporaryActivator _tiltTemporaryActivator;
+    TemporaryActivator _tiltX;
+    TemporaryActivator _tiltY;
 
     const double _tiltAmount;
 

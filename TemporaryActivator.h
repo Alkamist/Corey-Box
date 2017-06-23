@@ -21,9 +21,9 @@ public:
 
     void setControls(const bool control)
     {
-        _control = control;
+        _activator = control;
 
-        if (_control.justActivated())
+        if (_activator.justActivated())
             _timer.reset();
 
         setValue(!_timer.targetTimeReached());
@@ -32,7 +32,7 @@ public:
     void setTime(const unsigned int time) { _timer.setTargetTime(time); }
 
 private:
-    ControlState _control;
+    ControlState _activator;
 
     Timer _timer;
 };
@@ -42,7 +42,7 @@ private:
 void TemporaryActivator::update()
 {
     Control::update();
-    _control.update();
+    _activator.update();
 }
 
 #endif // TEMPORARYACTIVATOR_

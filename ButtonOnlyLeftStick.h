@@ -11,6 +11,7 @@ class ButtonOnlyLeftStick : public TiltJoystick
 public:
     ButtonOnlyLeftStick()
     : TiltJoystick(),
+      _shieldDropReset(Frames(1, 60).getMillis()),
       _tiltTempDisable(Frames(5, 60).getMillis())
     {}
 
@@ -19,6 +20,7 @@ public:
         TiltJoystick::update();
         _xAxis.update();
         _yAxis.update();
+        _shieldDropReset.update();
         _tiltTempDisable.update();
     }
 
@@ -29,8 +31,22 @@ public:
                              const bool tilt, const bool tiltTempDisable,
                              const bool shieldDrop)
     {
+        _shieldDropReset.setControls(shieldDrop);
+
         _xAxis.setControls(left, right, xMod1, xMod2);
         _yAxis.setControls(down, up, yMod1, yMod2);
+
+        if (_shieldDropReset && shieldDrop)
+        {
+            _xAxis = 0.0;
+            _yAxis = 0.0;
+        }
+
+        if (!_shieldDropReset && shieldDrop)
+        {
+            _xAxis = 0.0;
+            _yAxis = -0.6750;
+        }
 
         _tiltTempDisable.setControls(tiltTempDisable);
 
@@ -43,6 +59,7 @@ private:
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
 
+    TemporaryActivator _shieldDropReset;
     TemporaryActivator _tiltTempDisable;
 };
 

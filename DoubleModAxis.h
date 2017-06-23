@@ -37,6 +37,11 @@ public:
         if (mod1 && mod2)
             setValue(_mod3Value * _twoButtonControl.getValue());
     }
+
+    virtual const Control& operator =(const Control& value);
+    virtual const Control& operator =(const double value);
+    virtual const Control& operator =(const bool value);
+
 private:
     TwoButtonControl _twoButtonControl;
 
@@ -44,5 +49,25 @@ private:
     const double _mod2Value;
     const double _mod3Value;
 };
+
+
+
+const Control& DoubleModAxis::operator =(const Control& value)
+{
+    setValue(value);
+    return *this;
+}
+
+const Control& DoubleModAxis::operator =(const double value)
+{
+    setValue(value);
+    return *this;
+}
+
+const Control& DoubleModAxis::operator =(const bool value)
+{
+    setValue(value);
+    return *this;
+}
 
 #endif // DOUBLEMODAXIS_H
