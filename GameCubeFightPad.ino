@@ -1,8 +1,8 @@
 #include "GameCubeOutput.h"
-#include "NoMacroController.h"
+#include "MacroController.h"
 
 GameCubeOutput gameCubeOutput(26);
-NoMacroController controller;
+MacroController controller;
 
 // This function runs one time when you plug in the controller
 void setup()

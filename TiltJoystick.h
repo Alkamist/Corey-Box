@@ -12,8 +12,8 @@ public:
     : Joystick(),
       _xValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _tiltX(Frames(7, 60).getMillis()),
-      _tiltY(Frames(7, 60).getMillis()),
+      _tiltX(frames(7)),
+      _tiltY(frames(7)),
       _tiltAmount(0.4)
     {}
 

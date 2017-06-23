@@ -52,10 +52,10 @@ void GameCubeOutput::writeData()
     // Analog
     if (_controllerSlot.getLAnalog().hasChanged()) _rawData.report.left = _controllerSlot.getLAnalog().getValue() * 255;
     if (_controllerSlot.getRAnalog().hasChanged()) _rawData.report.right = _controllerSlot.getRAnalog().getValue() * 255;
-    if (_controllerSlot.getLsX().hasChanged())     _rawData.report.xAxis = _controllerSlot.getLsX().getValue() * 255;
-    if (_controllerSlot.getLsY().hasChanged())     _rawData.report.yAxis = _controllerSlot.getLsY().getValue() * 255;
-    if (_controllerSlot.getCX().hasChanged())      _rawData.report.cxAxis = _controllerSlot.getCX().getValue() * 255;
-    if (_controllerSlot.getCY().hasChanged())      _rawData.report.cyAxis = _controllerSlot.getCY().getValue() * 255;
+    if (_controllerSlot.getLsX().hasChanged())     _rawData.report.xAxis = _controllerSlot.getLsX().getValue() * 255 + 1;
+    if (_controllerSlot.getLsY().hasChanged())     _rawData.report.yAxis = _controllerSlot.getLsY().getValue() * 255 + 1;
+    if (_controllerSlot.getCX().hasChanged())      _rawData.report.cxAxis = _controllerSlot.getCX().getValue() * 255 + 1;
+    if (_controllerSlot.getCY().hasChanged())      _rawData.report.cyAxis = _controllerSlot.getCY().getValue() * 255 + 1;
 
     write(_rawData);
 }

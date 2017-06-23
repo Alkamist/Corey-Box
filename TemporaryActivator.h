@@ -17,7 +17,11 @@ public:
       _timer(time)
     {}
 
-    virtual void update();
+    virtual void update()
+    {
+        Control::update();
+        _activator.update();
+    }
 
     void setControls(const bool control)
     {
@@ -36,13 +40,5 @@ private:
 
     Timer _timer;
 };
-
-
-
-void TemporaryActivator::update()
-{
-    Control::update();
-    _activator.update();
-}
 
 #endif // TEMPORARYACTIVATOR_

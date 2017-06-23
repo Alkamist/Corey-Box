@@ -9,9 +9,9 @@ class DoubleModAxis : public Control
 public:
     DoubleModAxis()
     : Control(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _mod1Value(0.34),
-      _mod2Value(0.53),
-      _mod3Value(0.76)
+      _mod1Value(0.33750),
+      _mod2Value(0.52500),
+      _mod3Value(0.76250)
     {}
 
     virtual void update()

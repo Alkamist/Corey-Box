@@ -11,8 +11,8 @@ class ButtonOnlyLeftStick : public TiltJoystick
 public:
     ButtonOnlyLeftStick()
     : TiltJoystick(),
-      _shieldDropReset(Frames(1, 60).getMillis()),
-      _tiltTempDisable(Frames(5, 60).getMillis())
+      _shieldDropReset(frames(1)),
+      _tiltTempDisable(frames(5))
     {}
 
     virtual void update()
@@ -45,7 +45,7 @@ public:
         if (!_shieldDropReset && shieldDrop)
         {
             _xAxis = 0.0;
-            _yAxis = -0.6750;
+            _yAxis = -0.67500;
         }
 
         _tiltTempDisable.setControls(tiltTempDisable);

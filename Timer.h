@@ -4,6 +4,10 @@
 class Timer
 {
 public:
+    Timer()
+    : _targetTime(0)
+    {}
+
     explicit Timer(const unsigned int targetTime)
     : _targetTime(targetTime)
     {}
