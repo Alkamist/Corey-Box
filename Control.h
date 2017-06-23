@@ -13,6 +13,7 @@ public:
     explicit Control(const double value);
     explicit Control(const bool value);
     explicit Control(const double value, const Range<double>& valueRange);
+    explicit Control(const double value, const Range<double>& valueRange, const Range<double>& inactiveRange);
 
     virtual void update();
 
@@ -138,6 +139,15 @@ Control::Control(const bool value)
 Control::Control(const double value, const Range<double>& valueRange)
 : UpdatedValue<double>(0.0),
   _inactiveRange(CenterAndMagnitude<double>(0.0, 0.2)),
+  _valueRange(valueRange)
+{
+    setValue(value);
+    update();
+}
+
+Control::Control(const double value, const Range<double>& valueRange, const Range<double>& inactiveRange)
+: UpdatedValue<double>(0.0),
+  _inactiveRange(inactiveRange),
   _valueRange(valueRange)
 {
     setValue(value);

@@ -9,7 +9,7 @@
 class NoMacroController : public GameCubeController
 {
 public:
-    explicit NoMacroController();
+    NoMacroController();
 
     void update();
 
@@ -58,10 +58,9 @@ void NoMacroController::update()
     updateButtons();
     _cStick.update();
     _leftStick.update();
+    GameCubeController::update();
 
     setControls();
-
-    GameCubeController::update();
 }
 
 void NoMacroController::updateButtons()
@@ -105,9 +104,11 @@ void NoMacroController::setControls()
                            _yMod1Button, _yMod2Button,
                            _tiltButton, _lButton,
                            _shieldDropButton);
+
     _cStick.setControls(_cLeftButton, _cRightButton,
                         _cDownButton, _cUpButton,
-                        _leftStick);
+                        _lsDownButton, _lsUpButton,
+                        _tiltButton);
 
     a = _aButton;
     b = _bButton;
@@ -131,7 +132,7 @@ void NoMacroController::setControls()
 
 // Don't use pin 6 or 26 for buttons.
 NoMacroController::NoMacroController()
-: GameCubeController(26),
+: GameCubeController(),
   _tiltButton(27),
   _shieldDropButton(19),
   _lsLeftButton(0),

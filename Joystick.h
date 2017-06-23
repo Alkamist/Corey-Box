@@ -8,11 +8,12 @@
 class Joystick
 {
 public:
-    explicit Joystick()
+    Joystick()
     : _xValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _inactiveRadius(0.2),
-      _distance(0.0)
+      _distance(0.0),
+      _range(0.625)
     {}
 
     virtual void update()
@@ -26,6 +27,9 @@ public:
     {
         _xValue = xValue;
         _yValue = yValue;
+
+        _xValue = _xValue.getValue() * _range;
+        _yValue = _yValue.getValue() * _range;
 
         if (_xValue.hasChanged() || _yValue.hasChanged())
             _distance = calculateDistance(_xValue.getValue(), _yValue.getValue());
@@ -55,6 +59,7 @@ private:
 
     double _inactiveRadius;
     double _distance;
+    double _range;
 };
 
 #endif // JOYSTICK_H

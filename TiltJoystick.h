@@ -8,12 +8,12 @@
 class TiltJoystick : public Joystick
 {
 public:
-    explicit TiltJoystick()
+    TiltJoystick()
     : Joystick(),
       _xValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _tiltTemporaryActivator(Frames(6, 60).getMillis()),
-      _tiltAmount(0.3)
+      _tiltTemporaryActivator(Frames(5, 60).getMillis()),
+      _tiltAmount(0.4)
     {}
 
     virtual void update()
@@ -30,13 +30,13 @@ public:
         _xValue = xValue;
         _yValue = yValue;
 
-        bool tiltResetX = xValue.justActivated() || xValue.justDeactivated() || xValue.hasCrossedInactiveRange();
-        bool tiltResetY = yValue.justActivated() || yValue.justDeactivated() || yValue.hasCrossedInactiveRange();
+        bool tiltResetX = _xValue.justActivated() || _xValue.justDeactivated() || _xValue.hasCrossedInactiveRange();
+        bool tiltResetY = _yValue.justActivated() || _yValue.justDeactivated() || _yValue.hasCrossedInactiveRange();
         bool tiltResetCondition = tiltResetX || tiltResetY;
 
         _tiltTemporaryActivator.setControls(tiltResetCondition);
 
-        bool atLeastOneAxisIsActive = getXControl().isActive() || getYControl().isActive();
+        bool atLeastOneAxisIsActive = _xValue.isActive() || _yValue.isActive();
         bool tiltShouldHappen = tiltCondition && atLeastOneAxisIsActive && _tiltTemporaryActivator;
 
         if (tiltShouldHappen)

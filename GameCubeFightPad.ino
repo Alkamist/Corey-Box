@@ -1,27 +1,32 @@
+#include "GameCubeOutput.h"
 #include "NoMacroController.h"
 
+GameCubeOutput gameCubeOutput(26);
 NoMacroController controller;
 
 // This function runs one time when you plug in the controller
 void setup()
 {
-    Serial.begin(9600);
+    //Serial.begin(9600);
+
+    gameCubeOutput.connectController(controller);
 }
 
 // This is the main loop that is running every clock cycle
 void loop()
 {
-    /*if (testLeft.getXControl().hasChanged())
+    /*if (controller.lsX.hasChanged())
     {
         Serial.print("X: ");
-        Serial.println(testLeft.getXControl().getValue());
+        Serial.println(controller.lsX.getValue());
     }
 
-    if (testLeft.getYControl().hasChanged())
+    if (controller.lsY.hasChanged())
     {
         Serial.print("Y: ");
-        Serial.println(testLeft.getYControl().getValue());
+        Serial.println(controller.lsY.getValue());
     }*/
 
     controller.update();
+    gameCubeOutput.update();
 }

@@ -8,7 +8,7 @@
 class ButtonOnlyCStick : public Joystick
 {
 public:
-    explicit ButtonOnlyCStick()
+    ButtonOnlyCStick()
     : Joystick()
     {}
 
@@ -21,12 +21,19 @@ public:
 
     virtual void setControls(const bool left, const bool right,
                              const bool down, const bool up,
-                             const Joystick& leftStick)
+                             const bool lsDown, const bool lsUp,
+                             const bool tilt)
     {
-        bool skewYAxis = leftStick.getYControl().isActive();
+        bool skewCondition = (tilt && (lsDown || lsUp)) && (left || right) && !(down || up);
+
+        bool skewDown = lsDown && skewCondition;
+        bool skewUp = lsUp && skewCondition;
+
+        bool cDown = down || skewDown;
+        bool cUp = up || skewUp;
 
         _xAxis.setControls(left, right);
-        _yAxis.setControls(down, up, skewYAxis);
+        _yAxis.setControls(cDown, cUp, skewCondition);
 
         Joystick::setControls(_xAxis, _yAxis);
     }

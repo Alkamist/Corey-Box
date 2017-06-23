@@ -9,7 +9,7 @@
 class ButtonOnlyLeftStick : public TiltJoystick
 {
 public:
-    explicit ButtonOnlyLeftStick()
+    ButtonOnlyLeftStick()
     : TiltJoystick(),
       _tiltTempDisable(Frames(5, 60).getMillis())
     {}
@@ -32,22 +32,6 @@ public:
         _xAxis.setControls(left, right, xMod1, xMod2);
         _yAxis.setControls(down, up, yMod1, yMod2);
 
-        bool upLeft = up && left;
-        bool upRight = up && right;
-        bool downLeft = down && left;
-        bool downRight = down && right;
-
-        bool anyAngle = upLeft || upRight || downLeft || downRight;
-
-        bool anyXMod = xMod1 || xMod2;
-        bool anyYMod = yMod1 || yMod2;
-
-        if (anyAngle && anyXMod && !anyYMod)
-            calculateOtherAxis(_xAxis, _yAxis);
-
-        if (anyAngle && anyYMod && !anyXMod)
-            calculateOtherAxis(_yAxis, _xAxis);
-
         _tiltTempDisable.setControls(tiltTempDisable);
 
         bool tiltShouldHappen = tilt && !_tiltTempDisable && !shieldDrop;
@@ -60,14 +44,6 @@ private:
     DoubleModAxis _yAxis;
 
     TemporaryActivator _tiltTempDisable;
-
-    void calculateOtherAxis(Control& axisToSet, Control& otherAxis)
-    {
-        double valueSign = signum(otherAxis.getValue());
-        double axisMagnitude = sqrt(1.0 - square(axisToSet.getValue()));
-        double newValue = valueSign * axisMagnitude;
-        otherAxis = newValue;
-    }
 };
 
 #endif // BUTTONONLYLEFTSTICK_H
