@@ -10,19 +10,15 @@ public:
     : AxisModifier(value)
     {}
 
-    explicit AxisScaler(const double value, const Control& activator)
-    : AxisModifier(value, activator)
-    {}
-
     void modify(Control& axis) const
     {
         Control newControl(0.0, Range<double>(Bounds<double>(-1.0, 1.0)));
 
-        newControl.setValue(axis);
+        newControl = axis;
 
-        newControl.setValue(newControl.getValue() * getValue());
+        newControl = newControl.getValue() * getValue();
 
-        axis.setValue(newControl);
+        axis = newControl;
     }
 };
 

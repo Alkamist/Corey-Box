@@ -4,45 +4,43 @@
 #include "TiltJoystick.h"
 #include "DoubleModAxis.h"
 #include "Signum.h"
+#include "TemporaryActivator.h"
 
 class ButtonOnlyLeftStick : public TiltJoystick
 {
 public:
-    explicit ButtonOnlyLeftStick(const Control& left, const Control& right,
-                                 const Control& down, const Control& up,
-                                 const Control& xMod1, const Control& xMod2,
-                                 const Control& yMod1, const Control& yMod2,
-                                 const Control& tilt, const Control& tiltTempDisable,
-                                 const Control& shieldDrop)
-    : TiltJoystick(_xAxis, _yAxis, tilt),
-      _left(left),
-      _right(right),
-      _down(down),
-      _up(up),
-      _xMod1(xMod1),
-      _xMod2(xMod2),
-      _yMod1(yMod1),
-      _yMod2(yMod2),
-      _xAxis(left, right,
-             xMod1, xMod2),
-      _yAxis(down, up,
-             yMod1, yMod2)
+    explicit ButtonOnlyLeftStick()
+    : TiltJoystick(),
+      _tiltTempDisable(Frames(5, 60).getMillis())
     {}
 
     virtual void update()
     {
+        TiltJoystick::update();
         _xAxis.update();
         _yAxis.update();
+        _tiltTempDisable.update();
+    }
 
-        bool upLeft = _left.isActive() && _up.isActive();
-        bool upRight = _right.isActive() && _up.isActive();
-        bool downLeft = _left.isActive() && _down.isActive();
-        bool downRight = _right.isActive() && _down.isActive();
+    virtual void setControls(const bool left, const bool right,
+                             const bool down, const bool up,
+                             const bool xMod1, const bool xMod2,
+                             const bool yMod1, const bool yMod2,
+                             const bool tilt, const bool tiltTempDisable,
+                             const bool shieldDrop)
+    {
+        _xAxis.setControls(left, right, xMod1, xMod2);
+        _yAxis.setControls(down, up, yMod1, yMod2);
+
+        bool upLeft = up && left;
+        bool upRight = up && right;
+        bool downLeft = down && left;
+        bool downRight = down && right;
 
         bool anyAngle = upLeft || upRight || downLeft || downRight;
 
-        bool anyXMod = _xMod1.isActive() || _xMod2.isActive();
-        bool anyYMod = _yMod1.isActive() || _yMod2.isActive();
+        bool anyXMod = xMod1 || xMod2;
+        bool anyYMod = yMod1 || yMod2;
 
         if (anyAngle && anyXMod && !anyYMod)
             calculateOtherAxis(_xAxis, _yAxis);
@@ -50,33 +48,26 @@ public:
         if (anyAngle && anyYMod && !anyXMod)
             calculateOtherAxis(_yAxis, _xAxis);
 
-        TiltJoystick::update();
+        _tiltTempDisable.setControls(tiltTempDisable);
+
+        bool tiltShouldHappen = tilt && !_tiltTempDisable && !shieldDrop;
+
+        TiltJoystick::setControls(_xAxis, _yAxis, tiltShouldHappen);
     }
 
 private:
-    ControlSlot _left;
-    ControlSlot _right;
-    ControlSlot _down;
-    ControlSlot _up;
-
-    ControlSlot _xMod1;
-    ControlSlot _xMod2;
-    ControlSlot _yMod1;
-    ControlSlot _yMod2;
-
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
 
-    //Control _tiltActivator;
+    TemporaryActivator _tiltTempDisable;
 
     void calculateOtherAxis(Control& axisToSet, Control& otherAxis)
     {
         double valueSign = signum(otherAxis.getValue());
         double axisMagnitude = sqrt(1.0 - square(axisToSet.getValue()));
         double newValue = valueSign * axisMagnitude;
-        otherAxis.setValue(newValue);
+        otherAxis = newValue;
     }
 };
-
 
 #endif // BUTTONONLYLEFTSTICK_H

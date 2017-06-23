@@ -23,12 +23,31 @@ public:
     const void setValueRange(const Range<double>& range) { _valueRange = range; }
     const Range<double>& getValueRange() const           { return _valueRange; }
 
+
+    const bool hasCrossedInactiveRange() const;
     const bool stateHasChanged() const                   { return _state.hasChanged(); }
     const bool isActive() const                          { return _state.getValue(); }
     const bool justActivated() const                     { return _state.justActivated(); }
     const bool justDeactivated() const                   { return _state.justDeactivated(); }
 
-    const unsigned int getStateTime() const              { return _state.timeSinceChange(); }
+    //=================== OPERATORS ===================
+
+    virtual const Control& operator =(const Control& value);
+    virtual const Control& operator =(const double value);
+    virtual const Control& operator =(const bool value);
+    virtual operator double() const;
+    virtual operator bool() const;
+    virtual const double operator +() const;
+    virtual const double operator -() const;
+    virtual const bool operator !() const;
+    virtual const bool operator &&(const bool value) const;
+    virtual const bool operator ||(const bool value) const;
+    virtual const bool operator ==(const bool value) const;
+    virtual const bool operator !=(const bool value) const;
+    virtual const bool operator >(const bool value) const;
+    virtual const bool operator <(const bool value) const;
+    virtual const bool operator >=(const bool value) const;
+    virtual const bool operator <=(const bool value) const;
 
 private:
     ControlState _state;
@@ -42,7 +61,6 @@ private:
 void Control::update()
 {
     UpdatedValue<double>::update();
-
     _state.update();
 }
 
@@ -53,7 +71,7 @@ void Control::setValue(const Control& value)
     UpdatedValue<double>::setValue(rescaledValue);
 
     bool valueIsActive = !_inactiveRange.checkIfInRange(getValue());
-    _state.setValue(valueIsActive);
+    _state = valueIsActive;
 }
 
 void Control::setValue(const double value)
@@ -61,7 +79,7 @@ void Control::setValue(const double value)
     UpdatedValue<double>::setValue(_valueRange.enforceRange(value));
 
     bool valueIsActive = !_inactiveRange.checkIfInRange(getValue());
-    _state.setValue(valueIsActive);
+    _state = valueIsActive;
 }
 
 void Control::setValue(const bool value)
@@ -69,14 +87,25 @@ void Control::setValue(const bool value)
     if (value == true)
     {
         UpdatedValue<double>::setValue(_valueRange.enforceRange(1.0));
-        _state.setValue(true);
+        _state = true;
     }
 
     if (value == false)
     {
         UpdatedValue<double>::setValue(_valueRange.enforceRange(0.0));
-        _state.setValue(false);
+        _state = false;
     }
+}
+
+const bool Control::hasCrossedInactiveRange() const
+{
+    bool crossedHighToLow = getPreviousValue() > _inactiveRange.getUpperBound()
+                         && getValue() < _inactiveRange.getLowerBound();
+
+    bool crossedLowToHigh = getPreviousValue() < _inactiveRange.getLowerBound()
+                         && getValue() > _inactiveRange.getUpperBound();
+
+    return crossedHighToLow || crossedLowToHigh;
 }
 
 Control::Control()
@@ -113,6 +142,91 @@ Control::Control(const double value, const Range<double>& valueRange)
 {
     setValue(value);
     update();
+}
+
+//=================== OPERATORS ===================
+
+const Control& Control::operator =(const Control& value)
+{
+    setValue(value);
+    return *this;
+}
+
+const Control& Control::operator =(const double value)
+{
+    setValue(value);
+    return *this;
+}
+
+const Control& Control::operator =(const bool value)
+{
+    setValue(value);
+    return *this;
+}
+
+Control::operator double() const
+{
+    return getValue();
+}
+
+Control::operator bool() const
+{
+    return isActive();
+}
+
+const double Control::operator +() const
+{
+    return getValue();
+}
+
+const double Control::operator -() const
+{
+    return -getValue();
+}
+
+const bool Control::operator !() const
+{
+    return !isActive();
+}
+
+const bool Control::operator &&(const bool value) const
+{
+    return isActive() && value;
+}
+
+const bool Control::operator ||(const bool value) const
+{
+    return isActive() || value;
+}
+
+const bool Control::operator ==(const bool value) const
+{
+    return isActive() == value;
+}
+
+const bool Control::operator !=(const bool value) const
+{
+    return isActive() != value;
+}
+
+const bool Control::operator >(const bool value) const
+{
+    return isActive() > value;
+}
+
+const bool Control::operator <(const bool value) const
+{
+    return isActive() < value;
+}
+
+const bool Control::operator >=(const bool value) const
+{
+    return isActive() >= value;
+}
+
+const bool Control::operator <=(const bool value) const
+{
+    return isActive() <= value;
 }
 
 #endif // CONTROL_H

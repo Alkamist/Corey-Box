@@ -10,14 +10,9 @@ public:
     : AxisModifier(value)
     {}
 
-    explicit AxisClamper(const double value, const Control& activator)
-    : AxisModifier(value, activator)
-    {}
-
     void modify(Control& axis) const
     {
         double modDecimal = getValue();
-        double axisCenter = 0.0;
         double axisValue = axis.getValue();
 
         double lowClamp = -modDecimal;
@@ -25,13 +20,13 @@ public:
 
         if (axisValue < lowClamp)
         {
-            axis.setValue(lowClamp);
+            axis = lowClamp;
             return;
         }
 
         if (axisValue > highClamp)
         {
-            axis.setValue(highClamp);
+            axis = highClamp;
             return;
         }
     }

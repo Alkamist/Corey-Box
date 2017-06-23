@@ -16,6 +16,26 @@ public:
 
     const bool justActivated() const   { return hasChanged() && (getValue() == true); }
     const bool justDeactivated() const { return hasChanged() && (getValue() == false); }
+
+    //=================== OPERATORS ===================
+
+    virtual const UpdatedValue<bool>& operator =(const bool value)
+    {
+        setValue(value);
+        return *this;
+    }
+
+    virtual operator bool() const                          { return getValue(); }
+
+    virtual const bool operator !() const                  { return !getValue(); }
+    virtual const bool operator &&(const bool value) const { return getValue() && value; }
+    virtual const bool operator ||(const bool value) const { return getValue() || value; }
+    virtual const bool operator ==(const bool value) const { return getValue() == value; }
+    virtual const bool operator !=(const bool value) const { return getValue() != value; }
+    virtual const bool operator >(const bool value) const  { return getValue() > value; }
+    virtual const bool operator <(const bool value) const  { return getValue() < value; }
+    virtual const bool operator >=(const bool value) const { return getValue() >= value; }
+    virtual const bool operator <=(const bool value) const { return getValue() <= value; }
 };
 
 #endif // CONTROLSTATE_H

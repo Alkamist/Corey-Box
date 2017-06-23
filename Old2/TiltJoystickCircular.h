@@ -12,8 +12,7 @@ public:
     : Joystick(),
       _xValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _tiltTemporaryActivator(Frames(6, 60).getMillis()),
-      _tiltAmount(0.3)
+      _tiltTemporaryActivator(Frames(7, 60).getMillis())
     {}
 
     virtual void update()
@@ -27,12 +26,12 @@ public:
     virtual void setControls(const Control& xValue, const Control& yValue,
                              const bool tiltCondition)
     {
+        Joystick::setControls(xValue, yValue);
+
         _xValue = xValue;
         _yValue = yValue;
 
-        bool tiltResetX = xValue.justActivated() || xValue.justDeactivated() || xValue.hasCrossedInactiveRange();
-        bool tiltResetY = yValue.justActivated() || yValue.justDeactivated() || yValue.hasCrossedInactiveRange();
-        bool tiltResetCondition = tiltResetX || tiltResetY;
+        bool tiltResetCondition = justActivated() || justDeactivated();
 
         _tiltTemporaryActivator.setControls(tiltResetCondition);
 
@@ -40,12 +39,7 @@ public:
         bool tiltShouldHappen = tiltCondition && atLeastOneAxisIsActive && _tiltTemporaryActivator;
 
         if (tiltShouldHappen)
-        {
-            clampAxis(_xValue);
-            clampAxis(_yValue);
-        }
-
-        Joystick::setControls(_xValue, _yValue);
+            clampDistance(0.2);
     }
 
 private:
@@ -54,26 +48,20 @@ private:
 
     TemporaryActivator _tiltTemporaryActivator;
 
-    const double _tiltAmount;
-
-    void clampAxis(Control& axis)
+    void clampDistance(const double newDistance)
     {
-        double axisValue = axis.getValue();
+        double oldX = getXControl();
+        double oldY = getYControl();
 
-        double lowClamp = -_tiltAmount;
-        double highClamp = _tiltAmount;
+        double oldDistance = calculateDistance(oldX, oldY);
 
-        if (axisValue < lowClamp)
-        {
-            axis = lowClamp;
-            return;
-        }
+        double newX = newDistance * oldX / oldDistance;
+        double newY = newDistance * oldY / oldDistance;
 
-        if (axisValue > highClamp)
-        {
-            axis = highClamp;
-            return;
-        }
+        _xValue = newX;
+        _yValue = newY;
+
+        Joystick::setControls(_xValue, _yValue);
     }
 };
 

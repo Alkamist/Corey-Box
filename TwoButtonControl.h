@@ -2,25 +2,31 @@
 #define TWOBUTTONCONTROL_H
 
 #include "Control.h"
-#include "ControlSlot.h"
 
 // This class is responsible for the base logic of how
 // two buttons interact with a joystick axis.
 class TwoButtonControl : public Control
 {
 public:
-    TwoButtonControl(const Control& low, const Control& high)
+    TwoButtonControl()
     : Control(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _pressOrder(-1),
-      _lowControl(low),
-      _highControl(high)
+      _pressOrder(-1)
     {}
 
     virtual void update();
 
+    virtual void setControls(const bool low, const bool high)
+    {
+        _lowState = low;
+        _highState = high;
+
+        if (_lowState.hasChanged() || _highState.hasChanged())
+            runLogic();
+    }
+
 private:
-    ControlSlot _lowControl;
-    ControlSlot _highControl;
+    ControlState _lowState;
+    ControlState _highState;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
@@ -36,15 +42,14 @@ private:
 void TwoButtonControl::update()
 {
     Control::update();
-
-    if (_lowControl.hasChanged() || _highControl.hasChanged())
-        runLogic();
+    _lowState.update();
+    _highState.update();
 }
 
 void TwoButtonControl::runLogic()
 {
-    bool lowIsPressed = _lowControl.isActive();
-    bool highIsPressed = _highControl.isActive();
+    bool lowIsPressed = _lowState;
+    bool highIsPressed = _highState;
 
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);
