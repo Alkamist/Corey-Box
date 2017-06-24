@@ -66,7 +66,7 @@ void WavedashMacro::setControls(const bool activator, const bool trimDown, const
 
     handleTrim();
 
-    if (_airDodgeDelayFrames != _airDodgeDelayFrames)
+    if (_airDodgeDelayFrames != _airDodgeDelayFramesPrev)
         initMacro();
 
     _jump.setControls(_activator);
@@ -81,21 +81,21 @@ void WavedashMacro::initMacro()
     _R.clearMacro();
 
     // Jump
-    _jump.addInput(ControlMacroUnit(true, frames(2)));
-    _jump.addInput(ControlMacroUnit(false, frames(1)));
+    _jump.addInput(ControlMacroUnit(true, frames(2.0)));
+    _jump.addInput(ControlMacroUnit(false, frames(1.0)));
 
     // L
-    _L.setStartDelay(frames(_airDodgeDelayFrames - 1));
-    _L.addInput(ControlMacroUnit(false, frames(1)));
-    _L.addInput(ControlMacroUnit(true, frames(1)));
-    _L.addInput(ControlMacroUnit(false, frames(1)));
+    _L.setStartDelay(frames(_airDodgeDelayFrames - 1.0));
+    _L.addInput(ControlMacroUnit(false, frames(1.0)));
+    _L.addInput(ControlMacroUnit(true, frames(1.0)));
+    _L.addInput(ControlMacroUnit(false, frames(1.0)));
 
     // R
-    _R.setStartDelay(frames(_airDodgeDelayFrames - 2));
-    _R.addInput(ControlMacroUnit(false, frames(1)));
-    _R.addInput(ControlMacroUnit(true, frames(1)));
-    _R.addInput(ControlMacroUnit(false, frames(1)));
-    _R.addInput(ControlMacroUnit(true, frames(1)));
+    _R.setStartDelay(frames(_airDodgeDelayFrames - 2.0));
+    _R.addInput(ControlMacroUnit(false, frames(1.0)));
+    _R.addInput(ControlMacroUnit(true, frames(1.0)));
+    _R.addInput(ControlMacroUnit(false, frames(1.0)));
+    _R.addInput(ControlMacroUnit(true, frames(1.0)));
 }
 
 void WavedashMacro::handleTrim()

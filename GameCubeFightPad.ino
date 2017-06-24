@@ -7,7 +7,7 @@ MacroController controller;
 // This function runs one time when you plug in the controller
 void setup()
 {
-    //Serial.begin(9600);
+    Serial.begin(9600);
 
     gameCubeOutput.connectController(controller);
 }

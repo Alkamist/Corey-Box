@@ -85,7 +85,7 @@ void ControlMacro::setControls(const bool activator)
 {
     _activator = activator;
 
-    bool macroCanStart = !_isRunning || _isInterruptible;
+    bool macroCanStart = (!_isRunning && !_isStarting) || _isInterruptible;
 
     if (_activator.justActivated() && macroCanStart)
         startMacro();
@@ -100,6 +100,7 @@ void ControlMacro::setControls(const bool activator)
 void ControlMacro::clearMacro()
 {
     _inputList.erase();
+    _start.duration = 0;
     _isStarting = false;
     _isRunning = false;
     _inputIndex = -1;
@@ -135,6 +136,7 @@ void ControlMacro::runMacro()
         if (_inputIndex >= _inputList.getLength())
         {
             _isRunning = false;
+            _inputIndex = -1;
             return;
         }
 

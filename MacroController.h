@@ -102,11 +102,11 @@ void MacroController::updateButtons()
 
 void MacroController::setControls()
 {
-    bool allCButtons = _cLeftButton.isActive() && _cRightButton.isActive()
-                    && _cDownButton.isActive() && _cUpButton.isActive();
+    //bool allCButtons = _cLeftButton.isActive() && _cRightButton.isActive()
+    //                && _cDownButton.isActive() && _cUpButton.isActive();
 
-    bool trimDown = allCButtons && _lsDownButton.isActive();
-    bool trimUp = allCButtons && _lsUpButton.isActive();
+    bool trimDown = _dUpButton.isActive() && _cDownButton.isActive();
+    bool trimUp = _dUpButton.isActive() && _cUpButton.isActive();
 
     _wavedashMacro.setControls(_lButton, trimDown, trimUp);
 
