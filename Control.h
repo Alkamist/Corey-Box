@@ -45,10 +45,10 @@ public:
     virtual const bool operator ||(const bool value) const;
     virtual const bool operator ==(const bool value) const;
     virtual const bool operator !=(const bool value) const;
-    virtual const bool operator >(const bool value) const;
-    virtual const bool operator <(const bool value) const;
-    virtual const bool operator >=(const bool value) const;
-    virtual const bool operator <=(const bool value) const;
+    virtual const bool operator >(const double value) const;
+    virtual const bool operator <(const double value) const;
+    virtual const bool operator >=(const double value) const;
+    virtual const bool operator <=(const double value) const;
 
 private:
     ControlState _state;
@@ -219,24 +219,24 @@ const bool Control::operator !=(const bool value) const
     return isActive() != value;
 }
 
-const bool Control::operator >(const bool value) const
+const bool Control::operator >(const double value) const
 {
-    return isActive() > value;
+    return getValue() > value;
 }
 
-const bool Control::operator <(const bool value) const
+const bool Control::operator <(const double value) const
 {
-    return isActive() < value;
+    return getValue() < value;
 }
 
-const bool Control::operator >=(const bool value) const
+const bool Control::operator >=(const double value) const
 {
-    return isActive() >= value;
+    return getValue() >= value;
 }
 
-const bool Control::operator <=(const bool value) const
+const bool Control::operator <=(const double value) const
 {
-    return isActive() <= value;
+    return getValue() <= value;
 }
 
 #endif // CONTROL_H

@@ -1,102 +1,116 @@
 #ifndef WAVEDASHMACRO_H
 #define WAVEDASHMACRO_H
 
-#include "TemporaryActivator.h"
-#include "ControlState.h"
+#include "ControlMacro.h"
 #include "Frames.h"
 
 class WavedashMacro
 {
 public:
     WavedashMacro()
-    : _jump(frames(2)),
-      _lTemp(frames(2)),
-      _rTemp(frames(2)),
-      _airDodgeDelayFrames(3)
-    {}
-
-    void update()
+    : _airDodgeDelayFrames(3.0),
+      _airDodgeDelayFramesPrev(3.0),
+      _minimumDelay(3.0),
+      _maximumDelay(8.0)
     {
-        _activator.update();
-        _trimDown.update();
-        _trimUp.update();
-        _jump.update();
-        _lTemp.update();
-        _rTemp.update();
+        initMacro();
     }
 
-    void setControls(const bool activator, const bool r,
-                     const bool trimDown, const bool trimUp)
-    {
-        _activator = activator;
-        _trimDown = trimDown;
-        _trimUp = trimUp;
+    void update();
 
-        if (_trimDown.justActivated())
-        {
-            --_airDodgeDelayFrames;
-            _airDodgeDelayFrames = enforceRange(_airDodgeDelayFrames);
-        }
+    void setControls(const bool activator, const bool trimDown, const bool trimUp);
 
-        if (_trimUp.justActivated())
-        {
-            ++_airDodgeDelayFrames;
-            _airDodgeDelayFrames = enforceRange(_airDodgeDelayFrames);
-        }
+    const bool isRunning() const           { return _jump.isRunning() || _L.isRunning() || _R.isRunning(); }
 
-        if (_activator.justActivated())
-            _timer.reset();
-
-        _jump.setControls(activator);
-
-        _lTemp.setControls(checkTimer(frames(_airDodgeDelayFrames - 1)));
-        _rTemp.setControls(checkTimer(frames(_airDodgeDelayFrames)));
-
-        if ((_timer.getValue() < frames(_airDodgeDelayFrames)) && (_timer.getValue() > frames(1)))
-            _rOut = false;
-        else
-            _rOut = _rTemp.isActive() || r;
-
-    }
-
-    const bool getJump() const { return _jump; }
-    const bool getL() const    { return _lTemp; }
-    const bool getR() const    { return _rOut; }
+    const ControlMacro& getJump() const    { return _jump; }
+    const ControlMacro& getL() const       { return _L; }
+    const ControlMacro& getR() const       { return _R; }
 
 private:
-    Timer _timer;
-
     ControlState _activator;
-    ControlState _trimDown;
     ControlState _trimUp;
+    ControlState _trimDown;
 
-    TemporaryActivator _jump;
-    TemporaryActivator _lTemp;
-    TemporaryActivator _rTemp;
+    ControlMacro _jump;
+    ControlMacro _L;
+    ControlMacro _R;
 
-    bool _rOut;
+    double _airDodgeDelayFrames;
+    double _airDodgeDelayFramesPrev;
 
-    unsigned int _airDodgeDelayFrames;
+    const double _minimumDelay;
+    const double _maximumDelay;
 
-    const bool checkTimer(const unsigned int time) const
-    {
-        unsigned int currentTime = _timer.getValue();
-        unsigned int lowBound = time;
-        unsigned int highBound = time + frames(1);
-
-        return (currentTime < highBound) && (currentTime > lowBound);
-    }
-
-    const unsigned int enforceRange(unsigned int value)
-    {
-        if (value > 8)
-            return value = 8;
-
-        if (value < 3)
-            return value = 3;
-
-        return value;
-    }
+    void handleTrim();
+    void initMacro();
 };
+
+
+
+void WavedashMacro::update()
+{
+    _airDodgeDelayFramesPrev = _airDodgeDelayFrames;
+    _activator.update();
+    _trimUp.update();
+    _trimDown.update();
+    _jump.update();
+    _L.update();
+    _R.update();
+}
+
+void WavedashMacro::setControls(const bool activator, const bool trimDown, const bool trimUp)
+{
+    _activator = activator;
+    _trimDown = trimDown;
+    _trimUp = trimUp;
+
+    handleTrim();
+
+    if (_airDodgeDelayFrames != _airDodgeDelayFrames)
+        initMacro();
+
+    _jump.setControls(_activator);
+    _L.setControls(_activator);
+    _R.setControls(_activator);
+}
+
+void WavedashMacro::initMacro()
+{
+    _jump.clearMacro();
+    _L.clearMacro();
+    _R.clearMacro();
+
+    // Jump
+    _jump.addInput(ControlMacroUnit(true, frames(2)));
+    _jump.addInput(ControlMacroUnit(false, frames(1)));
+
+    // L
+    _L.setStartDelay(frames(_airDodgeDelayFrames - 1));
+    _L.addInput(ControlMacroUnit(false, frames(1)));
+    _L.addInput(ControlMacroUnit(true, frames(1)));
+    _L.addInput(ControlMacroUnit(false, frames(1)));
+
+    // R
+    _R.setStartDelay(frames(_airDodgeDelayFrames - 2));
+    _R.addInput(ControlMacroUnit(false, frames(1)));
+    _R.addInput(ControlMacroUnit(true, frames(1)));
+    _R.addInput(ControlMacroUnit(false, frames(1)));
+    _R.addInput(ControlMacroUnit(true, frames(1)));
+}
+
+void WavedashMacro::handleTrim()
+{
+    if (_trimUp.justActivated())
+        ++_airDodgeDelayFrames;
+
+    if (_trimDown.justActivated())
+        --_airDodgeDelayFrames;
+
+    if (_airDodgeDelayFrames < _minimumDelay)
+        _airDodgeDelayFrames = _minimumDelay;
+
+    if (_airDodgeDelayFrames > _maximumDelay)
+        _airDodgeDelayFrames = _maximumDelay;
+}
 
 #endif // WAVEDASHMACRO_H

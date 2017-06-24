@@ -9,12 +9,12 @@ class TemporaryActivator : public Control
 public:
     TemporaryActivator()
     : Control(),
-      _timer(0)
+      _time(0)
     {}
 
-    TemporaryActivator(const unsigned int time)
+    TemporaryActivator(const uint64_t time)
     : Control(),
-      _timer(time)
+      _time(time)
     {}
 
     virtual void update()
@@ -30,15 +30,17 @@ public:
         if (_activator.justActivated())
             _timer.reset();
 
-        setValue(!_timer.targetTimeReached());
+        setValue(!(_timer >= _time));
     }
 
-    void setTime(const unsigned int time) { _timer.setTargetTime(time); }
+    void setTime(const uint64_t time) { _timer = time; }
 
 private:
     ControlState _activator;
 
     Timer _timer;
+
+    uint64_t _time;
 };
 
 #endif // TEMPORARYACTIVATOR_

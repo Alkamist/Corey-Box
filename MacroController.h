@@ -108,14 +108,13 @@ void MacroController::setControls()
     bool trimDown = allCButtons && _lsDownButton.isActive();
     bool trimUp = allCButtons && _lsUpButton.isActive();
 
-    _wavedashMacro.setControls(_lButton, _rButton,
-                               trimDown, trimUp);
+    _wavedashMacro.setControls(_lButton, trimDown, trimUp);
 
     _leftStick.setControls(_lsLeftButton, _lsRightButton,
                            _lsDownButton, _lsUpButton,
                            _xMod1Button, _xMod2Button,
                            _yMod1Button, _yMod2Button,
-                           _tiltButton, _wavedashMacro.getL(),
+                           _tiltButton, _wavedashMacro.getR(),
                            _shieldDropButton);
 
     _cStick.setControls(_cLeftButton, _cRightButton,
@@ -123,13 +122,22 @@ void MacroController::setControls()
                         _lsDownButton, _lsUpButton,
                         _tiltButton);
 
+    bool rOut = _rButton;
+    bool jumpOut = _jumpButton;
+
+    if (_wavedashMacro.getJump().isRunning())
+        jumpOut = _wavedashMacro.getJump();
+
+    if (_wavedashMacro.getR().isRunning())
+        rOut = _wavedashMacro.getR();
+
     a = _aButton;
     b = _bButton;
     //x = ?;
-    y = _jumpButton.isActive() || _wavedashMacro.getJump();
+    y = jumpOut;
     z = _zButton;
     l = _wavedashMacro.getL();
-    r = _wavedashMacro.getR();
+    r = rOut;
     start = _startButton;
     dLeft = _dLeftButton;
     dRight = _dRightButton;
