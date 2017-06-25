@@ -130,7 +130,8 @@ void ControlMacro::runMacro()
 {
     if (_timer.targetTimeReached())
     {
-        _timer.subtractTargetTime();
+        //_timer.subtractTargetTime();
+        _timer.reset();
         ++_inputIndex;
 
         if (_inputIndex >= _inputList.getLength())

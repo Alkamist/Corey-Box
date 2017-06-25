@@ -14,7 +14,7 @@ public:
       _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
       _tiltX(frames(7)),
       _tiltY(frames(7)),
-      _tiltAmount(0.35)
+      _tiltAmount(0.60)
     {}
 
     virtual void update()

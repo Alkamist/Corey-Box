@@ -14,6 +14,8 @@ public:
 
     void update();
 
+    const Control& getLButton() { return _lButton; }
+
 private:
     ButtonReader _tiltButton;
     ButtonReader _shieldDropButton;
@@ -49,6 +51,8 @@ private:
     ButtonOnlyCStick _cStick;
 
     WavedashMacro _wavedashMacro;
+
+    Timer _testTimer;
 
     void updateButtons();
     void setControls();
@@ -114,7 +118,7 @@ void MacroController::setControls()
                            _lsDownButton, _lsUpButton,
                            _xMod1Button, _xMod2Button,
                            _yMod1Button, _yMod2Button,
-                           _tiltButton, _wavedashMacro.getR(),
+                           _tiltButton, _wavedashMacro.getL(),
                            _shieldDropButton);
 
     _cStick.setControls(_cLeftButton, _cRightButton,

@@ -3,6 +3,7 @@
 
 GameCubeOutput gameCubeOutput(26);
 MacroController controller;
+//elapsedMicros testTimer;
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -15,18 +16,22 @@ void setup()
 // This is the main loop that is running every clock cycle
 void loop()
 {
-    /*if (controller.lsX.hasChanged())
+    controller.update();
+
+    /*if (controller.getLButton().justActivated())
+        testTimer = 0;
+
+    if (controller.l.justActivated())
     {
-        Serial.print("X: ");
-        Serial.println(controller.lsX.getValue());
+        Serial.print("L: ");
+        Serial.println(testTimer);
     }
 
-    if (controller.lsY.hasChanged())
+    if (controller.r.justActivated())
     {
-        Serial.print("Y: ");
-        Serial.println(controller.lsY.getValue());
+        Serial.print("R: ");
+        Serial.println(testTimer);
     }*/
 
-    controller.update();
     gameCubeOutput.update();
 }
