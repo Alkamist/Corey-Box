@@ -2,34 +2,39 @@
 #define SINGLEMODAXIS_H
 
 #include "TwoButtonControl.h"
-#include "Control.h"
 
-class SingleModAxis : public Control
+class SingleModAxis : public BipolarControl
 {
 public:
-    SingleModAxis()
-    : Control(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
+    SingleModAxis(const Activator& low, const Activator& high, const Activator& mod)
+    : BipolarControl(),
+      _mod(mod),
+      _twoButtonControl(low, high),
       _modValue(0.65)
     {}
 
-    virtual void update()
+    void process()
     {
-        Control::update();
-        _twoButtonControl.update();
+        _twoButtonControl.process();
+
+        if (_mod)
+        {
+            setValue(_twoButtonControl.getValue() * _modValue);
+            return;
+        }
+
+        setValue(_twoButtonControl.getValue());
     }
 
-    virtual void setControls(const bool low, const bool high,
-                             const bool mod)
+    void endCycle()
     {
-        _twoButtonControl.setControls(low, high);
-
-        if (!mod)
-            setValue(_twoButtonControl.getValue());
-
-        if (mod)
-            setValue(_modValue * _twoButtonControl.getValue());
+        BipolarControl::endCycle();
+        _twoButtonControl.endCycle();
     }
+
 private:
+    const Activator& _mod;
+
     TwoButtonControl _twoButtonControl;
 
     const double _modValue;

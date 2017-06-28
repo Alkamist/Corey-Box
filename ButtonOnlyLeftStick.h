@@ -4,65 +4,77 @@
 #include "TiltJoystick.h"
 #include "DoubleModAxis.h"
 #include "Signum.h"
-#include "TemporaryActivator.h"
 
 class ButtonOnlyLeftStick : public TiltJoystick
 {
 public:
-    ButtonOnlyLeftStick()
-    : TiltJoystick(),
-      _shieldDropReset(frames(1)),
-      _wavedash(frames(5))
+    ButtonOnlyLeftStick(const Activator& lsLeft, const Activator& lsRight,
+                        const Activator& lsDown, const Activator& lsUp,
+                        const Activator& xMod1, const Activator& xMod2,
+                        const Activator& yMod1, const Activator& yMod2,
+                        const Activator& tilt, const Activator& wavedash,
+                        const Activator& shieldDrop)
+    : TiltJoystick(_tiltOut, _xAxis, _yAxis),
+      _tilt(tilt),
+      _shieldDrop(shieldDrop),
+      _lsDown(lsDown),
+      _xAxis(lsLeft, lsRight, xMod1, xMod2),
+      _yAxis(_lsDownOut, lsUp, yMod1, yMod2),
+      _shieldDropOut(frames(1.0), shieldDrop),
+      _wavedashOut(frames(5.0), wavedash)
     {}
 
-    virtual void update()
+    virtual void process()
     {
-        TiltJoystick::update();
-        _xAxis.update();
-        _yAxis.update();
-        _shieldDropReset.update();
-        _wavedash.update();
+        _shieldDropOut.process();
+        _wavedashOut.process();
+
+        _lsDownOut.setState(_lsDown || _wavedashOut);
+
+        _xAxis.process();
+        _yAxis.process();
+
+        if (_shieldDropOut && _shieldDrop)
+        {
+            _xAxis.setValue(0.0);
+            _yAxis.setValue(0.0);
+        }
+
+        if (!_shieldDropOut && _shieldDrop)
+        {
+            _xAxis.setValue(0.0);
+            _yAxis.setValue(-0.67500);
+        }
+
+        _tiltOut.setState(_tilt && !_wavedashOut && !_shieldDrop);
+
+        TiltJoystick::process();
     }
 
-    virtual void setControls(const bool left, const bool right,
-                             const bool down, const bool up,
-                             const bool xMod1, const bool xMod2,
-                             const bool yMod1, const bool yMod2,
-                             const bool tilt, const bool wavedash,
-                             const bool shieldDrop)
+    virtual void endCycle()
     {
-        _shieldDropReset.setControls(shieldDrop);
-        _wavedash.setControls(wavedash);
-
-        _xAxis.setControls(left, right, xMod1, xMod2);
-        _yAxis.setControls(down, up, yMod1, yMod2);
-
-        if (_wavedash.isActive() && (_yAxis > -0.33750))
-            _yAxis = -0.33750;
-
-        if (_shieldDropReset && shieldDrop)
-        {
-            _xAxis = 0.0;
-            _yAxis = 0.0;
-        }
-
-        if (!_shieldDropReset && shieldDrop)
-        {
-            _xAxis = 0.0;
-            _yAxis = -0.67500;
-        }
-
-        bool tiltShouldHappen = tilt && !_wavedash && !shieldDrop;
-
-        TiltJoystick::setControls(_xAxis, _yAxis, tiltShouldHappen);
+        TiltJoystick::endCycle();
+        _xAxis.endCycle();
+        _yAxis.endCycle();
+        _shieldDropOut.endCycle();
+        _wavedashOut.endCycle();
+        _tiltOut.endCycle();
+        _lsDownOut.endCycle();
     }
 
 private:
+    const Activator& _tilt;
+    const Activator& _shieldDrop;
+    const Activator& _lsDown;
+
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
 
-    TemporaryActivator _shieldDropReset;
-    TemporaryActivator _wavedash;
+    Activator _tiltOut;
+    Activator _lsDownOut;
+
+    TemporaryActivator _shieldDropOut;
+    TemporaryActivator _wavedashOut;
 };
 
 #endif // BUTTONONLYLEFTSTICK_H

@@ -3,7 +3,6 @@
 
 #include "Nintendo.h"
 #include "GameCubeController.h"
-#include "GameCubeControllerSlot.h"
 
 class GameCubeOutput : public CGamecubeConsole
 {
@@ -13,12 +12,12 @@ public:
       _rawData(defaultGamecubeData)
     {}
 
-    void update();
+    void process();
 
-    void connectController(const GameCubeController& controller) { _controllerSlot.connect(controller); }
+    void connectController(const GameCubeController& controller) { _controller = &controller; }
 
 private:
-    GameCubeControllerSlot _controllerSlot;
+    const GameCubeController* _controller;
 
     Gamecube_Data_t _rawData;
 
@@ -27,38 +26,91 @@ private:
 
 
 
-void GameCubeOutput::update()
+void GameCubeOutput::process()
 {
-    if (_controllerSlot.isConnected())
+    if (_controller)
         writeData();
 }
 
 void GameCubeOutput::writeData()
 {
     // Digital
-    if (_controllerSlot.getA().hasChanged())       _rawData.report.a = _controllerSlot.getA().getValue();
-    if (_controllerSlot.getB().hasChanged())       _rawData.report.b = _controllerSlot.getB().getValue();
-    if (_controllerSlot.getX().hasChanged())       _rawData.report.x = _controllerSlot.getX().getValue();
-    if (_controllerSlot.getY().hasChanged())       _rawData.report.y = _controllerSlot.getY().getValue();
-    if (_controllerSlot.getZ().hasChanged())       _rawData.report.z = _controllerSlot.getZ().getValue();
-    if (_controllerSlot.getL().hasChanged())       _rawData.report.l = _controllerSlot.getL().getValue();
-    if (_controllerSlot.getR().hasChanged())       _rawData.report.r = _controllerSlot.getR().getValue();
-    if (_controllerSlot.getStart().hasChanged())   _rawData.report.start = _controllerSlot.getStart().getValue();
-    if (_controllerSlot.getDLeft().hasChanged())   _rawData.report.dleft = _controllerSlot.getDLeft().getValue();
-    if (_controllerSlot.getDRight().hasChanged())  _rawData.report.dright = _controllerSlot.getDRight().getValue();
-    if (_controllerSlot.getDDown().hasChanged())   _rawData.report.ddown = _controllerSlot.getDDown().getValue();
-    if (_controllerSlot.getDUp().hasChanged())     _rawData.report.dup = _controllerSlot.getDUp().getValue();
+    if (_controller->a)
+        if (_controller->a->stateJustChanged())
+            _rawData.report.a = _controller->a->isActive();
+
+    if (_controller->b)
+        if (_controller->b->stateJustChanged())
+            _rawData.report.b = _controller->b->isActive();
+
+    if (_controller->x)
+        if (_controller->x->stateJustChanged())
+            _rawData.report.x = _controller->x->isActive();
+
+    if (_controller->y)
+        if (_controller->y->stateJustChanged())
+         _rawData.report.y = _controller->y->isActive();
+
+    if (_controller->z)
+        if (_controller->z->stateJustChanged())
+            _rawData.report.z = _controller->z->isActive();
+
+    if (_controller->l)
+        if (_controller->l->stateJustChanged())
+            _rawData.report.l = _controller->l->isActive();
+
+    if (_controller->r)
+        if (_controller->r->stateJustChanged())
+            _rawData.report.r = _controller->r->isActive();
+
+    if (_controller->start)
+        if (_controller->start->stateJustChanged())
+            _rawData.report.start = _controller->start->isActive();
+
+    if (_controller->dLeft)
+        if (_controller->dLeft->stateJustChanged())
+            _rawData.report.dleft = _controller->dLeft->isActive();
+
+    if (_controller->dRight)
+        if (_controller->dRight->stateJustChanged())
+            _rawData.report.dright = _controller->dRight->isActive();
+
+    if (_controller->dDown)
+        if (_controller->dDown->stateJustChanged())
+            _rawData.report.ddown = _controller->dDown->isActive();
+
+    if (_controller->dUp)
+        if (_controller->dUp->stateJustChanged())
+            _rawData.report.dup = _controller->dUp->isActive();
+
 
     // Analog
-    if (_controllerSlot.getLAnalog().hasChanged()) _rawData.report.left = _controllerSlot.getLAnalog().getValue() * 255;
-    if (_controllerSlot.getRAnalog().hasChanged()) _rawData.report.right = _controllerSlot.getRAnalog().getValue() * 255;
-    if (_controllerSlot.getLsX().hasChanged())     _rawData.report.xAxis = _controllerSlot.getLsX().getValue() * 255 + 1;
-    if (_controllerSlot.getLsY().hasChanged())     _rawData.report.yAxis = _controllerSlot.getLsY().getValue() * 255 + 1;
-    if (_controllerSlot.getCX().hasChanged())      _rawData.report.cxAxis = _controllerSlot.getCX().getValue() * 255 + 1;
-    if (_controllerSlot.getCY().hasChanged())      _rawData.report.cyAxis = _controllerSlot.getCY().getValue() * 255 + 1;
+    if (_controller->lAnalog)
+        if (_controller->lAnalog->valueJustChanged())
+            _rawData.report.left = _controller->lAnalog->getValue() * 255;
+
+    if (_controller->rAnalog)
+        if (_controller->rAnalog->valueJustChanged())
+            _rawData.report.right = _controller->rAnalog->getValue() * 255;
+
+    if (_controller->lsX)
+        if (_controller->lsX->valueJustChanged())
+            _rawData.report.xAxis = 1 + 255 * (_controller->lsX->getValue() + 1.0) / 2.0;
+
+    if (_controller->lsY)
+        if (_controller->lsY->valueJustChanged())
+            _rawData.report.yAxis = 1 + 255 * (_controller->lsY->getValue() + 1.0) / 2.0;
+
+    if (_controller->cX)
+        if (_controller->cX->valueJustChanged())
+            _rawData.report.cxAxis = 1 + 255 * (_controller->cX->getValue() + 1.0) / 2.0;
+
+    if (_controller->cY)
+        if (_controller->cY->valueJustChanged())
+            _rawData.report.cyAxis = 1 + 255 * (_controller->cY->getValue() + 1.0) / 2.0;
+
 
     write(_rawData);
 }
-
 
 #endif // GAMECUBEOUTPUT_H

@@ -1,42 +1,34 @@
 #ifndef TEMPORARYACTIVATOR_
 #define TEMPORARYACTIVATOR_
 
-#include "Control.h"
+#include "Activator.h"
 #include "Timer.h"
 
-class TemporaryActivator : public Control
+class TemporaryActivator : public Activator
 {
 public:
-    TemporaryActivator()
-    : Control(),
-      _time(0)
-    {}
-
-    TemporaryActivator(const uint64_t time)
-    : Control(),
+    explicit TemporaryActivator(const uint64_t time, const Activator& activator)
+    : Activator(),
+      _activator(activator),
       _time(time)
     {}
 
-    virtual void update()
+    void process()
     {
-        Control::update();
-        _activator.update();
-    }
-
-    void setControls(const bool control)
-    {
-        _activator = control;
-
         if (_activator.justActivated())
+        {
+            setState(true);
             _timer.reset();
+        }
 
-        setValue(!(_timer >= _time));
+        if (_timer >= _time)
+            setState(false);
     }
 
-    void setTime(const uint64_t time) { _timer = time; }
+    void setTime(const uint64_t time) { _time = time; }
 
 private:
-    ControlState _activator;
+    const Activator& _activator;
 
     Timer _timer;
 

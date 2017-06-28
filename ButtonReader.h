@@ -2,46 +2,38 @@
 #define BUTTONREADER_H
 
 #include <Bounce2.h>
-#include "Control.h"
+#include "Activator.h"
 
-class ButtonReader : public Control
+class ButtonReader : public Activator
 {
 public:
-    explicit ButtonReader(const unsigned int pin);
+    explicit ButtonReader(const uint8_t pin)
+    : Activator(),
+      _pin(pin)
+    {
+        init();
+    }
 
-    virtual void update();
+    void endCycle()
+    {
+        Activator::endCycle();
+        _bounce.update();
 
-    void init();
+        setState(!_bounce.read());
+    }
 
 private:
-    unsigned int _pin;
+    uint8_t _pin;
 
     Bounce _bounce;
+
+    void init()
+    {
+        pinMode(_pin, INPUT_PULLUP);
+
+        _bounce.attach(_pin);
+        _bounce.interval(5);
+    }
 };
-
-
-
-void ButtonReader::update()
-{
-    _bounce.update();
-    Control::update();
-
-    setValue(!_bounce.read());
-}
-
-void ButtonReader::init()
-{
-    pinMode(_pin, INPUT_PULLUP);
-
-    _bounce.attach(_pin);
-    _bounce.interval(5);
-}
-
-ButtonReader::ButtonReader(const unsigned int pin)
-: Control(),
-  _pin(pin)
-{
-    init();
-}
 
 #endif // BUTTONREADER_H

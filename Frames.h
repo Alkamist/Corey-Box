@@ -3,6 +3,9 @@
 
 uint64_t frames(double frames)
 {
+    if (frames < 0.0)
+        frames = 0.0;
+
     return 1000000.0 * frames / 60.0;
 }
 

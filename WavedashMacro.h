@@ -1,14 +1,19 @@
 #ifndef WAVEDASHMACRO_H
 #define WAVEDASHMACRO_H
 
-#include "ControlMacro.h"
+#include "ActivatorMacro.h"
 #include "Frames.h"
 
 class WavedashMacro
 {
 public:
-    WavedashMacro()
-    : _airDodgeDelayFrames(3.0),
+    WavedashMacro(const Activator& activator, const Activator& trimDown, const Activator& trimUp)
+    : _trimDown(trimDown),
+      _trimUp(trimUp),
+      _jump(activator),
+      _L(activator),
+      _R(activator),
+      _airDodgeDelayFrames(3.0),
       _airDodgeDelayFramesPrev(3.0),
       _minimumDelay(3.0),
       _maximumDelay(8.0)
@@ -16,24 +21,22 @@ public:
         initMacro();
     }
 
-    void update();
+    void process();
+    void endCycle();
 
-    void setControls(const bool activator, const bool trimDown, const bool trimUp);
+    const bool isRunning() const          { return _jump.isRunning() || _L.isRunning() || _R.isRunning(); }
 
-    const bool isRunning() const           { return _jump.isRunning() || _L.isRunning() || _R.isRunning(); }
-
-    const ControlMacro& getJump() const    { return _jump; }
-    const ControlMacro& getL() const       { return _L; }
-    const ControlMacro& getR() const       { return _R; }
+    const ActivatorMacro& getJump() const { return _jump; }
+    const ActivatorMacro& getL() const    { return _L; }
+    const ActivatorMacro& getR() const    { return _R; }
 
 private:
-    ControlState _activator;
-    ControlState _trimUp;
-    ControlState _trimDown;
+    const Activator& _trimDown;
+    const Activator& _trimUp;
 
-    ControlMacro _jump;
-    ControlMacro _L;
-    ControlMacro _R;
+    ActivatorMacro _jump;
+    ActivatorMacro _L;
+    ActivatorMacro _R;
 
     double _airDodgeDelayFrames;
     double _airDodgeDelayFramesPrev;
@@ -47,31 +50,24 @@ private:
 
 
 
-void WavedashMacro::update()
+void WavedashMacro::process()
 {
-    _airDodgeDelayFramesPrev = _airDodgeDelayFrames;
-    _activator.update();
-    _trimUp.update();
-    _trimDown.update();
-    _jump.update();
-    _L.update();
-    _R.update();
-}
-
-void WavedashMacro::setControls(const bool activator, const bool trimDown, const bool trimUp)
-{
-    _activator = activator;
-    _trimDown = trimDown;
-    _trimUp = trimUp;
-
     handleTrim();
 
     if (_airDodgeDelayFrames != _airDodgeDelayFramesPrev)
         initMacro();
 
-    _jump.setControls(_activator);
-    _L.setControls(_activator);
-    _R.setControls(_activator);
+    _jump.process();
+    _L.process();
+    _R.process();
+}
+
+void WavedashMacro::endCycle()
+{
+    _airDodgeDelayFramesPrev = _airDodgeDelayFrames;
+    _jump.endCycle();
+    _L.endCycle();
+    _R.endCycle();
 }
 
 void WavedashMacro::initMacro()
@@ -81,20 +77,23 @@ void WavedashMacro::initMacro()
     _R.clearMacro();
 
     // Jump
-    _jump.addInput(ControlMacroUnit(true, frames(2.0)));
-    _jump.addInput(ControlMacroUnit(false, frames(1.0)));
+    _jump.addInput(ActivatorMacroUnit(true, frames(2.0)));
+    _jump.addInput(ActivatorMacroUnit(false, frames(1.0)));
+
+    // L Pure
+    //_L.setStartDelay(frames(_airDodgeDelayFrames));
+    //_L.addInput(ActivatorMacroUnit(true, frames(2.0)));
+    //_L.addInput(ActivatorMacroUnit(false, frames(1.0)));
 
     // L
-    _L.setStartDelay(frames(_airDodgeDelayFrames - 0.5));
-    _L.addInput(ControlMacroUnit(true, frames(1.0)));
-    _L.addInput(ControlMacroUnit(false, frames(1.0)));
-    _L.addInput(ControlMacroUnit(true, frames(1.0)));
-    _L.addInput(ControlMacroUnit(false, frames(1.0)));
+    _L.setStartDelay(frames(_airDodgeDelayFrames - 1.0));
+    _L.addInput(ActivatorMacroUnit(true, frames(2.0)));
+    _L.addInput(ActivatorMacroUnit(false, frames(1.0)));
 
     // R
     _R.setStartDelay(frames(1.0));
-    _R.addInput(ControlMacroUnit(false, frames(_airDodgeDelayFrames - 0.5)));
-    _R.addInput(ControlMacroUnit(true, frames(1.0)));
+    _R.addInput(ActivatorMacroUnit(false, frames(_airDodgeDelayFrames - 1.0)));
+    _R.addInput(ActivatorMacroUnit(true, frames(2.0)));
 }
 
 void WavedashMacro::handleTrim()

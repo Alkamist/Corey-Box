@@ -1,48 +1,43 @@
 #ifndef CONTROLMACRO_H
 #define CONTROLMACRO_H
 
-#include "Control.h"
+#include "Activator.h"
 #include "Timer.h"
 #include "Array.h"
 
-struct ControlMacroUnit
+struct ActivatorMacroUnit
 {
-    explicit ControlMacroUnit()
-    : control(),
+    explicit ActivatorMacroUnit()
+    : state(false),
       duration(0)
     {}
 
-    explicit ControlMacroUnit(const bool inputControl, const uint64_t inputDuration)
-    : control(inputControl),
+    explicit ActivatorMacroUnit(const bool inputState, const uint64_t inputDuration)
+    : state(inputState),
       duration(inputDuration)
     {}
 
-    explicit ControlMacroUnit(const Control& inputControl, const uint64_t inputDuration)
-    : control(inputControl),
-      duration(inputDuration)
-    {}
-
-    Control control;
+    bool state;
     uint64_t duration;
 };
 
-class ControlMacro : public Control
+class ActivatorMacro : public Activator
 {
 public:
-    ControlMacro()
-    : Control(),
+    ActivatorMacro(const Activator& activator)
+    : Activator(),
+      _activator(activator),
       _isInterruptible(false),
       _start(false, 0)
     {
         clearMacro();
     }
 
-    void update();
+    void process();
 
-    void setControls(const bool activator);
     void setStartDelay(const uint64_t delay) { _start.duration = delay; }
 
-    void addInput(ControlMacroUnit input)    { _inputList.insertAtEnd(input); }
+    void addInput(ActivatorMacroUnit input)  { _inputList.insertAtEnd(input); }
     void clearMacro();
 
     void setInterruptible(const bool state)  { _isInterruptible = state; }
@@ -54,7 +49,7 @@ public:
     const bool isInterruptible() const       { return _isInterruptible; }
 
 private:
-    Control _activator;
+    const Activator& _activator;
 
     int _inputIndex;
 
@@ -62,9 +57,9 @@ private:
     bool _isStarting;
     bool _isInterruptible;
 
-    Array<ControlMacroUnit> _inputList;
+    Array<ActivatorMacroUnit> _inputList;
 
-    ControlMacroUnit _start;
+    ActivatorMacroUnit _start;
 
     Timer _timer;
 
@@ -75,16 +70,8 @@ private:
 
 
 
-void ControlMacro::update()
+void ActivatorMacro::process()
 {
-    Control::update();
-    _activator.update();
-}
-
-void ControlMacro::setControls(const bool activator)
-{
-    _activator = activator;
-
     bool macroCanStart = (!_isRunning && !_isStarting) || _isInterruptible;
 
     if (_activator.justActivated() && macroCanStart)
@@ -97,7 +84,7 @@ void ControlMacro::setControls(const bool activator)
         runMacro();
 }
 
-void ControlMacro::clearMacro()
+void ActivatorMacro::clearMacro()
 {
     _inputList.erase();
     _start.duration = 0;
@@ -106,18 +93,18 @@ void ControlMacro::clearMacro()
     _inputIndex = -1;
 }
 
-void ControlMacro::startMacro()
+void ActivatorMacro::startMacro()
 {
     _isStarting = true;
     _isRunning = false;
     _inputIndex = -1;
     _timer.reset();
 
-    setValue(_start.control);
+    setState(_start.state);
     _timer.setTargetTime(_start.duration);
 }
 
-void ControlMacro::runStart()
+void ActivatorMacro::runStart()
 {
     if (_timer.targetTimeReached())
     {
@@ -126,7 +113,7 @@ void ControlMacro::runStart()
     }
 }
 
-void ControlMacro::runMacro()
+void ActivatorMacro::runMacro()
 {
     if (_timer.targetTimeReached())
     {
@@ -141,7 +128,7 @@ void ControlMacro::runMacro()
             return;
         }
 
-        setValue(_inputList[_inputIndex].control);
+        setState(_inputList[_inputIndex].state);
         _timer.setTargetTime(_inputList[_inputIndex].duration);
     }
 }

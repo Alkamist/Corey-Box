@@ -8,55 +8,64 @@
 class TiltJoystick : public Joystick
 {
 public:
-    TiltJoystick()
-    : Joystick(),
-      _xValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _yValue(0.0, Range<double>(Bounds<double>(-1.0, 1.0))),
-      _tiltX(frames(7)),
-      _tiltY(frames(7)),
+    TiltJoystick(const Activator& tilt, const BipolarControl& xControl, const BipolarControl& yControl)
+    : Joystick(_xValue, _yValue),
+      _xControl(xControl),
+      _yControl(yControl),
+      _tilt(tilt),
+      _tiltXOut(frames(7.0), _tiltResetX),
+      _tiltYOut(frames(7.0), _tiltResetY),
       _tiltAmount(0.60)
     {}
 
-    virtual void update()
+    virtual void process()
     {
-        Joystick::update();
-        _xValue.update();
-        _yValue.update();
-        _tiltX.update();
-        _tiltY.update();
-    }
+        _xValue.setValue(_xControl.getValue());
+        _yValue.setValue(_yControl.getValue());
 
-    virtual void setControls(const Control& xValue, const Control& yValue,
-                             const bool tiltCondition)
-    {
-        _xValue = xValue;
-        _yValue = yValue;
+        _tiltResetX.setState(_xControl.justActivated() || _xControl.justDeactivated() || _xControl.justCrossedInactiveRange());
+        _tiltResetY.setState(_yControl.justActivated() || _yControl.justDeactivated() || _yControl.justCrossedInactiveRange());
 
-        bool tiltResetX = _xValue.justActivated() || _xValue.justDeactivated() || _xValue.hasCrossedInactiveRange();
-        bool tiltResetY = _yValue.justActivated() || _yValue.justDeactivated() || _yValue.hasCrossedInactiveRange();
+        _tiltXOut.process();
+        _tiltYOut.process();
 
-        _tiltX.setControls(tiltResetX);
-        _tiltY.setControls(tiltResetY);
-
-        if (_tiltX && tiltCondition)
+        if (_tiltXOut && _tilt)
             clampAxis(_xValue);
 
-        if (_tiltY && tiltCondition)
+        if (_tiltYOut && _tilt)
             clampAxis(_yValue);
 
-        Joystick::setControls(_xValue, _yValue);
+        Joystick::process();
+    }
+
+    virtual void endCycle()
+    {
+        Joystick::endCycle();
+        _xValue.endCycle();
+        _yValue.endCycle();
+        _tiltResetX.endCycle();
+        _tiltResetY.endCycle();
+        _tiltXOut.endCycle();
+        _tiltYOut.endCycle();
     }
 
 private:
-    Control _xValue;
-    Control _yValue;
+    const BipolarControl& _xControl;
+    const BipolarControl& _yControl;
+    const Activator& _tilt;
 
-    TemporaryActivator _tiltX;
-    TemporaryActivator _tiltY;
+    BipolarControl _xValue;
+    BipolarControl _yValue;
+
+    Activator _tiltResetX;
+    Activator _tiltResetY;
+
+    TemporaryActivator _tiltXOut;
+    TemporaryActivator _tiltYOut;
 
     const double _tiltAmount;
 
-    void clampAxis(Control& axis)
+    void clampAxis(BipolarControl& axis)
     {
         double axisValue = axis.getValue();
 
@@ -65,13 +74,13 @@ private:
 
         if (axisValue < lowClamp)
         {
-            axis = lowClamp;
+            axis.setValue(lowClamp);
             return;
         }
 
         if (axisValue > highClamp)
         {
-            axis = highClamp;
+            axis.setValue(highClamp);
             return;
         }
     }
