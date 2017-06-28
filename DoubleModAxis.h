@@ -12,7 +12,7 @@ public:
       _mod1(mod1),
       _mod2(mod2),
       _twoButtonControl(low, high),
-      _mod1Value(0.33750),
+      _mod1Value(0.33250),
       _mod2Value(0.52500),
       _mod3Value(0.76250)
     {}
@@ -48,15 +48,42 @@ public:
         _twoButtonControl.endCycle();
     }
 
+    void trimModsOutward()
+    {
+        if (_mod3Value > 0.8500)
+            return;
+
+        _mod1Value += 0.015;
+        _mod2Value += 0.015;
+        _mod3Value += 0.015;
+    }
+
+    void trimModsInward()
+    {
+        if (_mod1Value < 0.2850)
+            return;
+
+        _mod1Value -= 0.015;
+        _mod2Value -= 0.015;
+        _mod3Value -= 0.015;
+    }
+
+    void resetMods()
+    {
+        _mod1Value = 0.33250;
+        _mod2Value = 0.52500;
+        _mod3Value = 0.76250;
+    }
+
 private:
     const Activator& _mod1;
     const Activator& _mod2;
 
     TwoButtonControl _twoButtonControl;
 
-    const double _mod1Value;
-    const double _mod2Value;
-    const double _mod3Value;
+    double _mod1Value;
+    double _mod2Value;
+    double _mod3Value;
 };
 
 #endif // DOUBLEMODAXIS_H

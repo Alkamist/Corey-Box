@@ -57,14 +57,19 @@ private:
     Activator _yOut;
     Activator _lOut;
     Activator _rOut;
-    Activator _trimDownOut;
-    Activator _trimUpOut;
     Activator _wavedashOut;
     UnipolarControl _rAnalogOut;
     BipolarControl _lsXOut;
     BipolarControl _lsYOut;
     BipolarControl _cXOut;
     BipolarControl _cYOut;
+
+    Activator _trimWavedashDown;
+    Activator _trimWavedashUp;
+    Activator _trimShieldDropDown;
+    Activator _trimShieldDropUp;
+    Activator _trimModsInward;
+    Activator _trimModsOutward;
 
     Activator _meleeMode;
     Activator _projectMMode;
@@ -74,11 +79,12 @@ private:
 
 void MacroController::process()
 {
-    bool allMods = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
+    bool wavedashKey = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
+    bool analogKey = _yMod2Button && _xMod1Button && _shieldDropButton;
 
     // Wavedash Macro:
-    _trimDownOut.setState(allMods && _cDownButton);
-    _trimUpOut.setState(allMods && _cUpButton);
+    _trimWavedashDown.setState(wavedashKey && _cDownButton);
+    _trimWavedashUp.setState(wavedashKey && _cUpButton);
 
     _wavedashMacro.process();
 
@@ -102,19 +108,43 @@ void MacroController::process()
     _cXOut.setValue(_cStick.getXControl().getValue());
     _cYOut.setValue(_cStick.getYControl().getValue());
 
-    // Controller Mode:
-    _projectMMode.setState(_cRightButton && allMods);
-    if (_projectMMode.justActivated())
-    {
-        _leftStick.setRange(0.80);
-        _cStick.setRange(0.80);
-    }
+    // Shield Drop Trim:
+    _trimShieldDropDown.setState(analogKey && _cDownButton);
+    _trimShieldDropUp.setState(analogKey && _cUpButton);
 
-    _meleeMode.setState(_cLeftButton && allMods);
+    if (_trimShieldDropDown.justActivated())
+        _leftStick.trimShieldDropDown();
+
+    if (_trimShieldDropUp.justActivated())
+        _leftStick.trimShieldDropUp();
+
+    // Angle Trim:
+    _trimModsInward.setState(analogKey && _cLeftButton);
+    _trimModsOutward.setState(analogKey && _cRightButton);
+
+    if (_trimModsInward.justActivated())
+        _leftStick.trimModsInward();
+
+    if (_trimModsOutward.justActivated())
+        _leftStick.trimModsOutward();
+
+    // Controller Mode:
+    _meleeMode.setState(analogKey && _aButton);
+    _projectMMode.setState(analogKey && _bButton);
+
     if (_meleeMode.justActivated())
     {
         _leftStick.setRange(0.6250);
+        _leftStick.resetMods();
+        _leftStick.resetShieldDrop();
         _cStick.setRange(0.6250);
+    }
+    if (_projectMMode.justActivated())
+    {
+        _leftStick.setRange(0.8000);
+        _leftStick.resetMods();
+        _leftStick.resetShieldDrop();
+        _cStick.setRange(0.8000);
     }
 }
 
@@ -156,14 +186,20 @@ void MacroController::endCycle()
     _yOut.endCycle();
     _lOut.endCycle();
     _rOut.endCycle();
-    _trimDownOut.endCycle();
-    _trimUpOut.endCycle();
     _wavedashOut.endCycle();
     _rAnalogOut.endCycle();
     _lsXOut.endCycle();
     _lsYOut.endCycle();
     _cXOut.endCycle();
     _cYOut.endCycle();
+
+    _trimShieldDropDown.endCycle();
+    _trimShieldDropUp.endCycle();
+    _trimWavedashDown.endCycle();
+    _trimWavedashUp.endCycle();
+    _trimModsInward.endCycle();
+    _trimModsOutward.endCycle();
+
     _meleeMode.endCycle();
     _projectMMode.endCycle();
 
@@ -218,7 +254,7 @@ MacroController::MacroController()
           _tiltButton),
 
   // Macros:
-  _wavedashMacro(_lButton, _trimDownOut, _trimUpOut)
+  _wavedashMacro(_lButton, _trimWavedashDown, _trimWavedashUp)
 {
     a = &_aButton;
     b = &_bButton;

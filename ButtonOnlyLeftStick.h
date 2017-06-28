@@ -21,7 +21,8 @@ public:
       _xAxis(lsLeft, lsRight, xMod1, xMod2),
       _yAxis(_lsDownOut, lsUp, yMod1, yMod2),
       _shieldDropOut(frames(1.0), shieldDrop),
-      _wavedashOut(frames(5.0), wavedash)
+      _wavedashOut(frames(5.0), wavedash),
+      _shieldDropValue(-0.67500)
     {}
 
     virtual void process()
@@ -43,7 +44,7 @@ public:
         if (!_shieldDropOut && _shieldDrop)
         {
             _xAxis.setValue(0.0);
-            _yAxis.setValue(-0.67500);
+            _yAxis.setValue(_shieldDropValue);
         }
 
         _tiltOut.setState(_tilt && !_wavedashOut && !_shieldDrop);
@@ -62,6 +63,42 @@ public:
         _lsDownOut.endCycle();
     }
 
+    void trimShieldDropDown()
+    {
+        _shieldDropValue -= 0.015;
+
+        if (_shieldDropValue < -1.0)
+            _shieldDropValue = -1.0;
+    }
+
+    void trimShieldDropUp()
+    {
+        _shieldDropValue += 0.015;
+
+        if (_shieldDropValue > 0.0)
+            _shieldDropValue = 0.0;
+    }
+
+    void resetShieldDrop() { _shieldDropValue = -0.67500; }
+
+    void trimModsOutward()
+    {
+        _xAxis.trimModsOutward();
+        _yAxis.trimModsOutward();
+    }
+
+    void trimModsInward()
+    {
+        _xAxis.trimModsInward();
+        _yAxis.trimModsInward();
+    }
+
+    void resetMods()
+    {
+        _xAxis.resetMods();
+        _yAxis.resetMods();
+    }
+
 private:
     const Activator& _tilt;
     const Activator& _shieldDrop;
@@ -75,6 +112,8 @@ private:
 
     TemporaryActivator _shieldDropOut;
     TemporaryActivator _wavedashOut;
+
+    double _shieldDropValue;
 };
 
 #endif // BUTTONONLYLEFTSTICK_H
