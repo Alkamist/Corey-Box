@@ -20,14 +20,19 @@ public:
       _lsDown(lsDown),
       _xAxis(lsLeft, lsRight, xMod1, xMod2),
       _yAxis(_lsDownOut, lsUp, yMod1, yMod2),
-      _shieldDropOut(frames(1.0), shieldDrop),
+      _shieldDropNeutral(frames(1.0), shieldDrop),
+      _shieldDropHold(frames(4.0), _shieldDropHoldActivator),
       _wavedashOut(frames(5.0), wavedash),
       _shieldDropValue(-0.67500)
     {}
 
     virtual void process()
     {
-        _shieldDropOut.process();
+        _shieldDropNeutral.process();
+
+        _shieldDropHoldActivator.setState(!_shieldDropNeutral);
+
+        _shieldDropHold.process();
         _wavedashOut.process();
 
         _lsDownOut.setState(_lsDown || _wavedashOut);
@@ -35,19 +40,19 @@ public:
         _xAxis.process();
         _yAxis.process();
 
-        if (_shieldDropOut && _shieldDrop)
+        if (_shieldDropNeutral && _shieldDrop)
         {
             _xAxis.setValue(0.0);
             _yAxis.setValue(0.0);
         }
 
-        if (!_shieldDropOut && _shieldDrop)
+        if (_shieldDropHold && _shieldDrop)
         {
             _xAxis.setValue(0.0);
             _yAxis.setValue(_shieldDropValue);
         }
 
-        _tiltOut.setState(_tilt && !_wavedashOut && !_shieldDrop);
+        _tiltOut.setState(_tilt && !_wavedashOut && !(_shieldDropNeutral || _shieldDropHold));
 
         TiltJoystick::process();
     }
@@ -57,7 +62,9 @@ public:
         TiltJoystick::endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
-        _shieldDropOut.endCycle();
+        _shieldDropHoldActivator.endCycle();
+        _shieldDropNeutral.endCycle();
+        _shieldDropHold.endCycle();
         _wavedashOut.endCycle();
         _tiltOut.endCycle();
         _lsDownOut.endCycle();
@@ -109,8 +116,10 @@ private:
 
     Activator _tiltOut;
     Activator _lsDownOut;
+    Activator _shieldDropHoldActivator;
 
-    TemporaryActivator _shieldDropOut;
+    TemporaryActivator _shieldDropNeutral;
+    TemporaryActivator _shieldDropHold;
     TemporaryActivator _wavedashOut;
 
     double _shieldDropValue;
