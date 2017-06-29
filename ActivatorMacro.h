@@ -26,7 +26,6 @@ class ActivatorMacro : public Activator
 public:
     ActivatorMacro()
     : Activator(),
-      _activator(false),
       _isInterruptible(false),
       _shouldLoop(false),
       _start(false, 0)
@@ -34,7 +33,8 @@ public:
         clearMacro();
     }
 
-    virtual void process();
+    void process();
+    void endCycle();
 
     void setActivatorState(const bool state) { _activator = state; }
 
@@ -53,7 +53,7 @@ public:
     const bool isInterruptible() const       { return _isInterruptible; }
 
 private:
-    bool _activator;
+    Activator _activator;
 
     int _inputIndex;
 
@@ -79,7 +79,7 @@ void ActivatorMacro::process()
 {
     bool macroCanStart = (!_isRunning && !_isStarting) || _isInterruptible;
 
-    if (_activator && macroCanStart)
+    if (_activator.justActivated() && macroCanStart)
         startMacro();
 
     if (_isStarting)
@@ -87,6 +87,12 @@ void ActivatorMacro::process()
 
     if (_isRunning)
         runMacro();
+}
+
+void ActivatorMacro::endCycle()
+{
+    Activator::endCycle();
+    _activator.endCycle();
 }
 
 void ActivatorMacro::clearMacro()

@@ -7,7 +7,7 @@
 class WavedashMacro
 {
 public:
-    explicit WavedashMacro()
+    WavedashMacro()
     : _airDodgeDelayFrames(3.0),
       _minimumDelay(3.0),
       _maximumDelay(8.0)

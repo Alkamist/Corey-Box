@@ -6,6 +6,8 @@
 #include "ButtonOnlyCStick.h"
 #include "ButtonOnlyLeftStick.h"
 #include "WavedashMacro.h"
+#include "TwoButtonSpamMacro.h"
+#include "TwoButtonStateTracker.h"
 
 class MacroController : public GameCubeController
 {
@@ -52,10 +54,14 @@ private:
     ButtonOnlyCStick _cStick;
 
     WavedashMacro _wavedashMacro;
+    TwoButtonStateTracker _spamBAActivator;
+    TwoButtonSpamMacro _spamBAMacro;
 
     Activator _yOut;
     Activator _lOut;
     Activator _rOut;
+    Activator _bOut;
+    Activator _aOut;
     Activator _wavedashOut;
     UnipolarControl _rAnalogOut;
     BipolarControl _lsXOut;
@@ -94,8 +100,27 @@ void MacroController::process()
 
 
 
+    // ====================== SPAM B MACRO ======================
+    _spamBAActivator.setState1(_bButton);
+    _spamBAActivator.setState2(_aButton);
+    _spamBAActivator.process();
+
+    _spamBAMacro.setActivatorState(_spamBAActivator.state1WasFirst() && _spamBAActivator.getState2());
+    _spamBAMacro.process();
+
+    _bOut = _bButton;
+    if (_spamBAMacro.isRunning())
+        _bOut = _spamBAMacro.getButton1();
+
+    _aOut = _aButton;
+    if (_spamBAMacro.isRunning())
+        _aOut = _spamBAMacro.getButton2();
+
+
+
+
     // ====================== WAVEDASH MACRO ======================
-    _wavedashMacro.setActivatorState(_lButton.justActivated());
+    _wavedashMacro.setActivatorState(_lButton);
 
     if (_trimWavedashDown.justActivated()) _wavedashMacro.trimDown();
     if (_trimWavedashUp.justActivated())   _wavedashMacro.trimUp();
@@ -207,6 +232,8 @@ void MacroController::endCycle()
     _yOut.endCycle();
     _lOut.endCycle();
     _rOut.endCycle();
+    _bOut.endCycle();
+    _aOut.endCycle();
     _wavedashOut.endCycle();
     _rAnalogOut.endCycle();
     _lsXOut.endCycle();
@@ -230,6 +257,7 @@ void MacroController::endCycle()
 
     // Macros:
     _wavedashMacro.endCycle();
+    _spamBAMacro.endCycle();
 }
 
 // Don't use pin 6 or 26 for buttons.
@@ -261,8 +289,8 @@ MacroController::MacroController()
   _dDownButton(22),
   _dUpButton(23)
 {
-    a = &_aButton;
-    b = &_bButton;
+    a = &_aOut;
+    b = &_bOut;
     //x = &_xOut;
     y = &_yOut;
     z = &_zButton;

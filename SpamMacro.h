@@ -7,8 +7,8 @@
 class SpamMacro : public ActivatorMacro
 {
 public:
-    explicit SpamMacro(const Activator& activator)
-    : ActivatorMacro(activator)
+    SpamMacro()
+    : ActivatorMacro()
     {
         initMacro();
         setLooping(true);
