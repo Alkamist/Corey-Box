@@ -16,6 +16,7 @@ public:
 
     virtual void endCycle()                              { _previousState = _currentState; }
 
+    virtual void setState(const Activator& state)        { _currentState = state.isActive(); }
     virtual void setState(const bool state)              { _currentState = state; }
     virtual const bool isActive() const                  { return _currentState; }
     virtual const bool justActivated() const             { return stateJustChanged() && isActive(); }
@@ -24,6 +25,8 @@ public:
 
     //=================== OPERATORS ===================
 
+    const Activator& operator =(const Activator& value)  { _currentState = value.isActive(); return *this; }
+    const Activator& operator =(const bool value)        { _currentState = value; return *this; }
     operator bool() const                                { return isActive(); }
     const bool operator !() const                        { return !isActive(); }
 

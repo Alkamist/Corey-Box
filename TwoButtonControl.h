@@ -8,40 +8,35 @@
 class TwoButtonControl : public BipolarControl
 {
 public:
-    explicit TwoButtonControl(const Activator& low, const Activator& high)
+    explicit TwoButtonControl()
     : BipolarControl(),
-      _low(low),
-      _high(high),
+      _lowState(false),
+      _highState(false),
       _pressOrder(-1)
     {}
 
-    void process();
+    virtual void process();
+
+    void setLowState(const bool state)  { _lowState = state; }
+    void setHighState(const bool state) { _highState = state; }
 
 private:
-    const Activator& _low;
-    const Activator& _high;
+    bool _lowState;
+    bool _highState;
 
     // Button low/high press-order state:
     // 0 means low was pressed first.
     // 1 means high was pressed first.
     // -1 means neither was pressed first.
     int _pressOrder;
-
-    void runLogic();
 };
 
 
 
 void TwoButtonControl::process()
 {
-    if (_low.stateJustChanged() || _high.stateJustChanged())
-        runLogic();
-}
-
-void TwoButtonControl::runLogic()
-{
-    bool lowIsPressed = _low.isActive();
-    bool highIsPressed = _high.isActive();
+    bool lowIsPressed = _lowState;
+    bool highIsPressed = _highState;
 
     bool lowWasPressedFirst = lowIsPressed && (_pressOrder == 0);
     bool highWasPressedFirst = highIsPressed && (_pressOrder == 1);

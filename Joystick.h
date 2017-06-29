@@ -8,10 +8,8 @@
 class Joystick : public Activator
 {
 public:
-    Joystick(const BipolarControl& xControl, const BipolarControl& yControl)
+    Joystick()
     : Activator(),
-      _xControl(xControl),
-      _yControl(yControl),
       _inactiveRadius(0.2),
       _distance(0.0),
       _range(0.6250)
@@ -19,11 +17,6 @@ public:
 
     virtual void process()
     {
-        if (_xControl.valueJustChanged())
-            _xValue.setValue(_xControl.getValue() * _range);
-        if (_yControl.valueJustChanged())
-            _yValue.setValue(_yControl.getValue() * _range);
-
         if (_xValue.valueJustChanged() || _yValue.valueJustChanged())
         {
             _distance = calculateDistance(_xValue.getValue(), _yValue.getValue());
@@ -40,15 +33,15 @@ public:
 
     void setRange(const double range) { _range = range; }
 
+    virtual void setXValue(const double value) { _xValue.setValue(value * _range); }
+    virtual void setYValue(const double value) { _yValue.setValue(value * _range); }
+
     const BipolarControl& getXControl() const { return _xValue; }
     const BipolarControl& getYControl() const { return _yValue; }
 
     const double calculateDistance(const double x, const double y) { return sqrt(square(x) + square(y)); }
 
 private:
-    const BipolarControl& _xControl;
-    const BipolarControl& _yControl;
-
     BipolarControl _xValue;
     BipolarControl _yValue;
 

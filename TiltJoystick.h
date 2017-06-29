@@ -8,32 +8,35 @@
 class TiltJoystick : public Joystick
 {
 public:
-    TiltJoystick(const Activator& tilt, const BipolarControl& xControl, const BipolarControl& yControl)
-    : Joystick(_xValue, _yValue),
-      _xControl(xControl),
-      _yControl(yControl),
-      _tilt(tilt),
-      _tiltXOut(frames(7.0), _tiltResetX),
-      _tiltYOut(frames(7.0), _tiltResetY),
+    TiltJoystick()
+    : Joystick(),
+      _tiltState(false),
       _tiltAmount(0.60)
-    {}
+    {
+        _tiltXOut.setTime(frames(7.0));
+        _tiltYOut.setTime(frames(7.0));
+    }
 
     virtual void process()
     {
-        _xValue.setValue(_xControl.getValue());
-        _yValue.setValue(_yControl.getValue());
+        bool tiltResetX = _xValue.justActivated() || _xValue.justDeactivated() || _xValue.justCrossedInactiveRange();
+        bool tiltResetY = _yValue.justActivated() || _yValue.justDeactivated() || _yValue.justCrossedInactiveRange();
 
-        _tiltResetX.setState(_xControl.justActivated() || _xControl.justDeactivated() || _xControl.justCrossedInactiveRange());
-        _tiltResetY.setState(_yControl.justActivated() || _yControl.justDeactivated() || _yControl.justCrossedInactiveRange());
+        _tiltXOut.setActivatorState(tiltResetX);
+        _tiltYOut.setActivatorState(tiltResetY);
 
         _tiltXOut.process();
         _tiltYOut.process();
 
-        if (_tiltXOut && _tilt)
+        if (_tiltXOut && _tiltState)
             clampAxis(_xValue);
 
-        if (_tiltYOut && _tilt)
+        if (_tiltYOut && _tiltState)
             clampAxis(_yValue);
+
+
+        Joystick::setXValue(_xValue.getValue());
+        Joystick::setYValue(_yValue.getValue());
 
         Joystick::process();
     }
@@ -41,27 +44,24 @@ public:
     virtual void endCycle()
     {
         Joystick::endCycle();
-        _xValue.endCycle();
-        _yValue.endCycle();
-        _tiltResetX.endCycle();
-        _tiltResetY.endCycle();
         _tiltXOut.endCycle();
         _tiltYOut.endCycle();
+        _xValue.endCycle();
+        _yValue.endCycle();
     }
 
+    virtual void setTiltState(const bool state) { _tiltState = state; }
+    virtual void setXValue(const double value) { _xValue.setValue(value); }
+    virtual void setYValue(const double value) { _yValue.setValue(value); }
+
 private:
-    const BipolarControl& _xControl;
-    const BipolarControl& _yControl;
-    const Activator& _tilt;
-
-    BipolarControl _xValue;
-    BipolarControl _yValue;
-
-    Activator _tiltResetX;
-    Activator _tiltResetY;
+    bool _tiltState;
 
     TemporaryActivator _tiltXOut;
     TemporaryActivator _tiltYOut;
+
+    BipolarControl _xValue;
+    BipolarControl _yValue;
 
     const double _tiltAmount;
 

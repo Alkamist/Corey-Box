@@ -24,16 +24,19 @@ struct ActivatorMacroUnit
 class ActivatorMacro : public Activator
 {
 public:
-    ActivatorMacro(const Activator& activator)
+    ActivatorMacro()
     : Activator(),
-      _activator(activator),
+      _activator(false),
       _isInterruptible(false),
+      _shouldLoop(false),
       _start(false, 0)
     {
         clearMacro();
     }
 
-    void process();
+    virtual void process();
+
+    void setActivatorState(const bool state) { _activator = state; }
 
     void setStartDelay(const uint64_t delay) { _start.duration = delay; }
 
@@ -41,6 +44,7 @@ public:
     void clearMacro();
 
     void setInterruptible(const bool state)  { _isInterruptible = state; }
+    void setLooping(const bool state)        { _shouldLoop = state; }
 
     const unsigned int getLength() const     { return _inputList.getLength(); }
 
@@ -49,13 +53,14 @@ public:
     const bool isInterruptible() const       { return _isInterruptible; }
 
 private:
-    const Activator& _activator;
+    bool _activator;
 
     int _inputIndex;
 
     bool _isRunning;
     bool _isStarting;
     bool _isInterruptible;
+    bool _shouldLoop;
 
     Array<ActivatorMacroUnit> _inputList;
 
@@ -74,7 +79,7 @@ void ActivatorMacro::process()
 {
     bool macroCanStart = (!_isRunning && !_isStarting) || _isInterruptible;
 
-    if (_activator.justActivated() && macroCanStart)
+    if (_activator && macroCanStart)
         startMacro();
 
     if (_isStarting)
@@ -117,15 +122,19 @@ void ActivatorMacro::runMacro()
 {
     if (_timer.targetTimeReached())
     {
-        //_timer.subtractTargetTime();
         _timer.reset();
         ++_inputIndex;
 
         if (_inputIndex >= _inputList.getLength())
         {
-            _isRunning = false;
-            _inputIndex = -1;
-            return;
+            if (_shouldLoop && _activator)
+                _inputIndex = 0;
+            else
+            {
+                _isRunning = false;
+                _inputIndex = -1;
+                return;
+            }
         }
 
         setState(_inputList[_inputIndex].state);

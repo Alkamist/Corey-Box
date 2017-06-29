@@ -8,38 +8,46 @@
 class ButtonOnlyCStick : public Joystick
 {
 public:
-    ButtonOnlyCStick(const Activator& cLeft, const Activator& cRight,
-                     const Activator& cDown, const Activator& cUp,
-                     const Activator& lsDown, const Activator& lsUp,
-                     const Activator& tilt)
-    : Joystick(_xAxis, _yAxis),
-      _tilt(tilt),
-      _lsDown(lsDown),
-      _lsUp(lsUp),
-      _cLeft(cLeft),
-      _cRight(cRight),
-      _cDown(cDown),
-      _cUp(cUp),
-      _xAxis(cLeft, cRight),
-      _yAxis(_cDownOut, _cUpOut, _skewOut)
+    ButtonOnlyCStick()
+    : Joystick(),
+      _cLeftState(false),
+      _cRightState(false),
+      _cDownState(false),
+      _cUpState(false),
+      _lsDownState(false),
+      _lsUpState(false),
+      _tiltState(false),
+      _skewOut(false),
+      _cDownOut(false),
+      _cUpOut(false)
     {}
 
     virtual void process()
     {
-        bool lsDownOrUp = _lsDown || _lsUp;
-        bool cLeftOrRight = _cLeft || _cRight;
-        bool cDownOrUp = _cDown || _cUp;
+        bool lsDownOrUp = _lsDownState || _lsUpState;
+        bool cLeftOrRight = _cLeftState || _cRightState;
+        bool cDownOrUp = _cDownState || _cUpState;
 
-        _skewOut.setState(_tilt && lsDownOrUp && cLeftOrRight && !cDownOrUp);
+        _skewOut = _tiltState && lsDownOrUp && cLeftOrRight && !cDownOrUp;
 
-        bool skewDown = _lsDown && _skewOut;
-        bool skewUp = _lsUp && _skewOut;
+        bool skewDown = _lsDownState && _skewOut;
+        bool skewUp = _lsUpState && _skewOut;
 
-        _cDownOut.setState(_cDown || skewDown);
-        _cUpOut.setState(_cUp || skewUp);
+        _cDownOut = _cDownState || skewDown;
+        _cUpOut = _cUpState || skewUp;
+
+        _yAxis.setLowState(_cDownOut);
+        _yAxis.setHighState(_cUpOut);
+        _yAxis.setModState(_skewOut);
 
         _xAxis.process();
         _yAxis.process();
+
+        if (_xAxis.valueJustChanged())
+            Joystick::setXValue(_xAxis.getValue());
+
+        if (_yAxis.valueJustChanged())
+            Joystick::setYValue(_yAxis.getValue());
 
         Joystick::process();
     }
@@ -49,26 +57,31 @@ public:
         Joystick::endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
-        _skewOut.endCycle();
-        _cDownOut.endCycle();
-        _cUpOut.endCycle();
     }
 
+    void setCLeftState(const bool state)  { _cLeftState = state; _xAxis.setLowState(state); }
+    void setCRightState(const bool state) { _cRightState = state; _xAxis.setHighState(state); }
+    void setCDownState(const bool state)  { _cDownState = state; }
+    void setCUpState(const bool state)    { _cUpState = state; }
+    void setLsDownState(const bool state) { _lsDownState = state; }
+    void setLsUpState(const bool state)   { _lsUpState = state; }
+    void setTiltState(const bool state)   { _tiltState = state; }
+
 private:
-    const Activator& _tilt;
-    const Activator& _lsDown;
-    const Activator& _lsUp;
-    const Activator& _cLeft;
-    const Activator& _cRight;
-    const Activator& _cDown;
-    const Activator& _cUp;
+    bool _cLeftState;
+    bool _cRightState;
+    bool _cDownState;
+    bool _cUpState;
+    bool _lsDownState;
+    bool _lsUpState;
+    bool _tiltState;
+
+    bool _skewOut;
+    bool _cDownOut;
+    bool _cUpOut;
 
     TwoButtonControl _xAxis;
     SingleModAxis _yAxis;
-
-    Activator _skewOut;
-    Activator _cDownOut;
-    Activator _cUpOut;
 };
 
 #endif // BUTTONONLYCSTICK_H

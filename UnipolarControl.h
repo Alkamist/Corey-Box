@@ -24,8 +24,6 @@ public:
 
     const bool valueJustChanged() const       { return _currentValue != _previousValue; }
 
-    const bool justCrossedInactiveRange() const;
-
 private:
     double _currentValue;
     double _previousValue;
@@ -63,17 +61,6 @@ void UnipolarControl::setValue(const bool value)
         _currentValue = _valueRange.enforceRange(0.0);
         Activator::setState(false);
     }
-}
-
-const bool UnipolarControl::justCrossedInactiveRange() const
-{
-    bool crossedHighToLow = _previousValue > _inactiveRange.getUpperBound()
-                         && _currentValue < _inactiveRange.getLowerBound();
-
-    bool crossedLowToHigh = _previousValue < _inactiveRange.getLowerBound()
-                         && _currentValue > _inactiveRange.getUpperBound();
-
-    return crossedHighToLow || crossedLowToHigh;
 }
 
 UnipolarControl::UnipolarControl()

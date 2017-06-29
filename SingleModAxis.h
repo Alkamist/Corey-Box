@@ -6,10 +6,9 @@
 class SingleModAxis : public BipolarControl
 {
 public:
-    SingleModAxis(const Activator& low, const Activator& high, const Activator& mod)
+    SingleModAxis()
     : BipolarControl(),
-      _mod(mod),
-      _twoButtonControl(low, high),
+      _modState(false),
       _modValue(0.65)
     {}
 
@@ -17,7 +16,7 @@ public:
     {
         _twoButtonControl.process();
 
-        if (_mod)
+        if (_modState)
         {
             setValue(_twoButtonControl.getValue() * _modValue);
             return;
@@ -32,8 +31,12 @@ public:
         _twoButtonControl.endCycle();
     }
 
+    void setLowState(const bool state)  { _twoButtonControl.setLowState(state); }
+    void setHighState(const bool state) { _twoButtonControl.setHighState(state); }
+    void setModState(const bool state)  { _modState = state; }
+
 private:
-    const Activator& _mod;
+    bool _modState;
 
     TwoButtonControl _twoButtonControl;
 

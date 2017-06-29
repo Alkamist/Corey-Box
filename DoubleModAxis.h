@@ -6,12 +6,10 @@
 class DoubleModAxis : public BipolarControl
 {
 public:
-    DoubleModAxis(const Activator& low, const Activator& high,
-                  const Activator& mod1, const Activator& mod2)
+    DoubleModAxis()
     : BipolarControl(),
-      _mod1(mod1),
-      _mod2(mod2),
-      _twoButtonControl(low, high),
+      _mod1State(false),
+      _mod2State(false),
       _mod1Value(0.33250),
       _mod2Value(0.52500),
       _mod3Value(0.76250)
@@ -21,19 +19,19 @@ public:
     {
         _twoButtonControl.process();
 
-        if (_mod1 && !_mod2)
+        if (_mod1State && !_mod2State)
         {
             setValue(_twoButtonControl.getValue() * _mod1Value);
             return;
         }
 
-        if (!_mod1 && _mod2)
+        if (!_mod1State && _mod2State)
         {
             setValue(_twoButtonControl.getValue() * _mod2Value);
             return;
         }
 
-        if (_mod1 && _mod2)
+        if (_mod1State && _mod2State)
         {
             setValue(_twoButtonControl.getValue() * _mod3Value);
             return;
@@ -47,6 +45,11 @@ public:
         BipolarControl::endCycle();
         _twoButtonControl.endCycle();
     }
+
+    void setLowState(const bool state)  { _twoButtonControl.setLowState(state); }
+    void setHighState(const bool state) { _twoButtonControl.setHighState(state); }
+    void setMod1State(const bool state) { _mod1State = state; }
+    void setMod2State(const bool state) { _mod2State = state; }
 
     void trimModsOutward()
     {
@@ -76,8 +79,8 @@ public:
     }
 
 private:
-    const Activator& _mod1;
-    const Activator& _mod2;
+    bool _mod1State;
+    bool _mod2State;
 
     TwoButtonControl _twoButtonControl;
 

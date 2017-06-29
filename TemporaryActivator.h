@@ -7,15 +7,15 @@
 class TemporaryActivator : public Activator
 {
 public:
-    explicit TemporaryActivator(const uint64_t time, const Activator& activator)
+    TemporaryActivator()
     : Activator(),
-      _activator(activator),
-      _time(time)
+      _activator(false),
+      _time(0)
     {}
 
     void process()
     {
-        if (_activator.justActivated())
+        if (_activator)
         {
             setState(true);
             _timer.reset();
@@ -25,10 +25,11 @@ public:
             setState(false);
     }
 
-    void setTime(const uint64_t time) { _time = time; }
+    void setActivatorState(const bool state) { _activator = state; }
+    void setTime(const uint64_t time)        { _time = time; }
 
 private:
-    const Activator& _activator;
+    bool _activator;
 
     Timer _timer;
 

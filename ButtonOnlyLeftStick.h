@@ -8,71 +8,84 @@
 class ButtonOnlyLeftStick : public TiltJoystick
 {
 public:
-    ButtonOnlyLeftStick(const Activator& lsLeft, const Activator& lsRight,
-                        const Activator& lsDown, const Activator& lsUp,
-                        const Activator& xMod1, const Activator& xMod2,
-                        const Activator& yMod1, const Activator& yMod2,
-                        const Activator& tilt, const Activator& wavedash,
-                        const Activator& shieldDrop)
-    : TiltJoystick(_tiltOut, _xAxis, _yAxis),
-      _tilt(tilt),
-      _shieldDrop(shieldDrop),
-      _lsDown(lsDown),
-      _xAxis(lsLeft, lsRight, xMod1, xMod2),
-      _yAxis(_lsDownOut, lsUp, yMod1, yMod2),
-      _shieldDropNeutral(frames(1.0), shieldDrop),
-      _shieldDropHold(frames(4.0), _shieldDropHoldActivator),
-      _wavedashOut(frames(5.0), wavedash),
+    ButtonOnlyLeftStick()
+    : TiltJoystick(),
+      _tiltState(false),
+      _lsDownState(false),
+      _lsDownOut(false),
+      _tiltOut(false),
       _shieldDropValue(-0.67500)
-    {}
-
-    virtual void process()
     {
+        _wavedashState.setTime(frames(5.0));
+        _shieldDropNeutral.setTime(frames(1.0));
+        _shieldDropHold.setTime(frames(4.0));
+    }
+
+    void process()
+    {
+        _shieldDropNeutral.setActivatorState(_shieldDropState.justActivated());
         _shieldDropNeutral.process();
 
-        _shieldDropHoldActivator.setState(!_shieldDropNeutral);
-
+        _shieldDropHold.setActivatorState(_shieldDropNeutral.justDeactivated());
         _shieldDropHold.process();
-        _wavedashOut.process();
 
-        _lsDownOut.setState(_lsDown || _wavedashOut);
+        _wavedashState.process();
+
+        _lsDownOut = _lsDownState || _wavedashState;
+
+        _yAxis.setLowState(_lsDownOut);
 
         _xAxis.process();
         _yAxis.process();
 
-        if (_shieldDropNeutral && _shieldDrop)
+        if (_shieldDropNeutral && _shieldDropState)
         {
             _xAxis.setValue(0.0);
             _yAxis.setValue(0.0);
         }
 
-        if (_shieldDropHold && _shieldDrop)
+        if (_shieldDropHold && _shieldDropState)
         {
             _xAxis.setValue(0.0);
             _yAxis.setValue(_shieldDropValue);
         }
 
-        _tiltOut.setState(_tilt && !_wavedashOut && !(_shieldDropNeutral || _shieldDropHold));
+        _tiltOut = _tiltState && !_wavedashState && !(_shieldDropNeutral || _shieldDropHold);
+
+        TiltJoystick::setTiltState(_tiltOut);
+
+        TiltJoystick::setXValue(_xAxis.getValue());
+        TiltJoystick::setYValue(_yAxis.getValue());
 
         TiltJoystick::process();
     }
 
-    virtual void endCycle()
+    void endCycle()
     {
         TiltJoystick::endCycle();
-        _xAxis.endCycle();
-        _yAxis.endCycle();
-        _shieldDropHoldActivator.endCycle();
+        _shieldDropState.endCycle();
+        _wavedashState.endCycle();
         _shieldDropNeutral.endCycle();
         _shieldDropHold.endCycle();
-        _wavedashOut.endCycle();
-        _tiltOut.endCycle();
-        _lsDownOut.endCycle();
+        _xAxis.endCycle();
+        _yAxis.endCycle();
     }
+
+    void setLsLeftState(const bool state)     { _xAxis.setLowState(state); }
+    void setLsRightState(const bool state)    { _xAxis.setHighState(state); }
+    void setLsDownState(const bool state)     { _lsDownState = state; }
+    void setLsUpState(const bool state)       { _yAxis.setHighState(state); }
+    void setXMod1State(const bool state)      { _xAxis.setMod1State(state); }
+    void setXMod2State(const bool state)      { _xAxis.setMod2State(state); }
+    void setYMod1State(const bool state)      { _yAxis.setMod1State(state); }
+    void setYMod2State(const bool state)      { _yAxis.setMod2State(state); }
+    void setTiltState(const bool state)       { _tiltState = state; }
+    void setWavedashState(const bool state)   { _wavedashState.setActivatorState(state); }
+    void setShieldDropState(const bool state) { _shieldDropState = state; }
 
     void trimShieldDropDown()
     {
-        _shieldDropValue -= 0.015;
+         _shieldDropValue -= 0.015;
 
         if (_shieldDropValue < -1.0)
             _shieldDropValue = -1.0;
@@ -107,20 +120,17 @@ public:
     }
 
 private:
-    const Activator& _tilt;
-    const Activator& _shieldDrop;
-    const Activator& _lsDown;
+    bool _tiltState;
+    bool _lsDownState;
+    bool _lsDownOut;
+    bool _tiltOut;
+    Activator _shieldDropState;
+    TemporaryActivator _wavedashState;
+    TemporaryActivator _shieldDropNeutral;
+    TemporaryActivator _shieldDropHold;
 
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
-
-    Activator _tiltOut;
-    Activator _lsDownOut;
-    Activator _shieldDropHoldActivator;
-
-    TemporaryActivator _shieldDropNeutral;
-    TemporaryActivator _shieldDropHold;
-    TemporaryActivator _wavedashOut;
 
     double _shieldDropValue;
 };
