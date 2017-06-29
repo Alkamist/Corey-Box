@@ -57,6 +57,7 @@ private:
     TwoButtonStateTracker _spamBAActivator;
     TwoButtonSpamMacro _spamBAMacro;
 
+    Activator _xOut;
     Activator _yOut;
     Activator _lOut;
     Activator _rOut;
@@ -85,6 +86,7 @@ private:
 void MacroController::process()
 {
     // ====================== BUTTON COMBOS ======================
+    bool extraButtonKey = _yMod2Button && _xMod1Button;
     bool wavedashKey = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
     bool analogKey = _yMod2Button && _xMod1Button && _shieldDropButton;
 
@@ -105,38 +107,51 @@ void MacroController::process()
     _spamBAActivator.setState2(_aButton);
     _spamBAActivator.process();
 
-    _spamBAMacro.setActivatorState(_spamBAActivator.state1WasFirst() && _spamBAActivator.getState2());
+    bool spamABKey = _spamBAActivator.state1WasFirst() && _spamBAActivator.getState2();
+
+    _spamBAMacro.setActivatorState(spamABKey);
     _spamBAMacro.process();
 
     _bOut = _bButton;
-    if (_spamBAMacro.isRunning())
-        _bOut = _spamBAMacro.getButton1();
-
     _aOut = _aButton;
     if (_spamBAMacro.isRunning())
-        _aOut = _spamBAMacro.getButton2();
+    {
+        _bOut = _spamBAMacro.getButton1();
 
+        if (spamABKey && _cDownButton) _aOut = _spamBAMacro.getButton2();
+    }
 
 
 
     // ====================== WAVEDASH MACRO ======================
-    _wavedashMacro.setActivatorState(_lButton);
+    _wavedashMacro.setActivatorState(_lButton && !extraButtonKey);
 
     if (_trimWavedashDown.justActivated()) _wavedashMacro.trimDown();
     if (_trimWavedashUp.justActivated())   _wavedashMacro.trimUp();
 
     _wavedashMacro.process();
 
-    _yOut = _jumpButton;
-    if (_wavedashMacro.getJump().isRunning())
-        _yOut = _wavedashMacro.getJump();
+    if (extraButtonKey)
+    {
+        _yOut = false;
+        _xOut = _jumpButton;
+        _lOut = _lButton;
+        _rOut = _rButton;
 
-    _rOut = _rButton;
-    if (_wavedashMacro.getR().isRunning())
-        _rOut = _wavedashMacro.getR();
+    }
+    else
+    {
+        _yOut = _jumpButton;
+        if (_wavedashMacro.getJump().isRunning())
+            _yOut = _wavedashMacro.getJump();
 
-    _lOut = _wavedashMacro.getL();
-    _wavedashOut = _wavedashMacro.getL();
+        _rOut = _rButton;
+        if (_wavedashMacro.getR().isRunning())
+            _rOut = _wavedashMacro.getR();
+
+        _lOut = _wavedashMacro.getL();
+        _wavedashOut = _wavedashMacro.getL();
+    }
 
 
 
@@ -183,7 +198,7 @@ void MacroController::process()
     // ====================== C STICK ======================
     _cStick.setCLeftState(_cLeftButton);
     _cStick.setCRightState(_cRightButton);
-    _cStick.setCDownState(_cDownButton);
+    _cStick.setCDownState(_cDownButton && !spamABKey);
     _cStick.setCUpState(_cUpButton);
     _cStick.setLsDownState(_lsDownButton);
     _cStick.setLsUpState(_lsUpButton);
@@ -229,6 +244,7 @@ void MacroController::endCycle()
     _dUpButton.endCycle();
 
     // Outputs:
+    _xOut.endCycle();
     _yOut.endCycle();
     _lOut.endCycle();
     _rOut.endCycle();
@@ -291,7 +307,7 @@ MacroController::MacroController()
 {
     a = &_aOut;
     b = &_bOut;
-    //x = &_xOut;
+    x = &_xOut;
     y = &_yOut;
     z = &_zButton;
     l = &_lOut;
