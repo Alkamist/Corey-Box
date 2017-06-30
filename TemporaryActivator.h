@@ -1,5 +1,5 @@
-#ifndef TEMPORARYACTIVATOR_
-#define TEMPORARYACTIVATOR_
+#ifndef TEMPORARYACTIVATOR_H
+#define TEMPORARYACTIVATOR_H
 
 #include "Activator.h"
 #include "Timer.h"
@@ -40,4 +40,4 @@ private:
     uint64_t _time;
 };
 
-#endif // TEMPORARYACTIVATOR_
+#endif // TEMPORARYACTIVATOR_H

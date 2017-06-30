@@ -1,0 +1,34 @@
+========================== GENERAL ==========================
+    L is meant for wavedashing. It temporarily disables tilt when pushed to
+    ensure proper angles even in Project M.
+
+    tilt + lsUp + cXAxis = Upward forward smash.
+    tilt + lsDown + cXAxis = Downward forward smash.
+
+
+
+========================== SETUP ==========================
+    xMod1 + xMod2 + yMod1 + yMod2 + dUp + shieldDrop = Toggle macros on and off.
+    Hold yMod2 && yMod1 = Temporarily L is normal and X switches with X.
+
+Wavedash macro:
+
+    xMod1 + xMod2 + yMod1 + yMod2 + cUp = Increase jumpsquat time by 1 frame.
+    xMod1 + xMod2 + yMod1 + yMod2 + cDown = Decrease jumpsquat time by 1 frame.
+
+    You can't trim the jumpsquat time below 3 (default value) or higher than 8.
+
+Spam BA macro:
+
+    B first + A = Spam B really fast.
+    B first + A + cDown = Alternate between B and A really fast.
+
+Analog trimming:
+
+    yMod2 + xMod1 + shieldDrop + A = Turn on Melee Mode.
+    yMod2 + xMod1 + shieldDrop + B = Turn on Project M Mode.
+
+    yMod2 + xMod1 + shieldDrop + cUp = Trim shield drop upward.
+    yMod2 + xMod1 + shieldDrop + cDown = Trim shield drop downward.
+    yMod2 + xMod1 + shieldDrop + cRight = Trim mods outward.
+    yMod2 + xMod1 + shieldDrop + cLeft = Trim mods inward.

@@ -17,6 +17,7 @@ public:
       _tiltOut(false),
       _shieldDropValue(-0.67500)
     {
+        _tiltTempDisable.setTime(frames(5.0));
         _wavedashState.setTime(frames(5.0));
         _shieldDropNeutral.setTime(frames(1.0));
     }
@@ -26,6 +27,7 @@ public:
         _shieldDropNeutral.setActivatorState(_shieldDropState.justActivated());
         _shieldDropNeutral.process();
 
+        _tiltTempDisable.process();
         _wavedashState.process();
 
         _lsDownOut = _lsDownState || _wavedashState;
@@ -49,7 +51,7 @@ public:
             }
         }
 
-        _tiltOut = _tiltState && !_wavedashState && !_shieldDropState;
+        _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState) && !_shieldDropState;
 
         TiltJoystick::setTiltState(_tiltOut);
 
@@ -63,23 +65,25 @@ public:
     {
         TiltJoystick::endCycle();
         _shieldDropState.endCycle();
+        _tiltTempDisable.endCycle();
         _wavedashState.endCycle();
         _shieldDropNeutral.endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
     }
 
-    void setLsLeftState(const bool state)     { _xAxis.setLowState(state); }
-    void setLsRightState(const bool state)    { _xAxis.setHighState(state); }
-    void setLsDownState(const bool state)     { _lsDownState = state; }
-    void setLsUpState(const bool state)       { _yAxis.setHighState(state); }
-    void setXMod1State(const bool state)      { _xAxis.setMod1State(state); }
-    void setXMod2State(const bool state)      { _xAxis.setMod2State(state); }
-    void setYMod1State(const bool state)      { _yAxis.setMod1State(state); }
-    void setYMod2State(const bool state)      { _yAxis.setMod2State(state); }
-    void setTiltState(const bool state)       { _tiltState = state; }
-    void setWavedashState(const bool state)   { _wavedashState.setActivatorState(state); }
-    void setShieldDropState(const bool state) { _shieldDropState = state; }
+    void setLsLeftState(const bool state)          { _xAxis.setLowState(state); }
+    void setLsRightState(const bool state)         { _xAxis.setHighState(state); }
+    void setLsDownState(const bool state)          { _lsDownState = state; }
+    void setLsUpState(const bool state)            { _yAxis.setHighState(state); }
+    void setXMod1State(const bool state)           { _xAxis.setMod1State(state); }
+    void setXMod2State(const bool state)           { _xAxis.setMod2State(state); }
+    void setYMod1State(const bool state)           { _yAxis.setMod1State(state); }
+    void setYMod2State(const bool state)           { _yAxis.setMod2State(state); }
+    void setTiltState(const bool state)            { _tiltState = state; }
+    void setTiltTempDisableState(const bool state) { _tiltTempDisable.setActivatorState(state); }
+    void setWavedashState(const bool state)        { _wavedashState.setActivatorState(state); }
+    void setShieldDropState(const bool state)      { _shieldDropState = state; }
 
     void trimShieldDropDown()
     {
@@ -123,6 +127,7 @@ private:
     bool _lsDownOut;
     bool _tiltOut;
     Activator _shieldDropState;
+    TemporaryActivator _tiltTempDisable;
     TemporaryActivator _wavedashState;
     TemporaryActivator _shieldDropNeutral;
 

@@ -8,6 +8,7 @@
 #include "WavedashMacro.h"
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
+#include "ToggleActivator.h"
 
 // This is the main controller class right now. I know it is kind of a
 // god class but I'm not sure how to split up this logic.
@@ -59,13 +60,12 @@ private:
     TwoButtonStateTracker _spamBAActivator;
     TwoButtonSpamMacro _spamBAMacro;
 
+    Activator _aOut;
+    Activator _bOut;
     Activator _xOut;
     Activator _yOut;
     Activator _lOut;
     Activator _rOut;
-    Activator _bOut;
-    Activator _aOut;
-    Activator _wavedashOut;
     UnipolarControl _rAnalogOut;
     BipolarControl _lsXOut;
     BipolarControl _lsYOut;
@@ -81,16 +81,32 @@ private:
 
     Activator _meleeMode;
     Activator _projectMMode;
+
+    Activator _disableMacros;
+    ToggleActivator _macrosAreOn;
 };
 
 
 
 void MacroController::process()
 {
+    // ====================== OUTPUT INITIALIZATION ======================
+    _aOut = _aButton;
+    _bOut = _bButton;
+    _xOut = false;
+    _yOut = _jumpButton;
+    _lOut = _lButton;
+    _rOut = _rButton;
+    _leftStick.setWavedashState(false);
+
+
     // ====================== BUTTON COMBOS ======================
     bool extraButtonKey = _yMod2Button && _xMod1Button;
     bool wavedashKey = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
     bool analogKey = _yMod2Button && _xMod1Button && _shieldDropButton;
+    _disableMacros = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button && _dUpButton && _shieldDropButton;
+    _macrosAreOn.setActivatorState(_disableMacros.justActivated());
+    _macrosAreOn.process();
 
     _trimWavedashDown = wavedashKey && _cDownButton;
     _trimWavedashUp = wavedashKey && _cUpButton;
@@ -104,18 +120,16 @@ void MacroController::process()
 
 
 
-    // ====================== SPAM B MACRO ======================
+    // ====================== SPAM B OR BA MACRO ======================
     _spamBAActivator.setState1(_bButton);
     _spamBAActivator.setState2(_aButton);
     _spamBAActivator.process();
 
     bool spamABKey = _spamBAActivator.state1WasFirst() && _spamBAActivator.getState2();
 
-    _spamBAMacro.setActivatorState(spamABKey);
+    _spamBAMacro.setActivatorState(spamABKey && _macrosAreOn);
     _spamBAMacro.process();
 
-    _bOut = _bButton;
-    _aOut = _aButton;
     if (_spamBAMacro.isRunning())
     {
         _bOut = _spamBAMacro.getButton1();
@@ -126,7 +140,7 @@ void MacroController::process()
 
 
     // ====================== WAVEDASH MACRO ======================
-    _wavedashMacro.setActivatorState(_lButton && !extraButtonKey);
+    _wavedashMacro.setActivatorState(_lButton && !extraButtonKey && _macrosAreOn);
 
     if (_trimWavedashDown.justActivated()) _wavedashMacro.trimDown();
     if (_trimWavedashUp.justActivated())   _wavedashMacro.trimUp();
@@ -137,10 +151,9 @@ void MacroController::process()
     {
         _yOut = false;
         _xOut = _jumpButton;
-        _lOut = _lButton;
-        _rOut = _rButton;
     }
-    else
+
+    if (_macrosAreOn && !extraButtonKey)
     {
         _yOut = _jumpButton;
         if (_wavedashMacro.getJump().isRunning()) _yOut = _wavedashMacro.getJump();
@@ -149,7 +162,6 @@ void MacroController::process()
         if (_wavedashMacro.getR().isRunning()) _rOut = _wavedashMacro.getR();
 
         _lOut = _wavedashMacro.getL();
-        _wavedashOut = _wavedashMacro.getL();
     }
 
 
@@ -164,7 +176,8 @@ void MacroController::process()
     _leftStick.setYMod1State(_yMod1Button);
     _leftStick.setYMod2State(_yMod2Button);
     _leftStick.setTiltState(_tiltButton);
-    _leftStick.setWavedashState(_wavedashOut);
+    _leftStick.setTiltTempDisableState(_lOut);
+    _leftStick.setWavedashState(_wavedashMacro.getL());
     _leftStick.setShieldDropState(_shieldDropButton);
 
     if (_meleeMode.justActivated())
@@ -249,7 +262,6 @@ void MacroController::endCycle()
     _rOut.endCycle();
     _bOut.endCycle();
     _aOut.endCycle();
-    _wavedashOut.endCycle();
     _rAnalogOut.endCycle();
     _lsXOut.endCycle();
     _lsYOut.endCycle();
@@ -273,6 +285,9 @@ void MacroController::endCycle()
     // Macros:
     _wavedashMacro.endCycle();
     _spamBAMacro.endCycle();
+
+    _disableMacros.endCycle();
+    _macrosAreOn.endCycle();
 }
 
 // Don't use pin 6 or 26 for buttons.
@@ -302,7 +317,8 @@ MacroController::MacroController()
   _dLeftButton(21),
   _dRightButton(20),
   _dDownButton(22),
-  _dUpButton(5)
+  _dUpButton(5),
+  _macrosAreOn(true)
 {
     a = &_aOut;
     b = &_bOut;
