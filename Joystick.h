@@ -5,6 +5,8 @@
 
 #include "BipolarControl.h"
 
+// This class represents a joystick that can tell whether or not it
+// is active based on its distance away from the origin.
 class Joystick : public Activator
 {
 public:

@@ -9,6 +9,8 @@
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
 
+// This is the main controller class right now. I know it is kind of a
+// god class but I'm not sure how to split up this logic.
 class MacroController : public GameCubeController
 {
 public:

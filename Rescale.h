@@ -3,6 +3,7 @@
 
 #include "Range.h"
 
+// This function can rescale a value from a range to a different range.
 template <typename T>
 const T rescale(const T value,
                 const Range<T>& fromRange,

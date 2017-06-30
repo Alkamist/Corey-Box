@@ -4,6 +4,7 @@
 template <class T>
 class Bounds;
 
+// This class represents a center and a magnitude. Use it to set a range.
 template <class T>
 class CenterAndMagnitude
 {

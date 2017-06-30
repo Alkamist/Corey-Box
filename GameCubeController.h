@@ -4,6 +4,8 @@
 #include "UnipolarControl.h"
 #include "BipolarControl.h"
 
+// This is the basic layout of a GameCube controller. I know a struct of
+// raw pointers is ugly, but it is efficient and gets the job done for now.
 struct GameCubeController
 {
     // Digital values

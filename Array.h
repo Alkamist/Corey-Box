@@ -1,6 +1,7 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+// This class is an array that can dynamically allocate data.
 template <class T>
 class Array
 {

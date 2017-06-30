@@ -5,6 +5,8 @@
 #include "TemporaryActivator.h"
 #include "Frames.h"
 
+// This class represents a joystick that can be limited to not move
+// fast enough to trigger dashing, rolling, spotdodging, etc...
 class TiltJoystick : public Joystick
 {
 public:

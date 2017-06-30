@@ -5,6 +5,7 @@
 #include "SingleModAxis.h"
 #include "TwoButtonControl.h"
 
+// This class represents the c stick used in the button only controller.
 class ButtonOnlyCStick : public Joystick
 {
 public:

@@ -4,6 +4,7 @@
 #include "ActivatorMacro.h"
 #include "Frames.h"
 
+// This macro simply spams an input alternating on and off every frame.
 class SpamMacro : public ActivatorMacro
 {
 public:

@@ -5,6 +5,8 @@
 #include "Timer.h"
 #include "Array.h"
 
+// This is the basic unit for an ActivatorMacro. You can pass in anonymous
+// instantiations of these to an ActivatorMacro.
 struct ActivatorMacroUnit
 {
     explicit ActivatorMacroUnit()
@@ -21,6 +23,8 @@ struct ActivatorMacroUnit
     uint64_t duration;
 };
 
+// This class is a macro that is specifically meant to run an Activator.
+// Use it to build Macros of true and false data.
 class ActivatorMacro : public Activator
 {
 public:

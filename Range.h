@@ -4,6 +4,8 @@
 #include "Bounds.h"
 #include "CenterAndMagnitude.h"
 
+// This class represents a range that can be set from either Bounds or
+// CenterAndMagnitude.
 template <class T>
 class Range
 {

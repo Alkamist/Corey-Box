@@ -1,6 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+// This is a simple timer class based in microseconds.
 class Timer
 {
 public:

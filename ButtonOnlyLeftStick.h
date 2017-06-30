@@ -5,6 +5,7 @@
 #include "DoubleModAxis.h"
 #include "Signum.h"
 
+// This class represents the left analog stick used in the button only controller.
 class ButtonOnlyLeftStick : public TiltJoystick
 {
 public:

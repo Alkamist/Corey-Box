@@ -1,6 +1,9 @@
 #ifndef ACTIVATOR_H
 #define ACTIVATOR_H
 
+// This class is the basic unit of something that can activate something else.
+// Be sure to call endCycle() at the end of the clock cycle, along with anything
+// else that uses this logic.
 class Activator
 {
 public:

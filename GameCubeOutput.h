@@ -4,6 +4,8 @@
 #include "Nintendo.h"
 #include "GameCubeController.h"
 
+// This class is how you output to a GameCube. Set the pin, connect a controller,
+// and call process() to write the data.
 class GameCubeOutput : public CGamecubeConsole
 {
 public:

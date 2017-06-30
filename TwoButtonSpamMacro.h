@@ -4,6 +4,8 @@
 #include "SpamMacro.h"
 #include "Frames.h"
 
+// This class is a macro that will spam two buttons alternating
+// every frame.
 class TwoButtonSpamMacro
 {
 public:

@@ -3,6 +3,8 @@
 
 #include "TwoButtonControl.h"
 
+// This class is a TwoButtonControl that can be modded by two mod buttons.
+// Either mod and the combination of both give different mod values.
 class DoubleModAxis : public BipolarControl
 {
 public:

@@ -5,6 +5,10 @@
 #include "Range.h"
 #include "Rescale.h"
 
+// This is the basic class for an analog control that goes from -1 to 1.
+// it has an inactive range which is basically a deadzone. Within this
+// range the Activator portion of it is set inactive, so this can be
+// used in places where an Activator is needed.
 class BipolarControl : public Activator
 {
 public:

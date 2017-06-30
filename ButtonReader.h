@@ -4,6 +4,7 @@
 #include <Bounce2.h>
 #include "Activator.h"
 
+// This is the basic class to read input from a button.
 class ButtonReader : public Activator
 {
 public:

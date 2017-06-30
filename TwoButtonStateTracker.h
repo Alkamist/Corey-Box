@@ -1,6 +1,10 @@
 #ifndef TWOBUTTONSTATETRACKER_H
 #define TWOBUTTONSTATETRACKER_H
 
+// This class simply takes in two states and can tell you which
+// one happened first. There is probably a much better way to
+// do this that isn't limited to two inputs, I just haven't
+// put in the time to write it.
 class TwoButtonStateTracker
 {
 public:
