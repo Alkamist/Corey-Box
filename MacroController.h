@@ -137,17 +137,14 @@ void MacroController::process()
         _xOut = _jumpButton;
         _lOut = _lButton;
         _rOut = _rButton;
-
     }
     else
     {
         _yOut = _jumpButton;
-        if (_wavedashMacro.getJump().isRunning())
-            _yOut = _wavedashMacro.getJump();
+        if (_wavedashMacro.getJump().isRunning()) _yOut = _wavedashMacro.getJump();
 
         _rOut = _rButton;
-        if (_wavedashMacro.getR().isRunning())
-            _rOut = _wavedashMacro.getR();
+        if (_wavedashMacro.getR().isRunning()) _rOut = _wavedashMacro.getR();
 
         _lOut = _wavedashMacro.getL();
         _wavedashOut = _wavedashMacro.getL();
@@ -280,13 +277,13 @@ void MacroController::endCycle()
 MacroController::MacroController()
 : // Buttons:
   _tiltButton(27),
-  _shieldDropButton(19),
+  _shieldDropButton(8),
   _lsLeftButton(0),
   _lsRightButton(3),
   _lsDownButton(1),
   _lsUpButton(2),
-  _xMod1Button(8),
-  _xMod2Button(5),
+  _xMod1Button(19),
+  _xMod2Button(23),
   _yMod1Button(7),
   _yMod2Button(4),
   _cLeftButton(9),
@@ -303,7 +300,7 @@ MacroController::MacroController()
   _dLeftButton(21),
   _dRightButton(20),
   _dDownButton(22),
-  _dUpButton(23)
+  _dUpButton(5)
 {
     a = &_aOut;
     b = &_bOut;
