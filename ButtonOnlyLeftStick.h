@@ -18,16 +18,12 @@ public:
     {
         _wavedashState.setTime(frames(5.0));
         _shieldDropNeutral.setTime(frames(1.0));
-        _shieldDropHold.setTime(frames(4.0));
     }
 
     void process()
     {
         _shieldDropNeutral.setActivatorState(_shieldDropState.justActivated());
         _shieldDropNeutral.process();
-
-        _shieldDropHold.setActivatorState(_shieldDropNeutral.justDeactivated());
-        _shieldDropHold.process();
 
         _wavedashState.process();
 
@@ -38,19 +34,21 @@ public:
         _xAxis.process();
         _yAxis.process();
 
-        if (_shieldDropNeutral && _shieldDropState)
+        if (_shieldDropState)
         {
-            _xAxis.setValue(0.0);
-            _yAxis.setValue(0.0);
+            if (_shieldDropNeutral)
+            {
+                _xAxis.setValue(0.0);
+                _yAxis.setValue(0.0);
+            }
+            else
+            {
+                _xAxis.setValue(0.0);
+                _yAxis.setValue(_shieldDropValue);
+            }
         }
 
-        if (_shieldDropHold && _shieldDropState)
-        {
-            _xAxis.setValue(0.0);
-            _yAxis.setValue(_shieldDropValue);
-        }
-
-        _tiltOut = _tiltState && !_wavedashState && !(_shieldDropNeutral || _shieldDropHold);
+        _tiltOut = _tiltState && !_wavedashState && !_shieldDropState;
 
         TiltJoystick::setTiltState(_tiltOut);
 
@@ -66,7 +64,6 @@ public:
         _shieldDropState.endCycle();
         _wavedashState.endCycle();
         _shieldDropNeutral.endCycle();
-        _shieldDropHold.endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
     }
@@ -127,7 +124,6 @@ private:
     Activator _shieldDropState;
     TemporaryActivator _wavedashState;
     TemporaryActivator _shieldDropNeutral;
-    TemporaryActivator _shieldDropHold;
 
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
