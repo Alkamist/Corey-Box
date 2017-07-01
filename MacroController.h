@@ -101,9 +101,9 @@ void MacroController::process()
 
 
     // ====================== BUTTON COMBOS ======================
-    bool extraButtonKey = _yMod2Button && _xMod1Button;
+    bool extraButtonKey = _yMod1Button && _xMod1Button;
     bool wavedashKey = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
-    bool analogKey = _yMod2Button && _xMod1Button && _shieldDropButton;
+    bool analogKey = extraButtonKey && _shieldDropButton;
     _disableMacros = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button && _dUpButton && _shieldDropButton;
     _macrosAreOn.setActivatorState(_disableMacros.justActivated());
     _macrosAreOn.process();
@@ -299,10 +299,10 @@ MacroController::MacroController()
   _lsRightButton(3),
   _lsDownButton(1),
   _lsUpButton(2),
-  _xMod1Button(19),
-  _xMod2Button(23),
-  _yMod1Button(7),
-  _yMod2Button(4),
+  _xMod1Button(4),
+  _xMod2Button(7),
+  _yMod1Button(19),
+  _yMod2Button(23),
   _cLeftButton(9),
   _cRightButton(12),
   _cDownButton(10),

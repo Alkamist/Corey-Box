@@ -12,8 +12,6 @@ public:
     ButtonOnlyLeftStick()
     : TiltJoystick(),
       _tiltState(false),
-      _lsDownState(false),
-      _lsDownOut(false),
       _tiltOut(false),
       _shieldDropValue(-0.67500)
     {
@@ -30,12 +28,13 @@ public:
         _tiltTempDisable.process();
         _wavedashState.process();
 
-        _lsDownOut = _lsDownState || _wavedashState;
-
-        _yAxis.setLowState(_lsDownOut);
-
         _xAxis.process();
         _yAxis.process();
+
+        if (_wavedashState && (_yAxis.getValue() > -0.33250))
+        {
+            _yAxis.setValue(-0.33250);
+        }
 
         if (_shieldDropState)
         {
@@ -74,7 +73,7 @@ public:
 
     void setLsLeftState(const bool state)          { _xAxis.setLowState(state); }
     void setLsRightState(const bool state)         { _xAxis.setHighState(state); }
-    void setLsDownState(const bool state)          { _lsDownState = state; }
+    void setLsDownState(const bool state)          { _yAxis.setLowState(state); }
     void setLsUpState(const bool state)            { _yAxis.setHighState(state); }
     void setXMod1State(const bool state)           { _xAxis.setMod1State(state); }
     void setXMod2State(const bool state)           { _xAxis.setMod2State(state); }
@@ -123,8 +122,6 @@ public:
 
 private:
     bool _tiltState;
-    bool _lsDownState;
-    bool _lsDownOut;
     bool _tiltOut;
     Activator _shieldDropState;
     TemporaryActivator _tiltTempDisable;
