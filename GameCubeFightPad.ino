@@ -1,10 +1,8 @@
 #include "GameCubeOutput.h"
-#include "MacroController.h"
+#include "ButtonOnlyController.h"
 
-MacroController controller;
 GameCubeOutput gameCubeOutput(26);
-
-//elapsedMicros testTimer;
+ButtonOnlyController controller;
 
 // This function runs one time when you plug in the controller
 void setup()
@@ -19,21 +17,6 @@ void loop()
 {
     controller.process();
     gameCubeOutput.process();
-
-    /*if (controller.getLButton().justActivated())
-        testTimer = 0;
-
-    if (controller.l->justActivated())
-    {
-        Serial.print("L: ");
-        Serial.println(testTimer);
-    }
-
-    if (controller.r->justActivated())
-    {
-        Serial.print("R: ");
-        Serial.println(testTimer);
-    }*/
 
     controller.endCycle();
 }

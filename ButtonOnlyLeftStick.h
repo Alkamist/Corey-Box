@@ -31,9 +31,9 @@ public:
         _xAxis.process();
         _yAxis.process();
 
-        if (_wavedashState && (_yAxis.getValue() > -0.33250))
+        if (_wavedashState && (_yAxis.getValue() > -_yAxis.getMod1Value()))
         {
-            _yAxis.setValue(-0.33250);
+            _yAxis.setValue(-_yAxis.getMod1Value());
         }
 
         if (_shieldDropState)
@@ -54,8 +54,8 @@ public:
 
         TiltJoystick::setTiltState(_tiltOut);
 
-        TiltJoystick::setXValue(_xAxis.getValue());
-        TiltJoystick::setYValue(_yAxis.getValue());
+        Joystick::setXValue(_xAxis.getValue());
+        Joystick::setYValue(_yAxis.getValue());
 
         TiltJoystick::process();
     }
@@ -100,7 +100,15 @@ public:
             _shieldDropValue = 0.0;
     }
 
-    void resetShieldDrop() { _shieldDropValue = -0.67500; }
+    void resetShieldDrop()
+    {
+        _shieldDropValue = -0.67500;
+    }
+
+    void setShieldDrop(const float value)
+    {
+        _shieldDropValue = value;
+    }
 
     void trimModsOutward()
     {
@@ -112,6 +120,12 @@ public:
     {
         _xAxis.trimModsInward();
         _yAxis.trimModsInward();
+    }
+
+    void setModStart(const float value)
+    {
+        _xAxis.setModStart(value);
+        _yAxis.setModStart(value);
     }
 
     void resetMods()
@@ -131,7 +145,7 @@ private:
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
 
-    double _shieldDropValue;
+    float _shieldDropValue;
 };
 
 #endif // BUTTONONLYLEFTSTICK_H

@@ -61,10 +61,10 @@ private:
     ActivatorMacro _L;
     ActivatorMacro _R;
 
-    double _airDodgeDelayFrames;
+    float _airDodgeDelayFrames;
 
-    const double _minimumDelay;
-    const double _maximumDelay;
+    const float _minimumDelay;
+    const float _maximumDelay;
 
     void initMacro();
 };

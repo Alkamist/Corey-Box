@@ -1,17 +1,19 @@
 #ifndef TWOBUTTONCONTROL_H
 #define TWOBUTTONCONTROL_H
 
-#include "BipolarControl.h"
+#include "Control.h"
 #include "TwoButtonStateTracker.h"
 
 // This class is responsible for the base logic of how
 // two buttons interact with a joystick axis.
-class TwoButtonControl : public BipolarControl
+class TwoButtonControl : public Control
 {
 public:
     TwoButtonControl()
-    : BipolarControl()
-    {}
+    : Control()
+    {
+        makeBipolar();
+    }
 
     virtual void process();
 

@@ -74,8 +74,8 @@ CenterAndMagnitude<T>::CenterAndMagnitude(const Bounds<T>& bounds)
 : _center(0),
   _magnitude(0)
 {
-    _magnitude = bounds.getUpperBound() - bounds.getLowerBound();
-    _center = bounds.getLowerBound() + _magnitude / 2.0;
+    _magnitude = (bounds.getUpperBound() - bounds.getLowerBound()) / 2.0;
+    _center = bounds.getLowerBound() + _magnitude;
 }
 
 #endif // CENTERANDMAGNITUDE_H

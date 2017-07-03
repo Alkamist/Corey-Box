@@ -14,7 +14,9 @@ public:
     explicit Range(const Bounds<T>& bounds);
     explicit Range(const CenterAndMagnitude<T>& centerAndMagnitude);
 
-    T enforceRange(const T value) const;
+    const T rescaleValue(const T value, const Range<T>& fromRange) const;
+
+    const T enforceRange(const T value) const;
     const bool checkIfInRange(const T value) const;
 
     void set(const Range<T>& range);
@@ -38,8 +40,19 @@ private:
 };
 
 
+
 template <typename T>
-T Range<T>::enforceRange(const T value) const
+const T Range<T>::rescaleValue(const T value, const Range<T>& fromRange) const
+{
+
+    float scaleFactor = getMagnitude() / fromRange.getMagnitude();
+    float zeroBottomedValue = fromRange.enforceRange(value) - fromRange.getLowerBound();
+
+    return zeroBottomedValue * scaleFactor + getLowerBound();
+}
+
+template <typename T>
+const T Range<T>::enforceRange(const T value) const
 {
     if (value < getLowerBound())
         return getLowerBound();

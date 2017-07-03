@@ -5,14 +5,16 @@
 
 // This is a TwoButtonControl that can be modified by a fixed mod value
 // when told to do so
-class SingleModAxis : public BipolarControl
+class SingleModAxis : public Control
 {
 public:
     SingleModAxis()
-    : BipolarControl(),
+    : Control(),
       _modState(false),
       _modValue(0.65)
-    {}
+    {
+        makeBipolar();
+    }
 
     void process()
     {
@@ -29,7 +31,7 @@ public:
 
     void endCycle()
     {
-        BipolarControl::endCycle();
+        Control::endCycle();
         _twoButtonControl.endCycle();
     }
 
@@ -42,7 +44,7 @@ private:
 
     TwoButtonControl _twoButtonControl;
 
-    const double _modValue;
+    const float _modValue;
 };
 
 #endif // SINGLEMODAXIS_H

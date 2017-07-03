@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include "BipolarControl.h"
+#include "Control.h"
 
 // This class represents a joystick that can tell whether or not it
 // is active based on its distance away from the origin.
@@ -13,9 +13,11 @@ public:
     Joystick()
     : Activator(),
       _inactiveRadius(0.2),
-      _distance(0.0),
-      _range(0.6250)
-    {}
+      _distance(0.0)
+    {
+        _xValue.makeBipolar();
+        _yValue.makeBipolar();
+    }
 
     virtual void process()
     {
@@ -33,23 +35,28 @@ public:
         _yValue.endCycle();
     }
 
-    void setRange(const double range) { _range = range; }
+    virtual void setXValue(const Control& value) { _xValue = value; }
+    virtual void setYValue(const Control& value) { _yValue = value; }
+    virtual void setXValue(const float value)    { _xValue = value; }
+    virtual void setYValue(const float value)    { _yValue = value; }
 
-    virtual void setXValue(const double value) { _xValue.setValue(value * _range); }
-    virtual void setYValue(const double value) { _yValue.setValue(value * _range); }
+    const Control& getXControl() const           { return _xValue; }
+    const Control& getYControl() const           { return _yValue; }
+    const float getXValue() const                { return _xValue.getValue(); }
+    const float getYValue() const                { return _yValue.getValue(); }
 
-    const BipolarControl& getXControl() const { return _xValue; }
-    const BipolarControl& getYControl() const { return _yValue; }
-
-    const double calculateDistance(const double x, const double y) { return sqrt(square(x) + square(y)); }
+    const float getXMagnitude() const            { return abs(_xValue.getValue()); }
+    const float getYMagnitude() const            { return abs(_yValue.getValue()); }
+    const float getMagnitude() const             { return calculateDistance(_xValue.getValue(), _yValue.getValue()); }
 
 private:
-    BipolarControl _xValue;
-    BipolarControl _yValue;
+    Control _xValue;
+    Control _yValue;
 
-    double _inactiveRadius;
-    double _distance;
-    double _range;
+    float _inactiveRadius;
+    float _distance;
+
+    const float calculateDistance(const float x, const float y) const { return sqrt(square(x) + square(y)); }
 };
 
 #endif // JOYSTICK_H

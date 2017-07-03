@@ -1,5 +1,5 @@
-#ifndef MACROCONTROLLER_H
-#define MACROCONTROLLER_H
+#ifndef BUTTONONLYCONTROLLER_H
+#define BUTTONONLYCONTROLLER_H
 
 #include "ButtonReader.h"
 #include "GameCubeController.h"
@@ -12,10 +12,10 @@
 
 // This is the main controller class right now. I know it is kind of a
 // god class but I'm not sure how to split up this logic.
-class MacroController : public GameCubeController
+class ButtonOnlyController : public GameCubeController
 {
 public:
-    MacroController();
+    ButtonOnlyController();
 
     void process();
     void endCycle();
@@ -60,18 +60,6 @@ private:
     TwoButtonStateTracker _spamBAActivator;
     TwoButtonSpamMacro _spamBAMacro;
 
-    Activator _aOut;
-    Activator _bOut;
-    Activator _xOut;
-    Activator _yOut;
-    Activator _lOut;
-    Activator _rOut;
-    UnipolarControl _rAnalogOut;
-    BipolarControl _lsXOut;
-    BipolarControl _lsYOut;
-    BipolarControl _cXOut;
-    BipolarControl _cYOut;
-
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
     Activator _trimShieldDropDown;
@@ -88,35 +76,42 @@ private:
 
 
 
-void MacroController::process()
+void ButtonOnlyController::process()
 {
     // ====================== OUTPUT INITIALIZATION ======================
-    _aOut = _aButton;
-    _bOut = _bButton;
-    _xOut = false;
-    _yOut = _jumpButton;
-    _lOut = _lButton;
-    _rOut = _rButton;
+    a = _aButton;
+    b = _bButton;
+    x = false;
+    y = _jumpButton;
+    z = _zButton;
+    l = _lButton;
+    r = _rButton;
+    start = _startButton;
+    dLeft = _dLeftButton;
+    dRight = _dRightButton;
+    dDown = _dDownButton;
+    dUp = _dUpButton;
     _leftStick.setWavedashState(false);
 
 
+
     // ====================== BUTTON COMBOS ======================
-    bool extraButtonKey = _yMod1Button && _xMod1Button;
-    bool wavedashKey = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
-    bool analogKey = extraButtonKey && _shieldDropButton;
+    bool extraButtonCombo = _yMod1Button && _xMod1Button;
+    bool wavedashCombo = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
+    bool analogCombo = extraButtonCombo && _shieldDropButton;
     _disableMacros = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button && _dUpButton && _shieldDropButton;
     _macrosAreOn.setActivatorState(_disableMacros.justActivated());
     _macrosAreOn.process();
 
-    _trimWavedashDown = wavedashKey && _cDownButton;
-    _trimWavedashUp = wavedashKey && _cUpButton;
-    _trimShieldDropDown = analogKey && _cDownButton;
-    _trimShieldDropUp = analogKey && _cUpButton;
-    _trimModsInward = analogKey && _cLeftButton;
-    _trimModsOutward = analogKey && _cRightButton;
+    _trimWavedashDown = wavedashCombo && _cDownButton;
+    _trimWavedashUp = wavedashCombo && _cUpButton;
+    _trimShieldDropDown = analogCombo && _cDownButton;
+    _trimShieldDropUp = analogCombo && _cUpButton;
+    _trimModsInward = analogCombo && _cLeftButton;
+    _trimModsOutward = analogCombo && _cRightButton;
 
-    _meleeMode = analogKey && _aButton;
-    _projectMMode = analogKey && _bButton;
+    _meleeMode = analogCombo && _aButton;
+    _projectMMode = analogCombo && _bButton;
 
 
 
@@ -132,36 +127,36 @@ void MacroController::process()
 
     if (_spamBAMacro.isRunning())
     {
-        _bOut = _spamBAMacro.getButton1();
+        b = _spamBAMacro.getButton1();
 
-        if (spamABKey && _cDownButton) _aOut = _spamBAMacro.getButton2();
+        if (spamABKey && _cDownButton) a = _spamBAMacro.getButton2();
     }
 
 
 
     // ====================== WAVEDASH MACRO ======================
-    _wavedashMacro.setActivatorState(_lButton && !extraButtonKey && _macrosAreOn);
+    _wavedashMacro.setActivatorState(_lButton && !extraButtonCombo && _macrosAreOn);
 
     if (_trimWavedashDown.justActivated()) _wavedashMacro.trimDown();
     if (_trimWavedashUp.justActivated())   _wavedashMacro.trimUp();
 
     _wavedashMacro.process();
 
-    if (extraButtonKey)
+    if (extraButtonCombo)
     {
-        _yOut = false;
-        _xOut = _jumpButton;
+        y = false;
+        x = _jumpButton;
     }
 
-    if (_macrosAreOn && !extraButtonKey)
+    if (_macrosAreOn && !extraButtonCombo)
     {
-        _yOut = _jumpButton;
-        if (_wavedashMacro.getJump().isRunning()) _yOut = _wavedashMacro.getJump();
+        y = _jumpButton;
+        if (_wavedashMacro.getJump().isRunning()) y = _wavedashMacro.getJump();
 
-        _rOut = _rButton;
-        if (_wavedashMacro.getR().isRunning()) _rOut = _wavedashMacro.getR();
+        r = _rButton;
+        if (_wavedashMacro.getR().isRunning()) r = _wavedashMacro.getR();
 
-        _lOut = _wavedashMacro.getL();
+        l = _wavedashMacro.getL();
     }
 
 
@@ -176,23 +171,19 @@ void MacroController::process()
     _leftStick.setYMod1State(_yMod1Button);
     _leftStick.setYMod2State(_yMod2Button);
     _leftStick.setTiltState(_tiltButton);
-    _leftStick.setTiltTempDisableState(_lOut);
+    _leftStick.setTiltTempDisableState(l);
     _leftStick.setWavedashState(_wavedashMacro.getL());
     _leftStick.setShieldDropState(_shieldDropButton);
 
     if (_meleeMode.justActivated())
     {
-        _leftStick.setRange(0.6250);
         _leftStick.resetMods();
-        _leftStick.resetShieldDrop();
-        _cStick.setRange(0.6250);
+        _leftStick.setShieldDrop(-0.67500);
     }
     if (_projectMMode.justActivated())
     {
-        _leftStick.setRange(0.8000);
-        _leftStick.resetMods();
-        _leftStick.resetShieldDrop();
-        _cStick.setRange(0.8000);
+        _leftStick.setModStart(0.42);
+        _leftStick.setShieldDrop(-0.90);
     }
 
     if (_trimShieldDropDown.justActivated()) _leftStick.trimShieldDropDown();
@@ -202,8 +193,8 @@ void MacroController::process()
 
     _leftStick.process();
 
-    _lsXOut.setValue(_leftStick.getXControl().getValue());
-    _lsYOut.setValue(_leftStick.getYControl().getValue());
+    lsX = _leftStick.getXControl().getValue();
+    lsY = _leftStick.getYControl().getValue();
 
 
 
@@ -218,12 +209,14 @@ void MacroController::process()
 
     _cStick.process();
 
-    _cXOut.setValue(_cStick.getXControl().getValue());
-    _cYOut.setValue(_cStick.getYControl().getValue());
+    cX = _cStick.getXControl().getValue();
+    cY = _cStick.getYControl().getValue();
 }
 
-void MacroController::endCycle()
+void ButtonOnlyController::endCycle()
 {
+    GameCubeController::endCycle();
+
     // Buttons:
     _tiltButton.endCycle();
     _shieldDropButton.endCycle();
@@ -255,19 +248,6 @@ void MacroController::endCycle()
     _dDownButton.endCycle();
     _dUpButton.endCycle();
 
-    // Outputs:
-    _xOut.endCycle();
-    _yOut.endCycle();
-    _lOut.endCycle();
-    _rOut.endCycle();
-    _bOut.endCycle();
-    _aOut.endCycle();
-    _rAnalogOut.endCycle();
-    _lsXOut.endCycle();
-    _lsYOut.endCycle();
-    _cXOut.endCycle();
-    _cYOut.endCycle();
-
     _trimShieldDropDown.endCycle();
     _trimShieldDropUp.endCycle();
     _trimWavedashDown.endCycle();
@@ -291,53 +271,34 @@ void MacroController::endCycle()
 }
 
 // Don't use pin 6 or 26 for buttons.
-MacroController::MacroController()
+ButtonOnlyController::ButtonOnlyController()
 : // Buttons:
   _tiltButton(27),
-  _shieldDropButton(8),
+  _shieldDropButton(9),
   _lsLeftButton(0),
   _lsRightButton(3),
   _lsDownButton(1),
   _lsUpButton(2),
-  _xMod1Button(4),
+  _xMod1Button(8),
   _xMod2Button(7),
-  _yMod1Button(19),
-  _yMod2Button(23),
-  _cLeftButton(9),
-  _cRightButton(12),
-  _cDownButton(10),
-  _cUpButton(11),
-  _aButton(14),
-  _bButton(13),
-  _jumpButton(16),
-  _zButton(17),
-  _lButton(15),
+  _yMod1Button(4),
+  _yMod2Button(5),
+  _cLeftButton(38),
+  _cRightButton(20),
+  _cDownButton(39),
+  _cUpButton(21),
+  _aButton(18),
+  _bButton(19),
+  _jumpButton(23),
+  _zButton(24),
+  _lButton(22),
   _rButton(25),
-  _startButton(24),
-  _dLeftButton(21),
-  _dRightButton(20),
-  _dDownButton(22),
-  _dUpButton(5),
+  _startButton(11),
+  _dLeftButton(12),
+  _dRightButton(14),
+  _dDownButton(13),
+  _dUpButton(10),
   _macrosAreOn(true)
-{
-    a = &_aOut;
-    b = &_bOut;
-    x = &_xOut;
-    y = &_yOut;
-    z = &_zButton;
-    l = &_lOut;
-    r = &_rOut;
-    start = &_startButton;
-    dLeft = &_dLeftButton;
-    dRight = &_dRightButton;
-    dDown = &_dDownButton;
-    dUp = &_dUpButton;
-    //lAnalog = &_lAnalogOut;
-    rAnalog = &_rAnalogOut;
-    lsX = &_lsXOut;
-    lsY = &_lsYOut;
-    cX = &_cXOut;
-    cY = &_cYOut;
-}
+{}
 
-#endif // MACROCONTROLLER_H
+#endif // BUTTONONLYCONTROLLER_H

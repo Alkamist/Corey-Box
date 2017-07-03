@@ -3,7 +3,7 @@
 
 // This function will convert a given number of frames at 60fps into
 // microseconds.
-uint64_t frames(double frames)
+uint64_t frames(float frames)
 {
     if (frames < 0.0)
         frames = 0.0;

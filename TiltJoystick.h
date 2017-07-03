@@ -21,8 +21,10 @@ public:
 
     virtual void process()
     {
-        bool tiltResetX = _xValue.justActivated() || _xValue.justDeactivated() || _xValue.justCrossedInactiveRange();
-        bool tiltResetY = _yValue.justActivated() || _yValue.justDeactivated() || _yValue.justCrossedInactiveRange();
+        Joystick::process();
+
+        bool tiltResetX = getXControl().justActivated() || getXControl().justDeactivated() || getXControl().justCrossedInactiveRange();
+        bool tiltResetY = getYControl().justActivated() || getYControl().justDeactivated() || getYControl().justCrossedInactiveRange();
 
         _tiltXOut.setActivatorState(tiltResetX);
         _tiltYOut.setActivatorState(tiltResetY);
@@ -31,14 +33,10 @@ public:
         _tiltYOut.process();
 
         if (_tiltXOut && _tiltState)
-            clampAxis(_xValue);
+            Joystick::setXValue(clampValue(getXValue()));
 
         if (_tiltYOut && _tiltState)
-            clampAxis(_yValue);
-
-
-        Joystick::setXValue(_xValue.getValue());
-        Joystick::setYValue(_yValue.getValue());
+            Joystick::setYValue(clampValue(getYValue()));
 
         Joystick::process();
     }
@@ -48,13 +46,11 @@ public:
         Joystick::endCycle();
         _tiltXOut.endCycle();
         _tiltYOut.endCycle();
-        _xValue.endCycle();
-        _yValue.endCycle();
     }
 
-    virtual void setTiltState(const bool state) { _tiltState = state; }
-    virtual void setXValue(const double value) { _xValue.setValue(value); }
-    virtual void setYValue(const double value) { _yValue.setValue(value); }
+    virtual void setTiltState(const bool state)  { _tiltState = state; }
+    virtual void setXValue(const Control& value) { Joystick::setXValue(value); }
+    virtual void setYValue(const Control& value) { Joystick::setYValue(value); }
 
 private:
     bool _tiltState;
@@ -62,29 +58,20 @@ private:
     TemporaryActivator _tiltXOut;
     TemporaryActivator _tiltYOut;
 
-    BipolarControl _xValue;
-    BipolarControl _yValue;
+    const float _tiltAmount;
 
-    const double _tiltAmount;
-
-    void clampAxis(BipolarControl& axis)
+    const float clampValue(const float value) const
     {
-        double axisValue = axis.getValue();
+        float lowClamp = -_tiltAmount;
+        float highClamp = _tiltAmount;
 
-        double lowClamp = -_tiltAmount;
-        double highClamp = _tiltAmount;
+        if (value < lowClamp)
+            return lowClamp;
 
-        if (axisValue < lowClamp)
-        {
-            axis.setValue(lowClamp);
-            return;
-        }
+        if (value > highClamp)
+            return highClamp;
 
-        if (axisValue > highClamp)
-        {
-            axis.setValue(highClamp);
-            return;
-        }
+        return 0.0;
     }
 };
 

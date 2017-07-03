@@ -5,17 +5,20 @@
 
 // This class is a TwoButtonControl that can be modded by two mod buttons.
 // Either mod and the combination of both give different mod values.
-class DoubleModAxis : public BipolarControl
+class DoubleModAxis : public Control
 {
 public:
     DoubleModAxis()
-    : BipolarControl(),
+    : Control(),
       _mod1State(false),
       _mod2State(false),
-      _mod1Value(0.33250),
-      _mod2Value(0.52500),
-      _mod3Value(0.76250)
-    {}
+      _mod1Value(0.0),
+      _mod2Value(0.0),
+      _mod3Value(0.0)
+    {
+        resetMods();
+        makeBipolar();
+    }
 
     void process()
     {
@@ -44,7 +47,7 @@ public:
 
     void endCycle()
     {
-        BipolarControl::endCycle();
+        Control::endCycle();
         _twoButtonControl.endCycle();
     }
 
@@ -52,6 +55,8 @@ public:
     void setHighState(const bool state) { _twoButtonControl.setHighState(state); }
     void setMod1State(const bool state) { _mod1State = state; }
     void setMod2State(const bool state) { _mod2State = state; }
+
+    const float getMod1Value() const    { return _mod1Value; }
 
     void trimModsOutward()
     {
@@ -73,11 +78,18 @@ public:
         _mod3Value -= 0.015;
     }
 
+    void setModStart(const float value)
+    {
+        float modAdditive = (1.0 - value) / 3.0;
+
+        _mod1Value = value;
+        _mod2Value = value + modAdditive;
+        _mod3Value = value + 2.0 * modAdditive;
+    }
+
     void resetMods()
     {
-        _mod1Value = 0.33250;
-        _mod2Value = 0.52500;
-        _mod3Value = 0.76250;
+        setModStart(0.33250);
     }
 
 private:
@@ -86,9 +98,9 @@ private:
 
     TwoButtonControl _twoButtonControl;
 
-    double _mod1Value;
-    double _mod2Value;
-    double _mod3Value;
+    float _mod1Value;
+    float _mod2Value;
+    float _mod3Value;
 };
 
 #endif // DOUBLEMODAXIS_H
