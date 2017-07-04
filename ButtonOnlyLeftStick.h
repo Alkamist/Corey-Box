@@ -4,6 +4,7 @@
 #include "Joystick.h"
 #include "JoystickTilter.h"
 #include "JoystickShieldDropper.h"
+#include "JoystickBackdashFixer.h"
 #include "DoubleModAxis.h"
 #include "Signum.h"
 
@@ -34,6 +35,8 @@ public:
 
         Joystick::process();
 
+        _joystickBackdashFixer.process(*this);
+
         _wavedashState.process();
 
         if (_wavedashState && (Joystick::getYValue() > -_yAxis.getMod1Value()))
@@ -54,6 +57,7 @@ public:
     {
         Joystick::endCycle();
         _joystickTilter.endCycle();
+        _joystickBackdashFixer.endCycle();
         _tiltTempDisable.endCycle();
         _wavedashState.endCycle();
         _xAxis.endCycle();
@@ -73,7 +77,7 @@ public:
     void setWavedashState(const bool state)           { _wavedashState.setActivatorState(state); }
     void setShieldDropState(const bool state)         { _joystickShieldDropper.setShieldDropState(state); }
     void setShieldState(const bool state)             { _joystickShieldDropper.setShieldState(state); }
-    //void setBackdashFixDisableState(const bool state) { _backdashFixDisable = state; }
+    void setBackdashFixDisableState(const bool state) { _joystickBackdashFixer.setBackdashFixDisableState(state); }
 
     void trimShieldDropDown()                         { _joystickShieldDropper.trimShieldDropDown(); }
     void trimShieldDropUp()                           { _joystickShieldDropper.trimShieldDropUp(); }
@@ -87,6 +91,7 @@ public:
 private:
     JoystickTilter _joystickTilter;
     JoystickShieldDropper _joystickShieldDropper;
+    JoystickBackdashFixer _joystickBackdashFixer;
 
     bool _lsLeftState;
     bool _lsRightState;

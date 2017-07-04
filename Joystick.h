@@ -21,7 +21,7 @@ public:
         _yValue.makeBipolar();
 
         _deadZone.setLowerBound(0.0);
-        _deadZone.setUpperBound(0.2750);
+        _deadZone.setUpperBound(0.2600);
 
         _tiltZone.setLowerBound(0.2875);
         _tiltZone.setUpperBound(0.7875);
@@ -83,16 +83,10 @@ public:
     const float getYMagnitude() const    { return abs(_yValue.getValue()); }
     const float getMagnitude() const     { return _magnitude; }
 
-    const bool xIsInDeadZone() const     { return _deadZone.checkIfInRange(getXMagnitude()); }
-    const bool yIsInDeadZone() const     { return _deadZone.checkIfInRange(getYMagnitude()); }
-
-    const bool xIsInTiltZone() const     { return _tiltZone.checkIfInRange(getXMagnitude()); }
-    const bool yIsInTiltZone() const     { return _tiltZone.checkIfInRange(getYMagnitude()); }
-
-    const bool xIsInSmashZone() const    { return _smashZone.checkIfInRange(getXMagnitude()); }
-    const bool yIsInSmashZone() const    { return _smashZone.checkIfInRange(getYMagnitude()); }
-
-    const bool yIsInCrouchZone() const   { return _crouchZone.checkIfInRange(getYValue()); }
+    const Range<float>& getDeadZone() const   { return _deadZone; }
+    const Range<float>& getTiltZone() const   { return _tiltZone; }
+    const Range<float>& getSmashZone() const  { return _smashZone; }
+    const Range<float>& getCrouchZone() const { return _crouchZone; }
 
 private:
     Control _xValue;

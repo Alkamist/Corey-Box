@@ -181,7 +181,7 @@ void ButtonOnlyController::process()
     _leftStick.setWavedashState(_wavedashMacro.getL());
     _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
     _leftStick.setShieldState(_shield);
-    //_leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || l || r || y || x || z || a || b);
+    _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || l || r || y || x || z || a || b);
 
     if (_meleeMode.justActivated())
     {

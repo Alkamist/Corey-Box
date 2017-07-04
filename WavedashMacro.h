@@ -96,13 +96,13 @@ void WavedashMacro::initMacro()
     _jump.addInput(ActivatorMacroUnit(false, frames(1.0)));
 
     // L
-    _L.setStartDelay(frames(_airDodgeDelayFrames - 1.0));
+    _L.setStartDelay(frames(_airDodgeDelayFrames - 0.8));
     _L.addInput(ActivatorMacroUnit(true, frames(2.0)));
     _L.addInput(ActivatorMacroUnit(false, frames(1.0)));
 
     // R
     _R.setStartDelay(frames(1.0));
-    _R.addInput(ActivatorMacroUnit(false, frames(_airDodgeDelayFrames - 1.0)));
+    _R.addInput(ActivatorMacroUnit(false, frames(_airDodgeDelayFrames - 0.8)));
     _R.addInput(ActivatorMacroUnit(true, frames(2.0)));
 }
 

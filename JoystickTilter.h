@@ -18,10 +18,10 @@ public:
 
     void process(Joystick& joystick)
     {
-        bool tiltResetX = joystick.xIsInDeadZone()
+        bool tiltResetX = joystick.getDeadZone().checkIfInRange(joystick.getXMagnitude())
                        || joystick.getXControl().justCrossedInactiveRange();
 
-        bool tiltResetY = joystick.yIsInDeadZone()
+        bool tiltResetY = joystick.getDeadZone().checkIfInRange(joystick.getYMagnitude())
                        || joystick.getYControl().justCrossedInactiveRange();
 
         _tiltXOut.setActivatorState(tiltResetX);
