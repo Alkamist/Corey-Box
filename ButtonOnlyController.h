@@ -20,8 +20,6 @@ public:
     void process();
     void endCycle();
 
-    const ButtonReader& getLButton() const { return _lButton; }
-
 private:
     ButtonReader _tiltButton;
     ButtonReader _shieldDropButton;
@@ -60,6 +58,9 @@ private:
     TwoButtonStateTracker _spamBAActivator;
     TwoButtonSpamMacro _spamBAMacro;
 
+    TemporaryActivator _shieldExtension;
+    Activator _shield;
+
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
     Activator _trimShieldDropDown;
@@ -79,13 +80,18 @@ private:
 void ButtonOnlyController::process()
 {
     // ====================== OUTPUT INITIALIZATION ======================
+    _shieldExtension.setActivatorState(_rButton.justDeactivated());
+    _shieldExtension.process();
+
+    _shield = _rButton || _shieldExtension;
+
     a = _aButton;
     b = _bButton;
     x = false;
     y = _jumpButton;
     z = _zButton;
     l = _lButton;
-    r = _rButton;
+    r = _shield;
     start = _startButton;
     dLeft = _dLeftButton;
     dRight = _dRightButton;
@@ -150,11 +156,11 @@ void ButtonOnlyController::process()
 
     if (_macrosAreOn && !extraButtonCombo)
     {
-        y = _jumpButton;
-        if (_wavedashMacro.getJump().isRunning()) y = _wavedashMacro.getJump();
+        if (_wavedashMacro.getJump().isRunning())
+            y = _wavedashMacro.getJump();
 
-        r = _rButton;
-        if (_wavedashMacro.getR().isRunning()) r = _wavedashMacro.getR();
+        if (_wavedashMacro.getR().isRunning())
+            r = _wavedashMacro.getR();
 
         l = _wavedashMacro.getL();
     }
@@ -173,7 +179,9 @@ void ButtonOnlyController::process()
     _leftStick.setTiltState(_tiltButton);
     _leftStick.setTiltTempDisableState(l);
     _leftStick.setWavedashState(_wavedashMacro.getL());
-    _leftStick.setShieldDropState(_shieldDropButton);
+    _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
+    _leftStick.setShieldState(_shield);
+    //_leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || l || r || y || x || z || a || b);
 
     if (_meleeMode.justActivated())
     {
@@ -248,6 +256,9 @@ void ButtonOnlyController::endCycle()
     _dDownButton.endCycle();
     _dUpButton.endCycle();
 
+    _shieldExtension.endCycle();
+    _shield.endCycle();
+
     _trimShieldDropDown.endCycle();
     _trimShieldDropUp.endCycle();
     _trimWavedashDown.endCycle();
@@ -299,6 +310,8 @@ ButtonOnlyController::ButtonOnlyController()
   _dDownButton(13),
   _dUpButton(10),
   _macrosAreOn(true)
-{}
+{
+    _shieldExtension.setTime(frames(1.0));
+}
 
 #endif // BUTTONONLYCONTROLLER_H

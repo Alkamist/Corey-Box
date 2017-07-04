@@ -45,6 +45,15 @@ public:
     const float operator /(const Control& value)       { return getValue() / _valueRange.rescaleValue(value, value.getValueRange()); }
     const Control& operator /=(const Control& value)   { setValue(getValue() / _valueRange.rescaleValue(value, value.getValueRange())); return *this; }
 
+    const float operator +(const float value)          { return getValue() + value; }
+    const Control& operator +=(const float value)      { setValue(getValue() + value); return *this; }
+    const float operator -(const float value)          { return getValue() - value; }
+    const Control& operator -=(const float value)      { setValue(getValue() - value); return *this; }
+    const float operator *(const float value)          { return getValue() * value; }
+    const Control& operator *=(const float value)      { setValue(getValue() * value); return *this; }
+    const float operator /(const float value)          { return getValue() / value; }
+    const Control& operator /=(const float value)      { setValue(getValue() / value); return *this; }
+
     const bool operator ==(const Control& value) const { return getValue() == _valueRange.rescaleValue(value, value.getValueRange()); }
     const bool operator !=(const Control& value) const { return getValue() != _valueRange.rescaleValue(value, value.getValueRange()); }
     const bool operator <(const Control& value) const  { return getValue() < _valueRange.rescaleValue(value, value.getValueRange()); }

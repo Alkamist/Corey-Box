@@ -1,151 +1,104 @@
 #ifndef BUTTONONLYLEFTSTICK_H
 #define BUTTONONLYLEFTSTICK_H
 
-#include "TiltJoystick.h"
+#include "Joystick.h"
+#include "JoystickTilter.h"
+#include "JoystickShieldDropper.h"
 #include "DoubleModAxis.h"
 #include "Signum.h"
 
 // This class represents the left analog stick used in the button only controller.
-class ButtonOnlyLeftStick : public TiltJoystick
+class ButtonOnlyLeftStick : public Joystick
 {
 public:
     ButtonOnlyLeftStick()
-    : TiltJoystick(),
+    : Joystick(),
+      _lsLeftState(false),
+      _lsRightState(false),
+      _lsDownState(false),
+      _lsUpState(false),
       _tiltState(false),
-      _tiltOut(false),
-      _shieldDropValue(-0.67500)
+      _tiltOut(false)
     {
         _tiltTempDisable.setTime(frames(5.0));
         _wavedashState.setTime(frames(5.0));
-        _shieldDropNeutral.setTime(frames(1.0));
     }
 
     void process()
     {
-        _shieldDropNeutral.setActivatorState(_shieldDropState.justActivated());
-        _shieldDropNeutral.process();
-
-        _tiltTempDisable.process();
-        _wavedashState.process();
-
         _xAxis.process();
         _yAxis.process();
 
-        if (_wavedashState && (_yAxis.getValue() > -_yAxis.getMod1Value()))
-        {
-            _yAxis.setValue(-_yAxis.getMod1Value());
-        }
+        Joystick::setXValue(_xAxis);
+        Joystick::setYValue(_yAxis);
 
-        if (_shieldDropState)
-        {
-            if (_shieldDropNeutral)
-            {
-                _xAxis.setValue(0.0);
-                _yAxis.setValue(0.0);
-            }
-            else
-            {
-                _xAxis.setValue(0.0);
-                _yAxis.setValue(_shieldDropValue);
-            }
-        }
+        Joystick::process();
 
-        _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState) && !_shieldDropState;
+        _wavedashState.process();
 
-        TiltJoystick::setTiltState(_tiltOut);
+        if (_wavedashState && (Joystick::getYValue() > -_yAxis.getMod1Value()))
+            Joystick::setYValue(-_yAxis.getMod1Value());
 
-        Joystick::setXValue(_xAxis.getValue());
-        Joystick::setYValue(_yAxis.getValue());
+        Joystick::process();
 
-        TiltJoystick::process();
+        _tiltTempDisable.process();
+        _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState);
+
+        _joystickTilter.setTiltState(_tiltOut);
+        _joystickTilter.process(*this);
+
+        _joystickShieldDropper.process(*this);
     }
 
     void endCycle()
     {
-        TiltJoystick::endCycle();
-        _shieldDropState.endCycle();
+        Joystick::endCycle();
+        _joystickTilter.endCycle();
         _tiltTempDisable.endCycle();
         _wavedashState.endCycle();
-        _shieldDropNeutral.endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
     }
 
-    void setLsLeftState(const bool state)          { _xAxis.setLowState(state); }
-    void setLsRightState(const bool state)         { _xAxis.setHighState(state); }
-    void setLsDownState(const bool state)          { _yAxis.setLowState(state); }
-    void setLsUpState(const bool state)            { _yAxis.setHighState(state); }
-    void setXMod1State(const bool state)           { _xAxis.setMod1State(state); }
-    void setXMod2State(const bool state)           { _xAxis.setMod2State(state); }
-    void setYMod1State(const bool state)           { _yAxis.setMod1State(state); }
-    void setYMod2State(const bool state)           { _yAxis.setMod2State(state); }
-    void setTiltState(const bool state)            { _tiltState = state; }
-    void setTiltTempDisableState(const bool state) { _tiltTempDisable.setActivatorState(state); }
-    void setWavedashState(const bool state)        { _wavedashState.setActivatorState(state); }
-    void setShieldDropState(const bool state)      { _shieldDropState = state; }
+    void setLsLeftState(const bool state)             { _lsLeftState = state; _xAxis.setLowState(state); }
+    void setLsRightState(const bool state)            { _lsRightState = state; _xAxis.setHighState(state); }
+    void setLsDownState(const bool state)             { _lsDownState = state; _yAxis.setLowState(state); }
+    void setLsUpState(const bool state)               { _lsUpState = state; _yAxis.setHighState(state); }
+    void setXMod1State(const bool state)              { _xAxis.setMod1State(state); }
+    void setXMod2State(const bool state)              { _xAxis.setMod2State(state); }
+    void setYMod1State(const bool state)              { _yAxis.setMod1State(state); }
+    void setYMod2State(const bool state)              { _yAxis.setMod2State(state); }
+    void setTiltState(const bool state)               { _tiltState = state; }
+    void setTiltTempDisableState(const bool state)    { _tiltTempDisable.setActivatorState(state); }
+    void setWavedashState(const bool state)           { _wavedashState.setActivatorState(state); }
+    void setShieldDropState(const bool state)         { _joystickShieldDropper.setShieldDropState(state); }
+    void setShieldState(const bool state)             { _joystickShieldDropper.setShieldState(state); }
+    //void setBackdashFixDisableState(const bool state) { _backdashFixDisable = state; }
 
-    void trimShieldDropDown()
-    {
-         _shieldDropValue -= 0.015;
-
-        if (_shieldDropValue < -1.0)
-            _shieldDropValue = -1.0;
-    }
-
-    void trimShieldDropUp()
-    {
-        _shieldDropValue += 0.015;
-
-        if (_shieldDropValue > 0.0)
-            _shieldDropValue = 0.0;
-    }
-
-    void resetShieldDrop()
-    {
-        _shieldDropValue = -0.67500;
-    }
-
-    void setShieldDrop(const float value)
-    {
-        _shieldDropValue = value;
-    }
-
-    void trimModsOutward()
-    {
-        _xAxis.trimModsOutward();
-        _yAxis.trimModsOutward();
-    }
-
-    void trimModsInward()
-    {
-        _xAxis.trimModsInward();
-        _yAxis.trimModsInward();
-    }
-
-    void setModStart(const float value)
-    {
-        _xAxis.setModStart(value);
-        _yAxis.setModStart(value);
-    }
-
-    void resetMods()
-    {
-        _xAxis.resetMods();
-        _yAxis.resetMods();
-    }
+    void trimShieldDropDown()                         { _joystickShieldDropper.trimShieldDropDown(); }
+    void trimShieldDropUp()                           { _joystickShieldDropper.trimShieldDropUp(); }
+    void resetShieldDrop()                            { _joystickShieldDropper.resetShieldDrop(); }
+    void setShieldDrop(const float value)             { _joystickShieldDropper.setShieldDrop(value); }
+    void trimModsOutward()                            { _xAxis.trimModsOutward(); _yAxis.trimModsOutward(); }
+    void trimModsInward()                             { _xAxis.trimModsInward(); _yAxis.trimModsInward(); }
+    void setModStart(const float value)               { _xAxis.setModStart(value); _yAxis.setModStart(value); }
+    void resetMods()                                  { _xAxis.resetMods(); _yAxis.resetMods(); }
 
 private:
+    JoystickTilter _joystickTilter;
+    JoystickShieldDropper _joystickShieldDropper;
+
+    bool _lsLeftState;
+    bool _lsRightState;
+    bool _lsDownState;
+    bool _lsUpState;
     bool _tiltState;
     bool _tiltOut;
-    Activator _shieldDropState;
     TemporaryActivator _tiltTempDisable;
     TemporaryActivator _wavedashState;
-    TemporaryActivator _shieldDropNeutral;
 
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;
-
-    float _shieldDropValue;
 };
 
 #endif // BUTTONONLYLEFTSTICK_H

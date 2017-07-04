@@ -44,11 +44,8 @@ public:
         _xAxis.process();
         _yAxis.process();
 
-        if (_xAxis.valueJustChanged())
-            Joystick::setXValue(_xAxis.getValue());
-
-        if (_yAxis.valueJustChanged())
-            Joystick::setYValue(_yAxis.getValue());
+        Joystick::setXValue(_xAxis.getValue());
+        Joystick::setYValue(_yAxis.getValue());
 
         Joystick::process();
     }

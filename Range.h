@@ -44,7 +44,6 @@ private:
 template <typename T>
 const T Range<T>::rescaleValue(const T value, const Range<T>& fromRange) const
 {
-
     float scaleFactor = getMagnitude() / fromRange.getMagnitude();
     float zeroBottomedValue = fromRange.enforceRange(value) - fromRange.getLowerBound();
 
@@ -66,8 +65,8 @@ const T Range<T>::enforceRange(const T value) const
 template <typename T>
 const bool Range<T>::checkIfInRange(const T value) const
 {
-    bool valueIsAboveLowBound = value > getLowerBound();
-    bool valueIsBelowHighBound = value < getUpperBound();
+    bool valueIsAboveLowBound = value >= getLowerBound();
+    bool valueIsBelowHighBound = value <= getUpperBound();
 
     bool valueIsWithinRange = valueIsAboveLowBound && valueIsBelowHighBound;
 
