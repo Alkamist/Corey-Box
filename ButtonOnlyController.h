@@ -22,7 +22,7 @@ public:
 
 private:
     ButtonReader _tiltButton;
-    ButtonReader _shieldDropButton;
+    ButtonReader _unUsedButton;
 
     ButtonReader _lsLeftButton;
     ButtonReader _lsRightButton;
@@ -102,9 +102,9 @@ void ButtonOnlyController::process()
 
 
     // ====================== BUTTON COMBOS ======================
-    bool extraButtonCombo = _dDownButton;
+    bool extraButtonCombo = _unUsedButton && !_xMod1Button;
     bool wavedashCombo = extraButtonCombo;
-    bool analogCombo = _dLeftButton;
+    bool analogCombo = _unUsedButton && _xMod1Button;
     _disableMacros = _dRightButton;
     _disableMacros.process();
     _macrosAreOn = _disableMacros.justActivated();
@@ -232,7 +232,7 @@ void ButtonOnlyController::endCycle()
 
     // Buttons:
     _tiltButton.endCycle();
-    _shieldDropButton.endCycle();
+    _unUsedButton.endCycle();
 
     _lsLeftButton.endCycle();
     _lsRightButton.endCycle();
@@ -290,7 +290,7 @@ void ButtonOnlyController::endCycle()
 ButtonOnlyController::ButtonOnlyController()
 : // Buttons:
   _tiltButton(27),
-  _shieldDropButton(9),
+  _unUsedButton(9),
   _lsLeftButton(0),
   _lsRightButton(3),
   _lsDownButton(1),
