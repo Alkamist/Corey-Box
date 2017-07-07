@@ -13,31 +13,29 @@ class TemporaryActivator : public Activator
 public:
     TemporaryActivator()
     : Activator(),
-      _activator(false),
-      _time(0)
+      _activator(false)
     {}
 
     void process()
     {
         if (_activator)
         {
-            setState(true);
+            Activator::operator=(true);
             _timer.reset();
         }
 
-        if (_timer >= _time)
-            setState(false);
+        if (_timer)
+            Activator::operator=(false);
     }
 
-    void setActivatorState(const bool state) { _activator = state; }
-    void setTime(const uint64_t time)        { _time = time; }
+    void setTime(const uint16_t time)                      { _timer.setTargetTime(time); }
+
+    TemporaryActivator& operator =(const bool value)       { _activator = value; return *this; }
 
 private:
     bool _activator;
 
     Timer _timer;
-
-    uint64_t _time;
 };
 
 #endif // TEMPORARYACTIVATOR_H

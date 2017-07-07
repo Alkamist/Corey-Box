@@ -80,7 +80,7 @@ private:
 void ButtonOnlyController::process()
 {
     // ====================== OUTPUT INITIALIZATION ======================
-    _shieldExtension.setActivatorState(_rButton.justDeactivated());
+    _shieldExtension = _rButton.justDeactivated();
     _shieldExtension.process();
 
     _shield = _rButton || _shieldExtension;
@@ -106,7 +106,7 @@ void ButtonOnlyController::process()
     bool wavedashCombo = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
     bool analogCombo = extraButtonCombo && _shieldDropButton;
     _disableMacros = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button && _dUpButton && _shieldDropButton;
-    _macrosAreOn.setActivatorState(_disableMacros.justActivated());
+    _macrosAreOn = _disableMacros.justActivated();
     _macrosAreOn.process();
 
     _trimWavedashDown = wavedashCombo && _cDownButton;
@@ -128,7 +128,7 @@ void ButtonOnlyController::process()
 
     bool spamABKey = _spamBAActivator.state1WasFirst() && _spamBAActivator.getState2();
 
-    _spamBAMacro.setActivatorState(spamABKey && _macrosAreOn);
+    _spamBAMacro = spamABKey && _macrosAreOn;
     _spamBAMacro.process();
 
     if (_spamBAMacro.isRunning())
@@ -141,7 +141,7 @@ void ButtonOnlyController::process()
 
 
     // ====================== WAVEDASH MACRO ======================
-    _wavedashMacro.setActivatorState(_lButton && !extraButtonCombo && _macrosAreOn);
+    _wavedashMacro = _lButton && !extraButtonCombo && _macrosAreOn;
 
     if (_trimWavedashDown.justActivated()) _wavedashMacro.trimDown();
     if (_trimWavedashUp.justActivated())   _wavedashMacro.trimUp();
@@ -186,12 +186,12 @@ void ButtonOnlyController::process()
     if (_meleeMode.justActivated())
     {
         _leftStick.resetMods();
-        _leftStick.setShieldDrop(-0.67500);
+        _leftStick.setShieldDrop(42);
     }
     if (_projectMMode.justActivated())
     {
-        _leftStick.setModStart(0.42);
-        _leftStick.setShieldDrop(-0.90);
+        _leftStick.setModStart(54);
+        _leftStick.setShieldDrop(13);
     }
 
     if (_trimShieldDropDown.justActivated()) _leftStick.trimShieldDropDown();
@@ -201,8 +201,8 @@ void ButtonOnlyController::process()
 
     _leftStick.process();
 
-    lsX = _leftStick.getXControl().getValue();
-    lsY = _leftStick.getYControl().getValue();
+    lsX = _leftStick.xValue;
+    lsY = _leftStick.yValue;
 
 
 
@@ -217,8 +217,8 @@ void ButtonOnlyController::process()
 
     _cStick.process();
 
-    cX = _cStick.getXControl().getValue();
-    cY = _cStick.getYControl().getValue();
+    cX = _cStick.xValue;
+    cY = _cStick.yValue;
 }
 
 void ButtonOnlyController::endCycle()
@@ -311,7 +311,7 @@ ButtonOnlyController::ButtonOnlyController()
   _dUpButton(10),
   _macrosAreOn(true)
 {
-    _shieldExtension.setTime(frames(1.0));
+    _shieldExtension.setTime(frames(1));
 }
 
 #endif // BUTTONONLYCONTROLLER_H

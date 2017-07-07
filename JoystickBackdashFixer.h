@@ -11,21 +11,21 @@ public:
     JoystickBackdashFixer()
     : _backdashFixDisable(false)
     {
-        _killXTilt.setTime(frames(1.0));
+        _killXTilt.setTime(frames(1));
     }
 
-    void process(Joystick& joystick)
+    void process(FightingJoystick& joystick)
     {
-        _killXTilt.setActivatorState(joystick.getDeadZone().checkIfInRange(joystick.getXMagnitude()));
+        _killXTilt = joystick.xIsInDeadZone();
         _killXTilt.process();
 
         if (_killXTilt && !_backdashFixDisable)
         {
-            if (joystick.getTiltZone().checkIfInRange(joystick.getXMagnitude()))
-                joystick.setXValue(clampValue(joystick.getXValue(), joystick.getDeadZone().getUpperBound()));
+            if (joystick.xIsInTiltZone())
+                joystick.xValue = clampValue(joystick.xValue, joystick.getDeadZoneUpperBound());
         }
 
-        joystick.Joystick::process();
+        joystick.FightingJoystick::process();
     }
 
     void endCycle()
@@ -39,10 +39,10 @@ private:
     bool _backdashFixDisable;
     TemporaryActivator _killXTilt;
 
-    const float clampValue(const float value, const float clampValue) const
+    const uint8_t clampValue(const uint8_t value, const uint8_t clampValue) const
     {
-        float lowClamp = -clampValue;
-        float highClamp = clampValue;
+        uint8_t lowClamp = 128 - clampValue;
+        uint8_t highClamp = 128 + clampValue;
 
         if (value < lowClamp)
             return lowClamp;

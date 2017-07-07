@@ -10,10 +10,8 @@ class TwoButtonControl : public Control
 {
 public:
     TwoButtonControl()
-    : Control()
-    {
-        makeBipolar();
-    }
+    : Control(128)
+    {}
 
     virtual void process();
 
@@ -22,6 +20,8 @@ public:
 
 private:
     TwoButtonStateTracker _stateTracker;
+
+    TwoButtonControl& operator =(const uint8_t value)  { Control::operator=(value); return *this; }
 };
 
 
@@ -32,31 +32,31 @@ void TwoButtonControl::process()
 
     if (_stateTracker.getState1() && _stateTracker.state2WasFirst())
     {
-        setValue(-1.0);
+        *this = 1;
         return;
     }
 
     if (_stateTracker.getState1() && !_stateTracker.getState2())
     {
-        setValue(-1.0);
+        *this = 1;
         return;
     }
 
     if (_stateTracker.state1WasFirst() && _stateTracker.getState2())
     {
-        setValue(1.0);
+        *this = 255;
         return;
     }
 
     if (!_stateTracker.getState1() && _stateTracker.getState2())
     {
-        setValue(1.0);
+        *this = 255;
         return;
     }
 
     if (!_stateTracker.getState1() && !_stateTracker.getState2())
     {
-        setValue(0.0);
+        *this = 128;
         return;
     }
 }

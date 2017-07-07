@@ -20,23 +20,20 @@ public:
 
     void process()
     {
-        if (_activator && !isActive())
+        if (_activator && !*this)
         {
-            setState(true);
+            *this = true;
             return;
         }
 
-        if (_activator && isActive())
+        if (_activator && *this)
         {
-            setState(false);
+            *this = false;
             return;
         }
     }
 
-    void setActivatorState(const bool state)
-    {
-        _activator = state;
-    }
+    ToggleActivator& operator=(const bool value) { _activator = value; return *this; }
 
 private:
     bool _activator;

@@ -2,6 +2,7 @@
 #define SINGLEMODAXIS_H
 
 #include "TwoButtonControl.h"
+#include "ScaleBipolar.h"
 
 // This is a TwoButtonControl that can be modified by a fixed mod value
 // when told to do so
@@ -9,12 +10,10 @@ class SingleModAxis : public Control
 {
 public:
     SingleModAxis()
-    : Control(),
+    : Control(128),
       _modState(false),
-      _modValue(0.65)
-    {
-        makeBipolar();
-    }
+      _modValue(83)
+    {}
 
     void process()
     {
@@ -22,11 +21,11 @@ public:
 
         if (_modState)
         {
-            setValue(_twoButtonControl.getValue() * _modValue);
+            *this = scaleBipolar(_twoButtonControl, _modValue);
             return;
         }
 
-        setValue(_twoButtonControl.getValue());
+        *this = _twoButtonControl;
     }
 
     void endCycle()
@@ -41,10 +40,11 @@ public:
 
 private:
     bool _modState;
+    uint8_t _modValue;
 
     TwoButtonControl _twoButtonControl;
 
-    const float _modValue;
+    SingleModAxis& operator =(const uint8_t value)  { Control::operator=(value); return *this; }
 };
 
 #endif // SINGLEMODAXIS_H

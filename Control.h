@@ -1,170 +1,82 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-#include "Activator.h"
-#include "Range.h"
-
-class Control : public Activator
+class Control
 {
 public:
-    Control();
+    Control()
+    : _currentValue(0),
+      _previousValue(0)
+    {}
 
-    virtual void endCycle();
+    explicit Control(const uint8_t value)
+    : _currentValue(value),
+      _previousValue(value)
+    {}
 
-    virtual void setValue(const Control& value);
-    virtual void setValue(const double value);
-    virtual void setValue(const float value);
-    virtual void setValue(const bool value);
+    virtual void endCycle()                   { _previousValue = _currentValue; }
 
-    const float getValue() const                       { return _currentValue; }
-    const float getPreviousValue() const               { return _previousValue; }
+    const uint8_t getPreviousValue() const    { return _previousValue; }
 
-    void setValueRange(const Range<float>& range)      { _valueRange = range; }
-    const Range<float>& getValueRange() const          { return _valueRange; }
+    const bool justChanged() const            { return _currentValue != _previousValue; }
 
-    const bool valueJustChanged() const                { return _currentValue != _previousValue; }
+    const uint8_t getBipolarMagnitude() const
+    {
+        if (_currentValue >= 128)
+            return _currentValue - 128;
 
-    const bool justCrossedInactiveRange() const;
+        if (_currentValue < 128)
+        {
+            if (_currentValue == 0)
+                return 127;
 
-    void makeUnipolar();
-    void makeBipolar();
+            return 128 - _currentValue;
+        }
 
-    const Control& operator =(const Control& value)    { setValue(value); return *this; }
-    const Control& operator =(const Activator& value)  { setValue(value); return *this; }
-    const Control& operator =(const double value)      { setValue(value); return *this; }
-    const Control& operator =(const float value)       { setValue(value); return *this; }
-    const Control& operator =(const bool value)        { setValue(value); return *this; }
-    operator float() const                             { return getValue(); }
+        return 0;
+    }
 
-    const float operator +(const Control& value)       { return getValue() + _valueRange.rescaleValue(value, value.getValueRange()); }
-    const Control& operator +=(const Control& value)   { setValue(getValue() + _valueRange.rescaleValue(value, value.getValueRange())); return *this; }
-    const float operator -(const Control& value)       { return getValue() - _valueRange.rescaleValue(value, value.getValueRange()); }
-    const Control& operator -=(const Control& value)   { setValue(getValue() - _valueRange.rescaleValue(value, value.getValueRange())); return *this; }
-    const float operator *(const Control& value)       { return getValue() * _valueRange.rescaleValue(value, value.getValueRange()); }
-    const Control& operator *=(const Control& value)   { setValue(getValue() * _valueRange.rescaleValue(value, value.getValueRange())); return *this; }
-    const float operator /(const Control& value)       { return getValue() / _valueRange.rescaleValue(value, value.getValueRange()); }
-    const Control& operator /=(const Control& value)   { setValue(getValue() / _valueRange.rescaleValue(value, value.getValueRange())); return *this; }
+    const bool justCrossedCenter() const
+    {
+        if (_currentValue >= 128 && _previousValue < 128)
+            return true;
 
-    const float operator +(const float value)          { return getValue() + value; }
-    const Control& operator +=(const float value)      { setValue(getValue() + value); return *this; }
-    const float operator -(const float value)          { return getValue() - value; }
-    const Control& operator -=(const float value)      { setValue(getValue() - value); return *this; }
-    const float operator *(const float value)          { return getValue() * value; }
-    const Control& operator *=(const float value)      { setValue(getValue() * value); return *this; }
-    const float operator /(const float value)          { return getValue() / value; }
-    const Control& operator /=(const float value)      { setValue(getValue() / value); return *this; }
+        if (_currentValue < 128 && _previousValue >= 128)
+            return true;
 
-    const bool operator ==(const Control& value) const { return getValue() == _valueRange.rescaleValue(value, value.getValueRange()); }
-    const bool operator !=(const Control& value) const { return getValue() != _valueRange.rescaleValue(value, value.getValueRange()); }
-    const bool operator <(const Control& value) const  { return getValue() < _valueRange.rescaleValue(value, value.getValueRange()); }
-    const bool operator <=(const Control& value) const { return getValue() <= _valueRange.rescaleValue(value, value.getValueRange()); }
-    const bool operator >(const Control& value) const  { return getValue() > _valueRange.rescaleValue(value, value.getValueRange()); }
-    const bool operator >=(const Control& value) const { return getValue() >= _valueRange.rescaleValue(value, value.getValueRange()); }
+        return false;
+    }
 
-    const bool operator ==(const float value) const    { return getValue() == value; }
-    const bool operator !=(const float value) const    { return getValue() != value; }
-    const bool operator <(const float value) const     { return getValue() < value; }
-    const bool operator <=(const float value) const    { return getValue() <= value; }
-    const bool operator >(const float value) const     { return getValue() > value; }
-    const bool operator >=(const float value) const    { return getValue() >= value; }
+    //=================== OPERATORS ===================
+
+    operator uint8_t() const                 { return _currentValue; }
+
+    Control& operator=(const Control& value) { _currentValue = value._currentValue; return *this; }
+    Control& operator=(const uint8_t value)  { _currentValue = value; return *this; }
+
+    Control& operator+=(const uint8_t value) { _currentValue += value; return *this; }
+    Control& operator-=(const uint8_t value) { _currentValue -= value; return *this; }
+    Control& operator*=(const uint8_t value) { _currentValue *= value; return *this; }
+    Control& operator/=(const uint8_t value) { _currentValue /= value; return *this; }
+
+    Control operator+(const uint8_t value)   { Control output(*this); output._currentValue += value; return output; }
+    Control operator-(const uint8_t value)   { Control output(*this); output._currentValue -= value; return output; }
+    Control operator*(const uint8_t value)   { Control output(*this); output._currentValue *= value; return output; }
+    Control operator/(const uint8_t value)   { Control output(*this); output._currentValue /= value; return output; }
+
+    Control& operator+=(const float value)   { _currentValue += value; return *this; }
+    Control& operator-=(const float value)   { _currentValue -= value; return *this; }
+    Control& operator*=(const float value)   { _currentValue *= value; return *this; }
+    Control& operator/=(const float value)   { _currentValue /= value; return *this; }
+
+    Control operator+(const float value)     { Control output(*this); output._currentValue += value; return output; }
+    Control operator-(const float value)     { Control output(*this); output._currentValue -= value; return output; }
+    Control operator*(const float value)     { Control output(*this); output._currentValue *= value; return output; }
+    Control operator/(const float value)     { Control output(*this); output._currentValue /= value; return output; }
 
 private:
-    float _currentValue;
-    float _previousValue;
-
-    Range<float> _inactiveRange;
-    Range<float> _valueRange;
+    uint8_t _currentValue;
+    uint8_t _previousValue;
 };
-
-
-
-void Control::endCycle()
-{
-    Activator::endCycle();
-    _previousValue = _currentValue;
-}
-
-void Control::setValue(const Control& value)
-{
-    _currentValue = _valueRange.rescaleValue(value, value.getValueRange());
-
-    bool valueIsActive = !_inactiveRange.checkIfInRange(getValue());
-    Activator::setState(valueIsActive);
-}
-
-void Control::setValue(const double value)
-{
-    setValue(static_cast<float>(value));
-}
-
-void Control::setValue(const float value)
-{
-    _currentValue = _valueRange.enforceRange(value);
-
-    bool valueIsActive = !_inactiveRange.checkIfInRange(getValue());
-    Activator::setState(valueIsActive);
-}
-
-void Control::setValue(const bool value)
-{
-    if (value == true)
-    {
-        _currentValue = _valueRange.getUpperBound();
-        Activator::setState(true);
-    }
-
-    if (value == false)
-    {
-        _currentValue = _inactiveRange.getCenter();
-        Activator::setState(false);
-    }
-}
-
-const bool Control::justCrossedInactiveRange() const
-{
-    bool crossedHighToLow = _previousValue > _inactiveRange.getUpperBound()
-                         && _currentValue < _inactiveRange.getLowerBound();
-
-    bool crossedLowToHigh = _previousValue < _inactiveRange.getLowerBound()
-                         && _currentValue > _inactiveRange.getUpperBound();
-
-    return crossedHighToLow || crossedLowToHigh;
-}
-
-void Control::makeUnipolar()
-{
-    Range<float> oldRange(_valueRange);
-
-    _valueRange.setLowerBound(0.0);
-    _valueRange.setUpperBound(1.0);
-    _inactiveRange.setCenter(0.0);
-    _inactiveRange.setMagnitude(0.2);
-
-    _currentValue = _valueRange.rescaleValue(_currentValue, oldRange);
-    _previousValue = _valueRange.rescaleValue(_previousValue, oldRange);
-}
-
-void Control::makeBipolar()
-{
-    Range<float> oldRange(_valueRange);
-
-    _valueRange.setLowerBound(-1.0);
-    _valueRange.setUpperBound(1.0);
-    _inactiveRange.setCenter(0.0);
-    _inactiveRange.setMagnitude(0.2);
-
-    _currentValue = _valueRange.rescaleValue(_currentValue, oldRange);
-    _previousValue = _valueRange.rescaleValue(_previousValue, oldRange);
-}
-
-Control::Control()
-: Activator(false),
-  _currentValue(0.0),
-  _previousValue(0.0),
-  _inactiveRange(Range<float>(CenterAndMagnitude<float>(0.0, 0.2))),
-  _valueRange(Range<float>(Bounds<float>(0.0, 1.0)))
-{
-    setValue(0.0);
-}
 
 #endif // CONTROL_H

@@ -1,17 +1,13 @@
 #ifndef GAMECUBECONTROLLER_H
 #define GAMECUBECONTROLLER_H
 
+#include "Activator.h"
 #include "Control.h"
 
 struct GameCubeController
 {
     GameCubeController()
-    {
-        lsX.makeBipolar();
-        lsY.makeBipolar();
-        cX.makeBipolar();
-        cY.makeBipolar();
-    }
+    {}
 
     // Digital values
     Activator a;

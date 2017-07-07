@@ -37,7 +37,7 @@ void CenterAndMagnitude<T>::setCenter(const T center)
 template <typename T>
 void CenterAndMagnitude<T>::setMagnitude(const T magnitude)
 {
-    if (magnitude < 0.0)
+    if (magnitude < 0)
         _magnitude = -magnitude;
     else
         _magnitude = magnitude;

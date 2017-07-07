@@ -15,6 +15,8 @@ public:
         setLooping(true);
     }
 
+    SpamMacro& operator =(const bool value) { ActivatorMacro::operator=(value); return *this; }
+
 private:
     void initMacro();
 };
@@ -26,8 +28,8 @@ void SpamMacro::initMacro()
     ActivatorMacro::clearMacro();
 
     // Jump
-    ActivatorMacro::addInput(ActivatorMacroUnit(true, frames(1.0)));
-    ActivatorMacro::addInput(ActivatorMacroUnit(false, frames(1.0)));
+    ActivatorMacro::addInput(ActivatorMacroUnit(true, frames(1)));
+    ActivatorMacro::addInput(ActivatorMacroUnit(false, frames(1)));
 }
 
 #endif // SPAMMACRO_H

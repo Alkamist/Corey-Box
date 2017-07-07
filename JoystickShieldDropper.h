@@ -11,15 +11,15 @@ public:
     JoystickShieldDropper()
     : _shieldDropState(false),
       _shieldState(false),
-      _shieldDropValue(-0.67500)
+      _shieldDropValue(42)
     {}
 
     void process(Joystick& joystick)
     {
         if (_shieldDropState && _shieldState)
         {
-            joystick.setXValue(0.0);
-            joystick.setYValue(_shieldDropValue);
+            joystick.xValue = 128;
+            joystick.yValue = _shieldDropValue;
         }
 
         joystick.Joystick::process();
@@ -30,26 +30,26 @@ public:
 
     void trimShieldDropDown()
     {
-         _shieldDropValue -= 0.015;
+        if (_shieldDropValue <= 0)
+            return;
 
-        if (_shieldDropValue < -1.0)
-            _shieldDropValue = -1.0;
+        --_shieldDropValue;
     }
 
     void trimShieldDropUp()
     {
-        _shieldDropValue += 0.015;
+        if (_shieldDropValue >= 60)
+            return;
 
-        if (_shieldDropValue > 0.0)
-            _shieldDropValue = 0.0;
+        ++_shieldDropValue;
     }
 
     void resetShieldDrop()
     {
-        _shieldDropValue = -0.67500;
+        _shieldDropValue = 42;
     }
 
-    void setShieldDrop(const float value)
+    void setShieldDrop(const uint8_t value)
     {
         _shieldDropValue = value;
     }
@@ -58,7 +58,7 @@ private:
     bool _shieldDropState;
     bool _shieldState;
 
-    float _shieldDropValue;
+    uint8_t _shieldDropValue;
 };
 
 #endif // JOYSTICKSHIELDDROPPER_H

@@ -9,18 +9,18 @@
 // instantiations of these to an ActivatorMacro.
 struct ActivatorMacroUnit
 {
-    explicit ActivatorMacroUnit()
+    ActivatorMacroUnit()
     : state(false),
       duration(0)
     {}
 
-    explicit ActivatorMacroUnit(const bool inputState, const uint64_t inputDuration)
+    explicit ActivatorMacroUnit(const bool inputState, const uint16_t inputDuration)
     : state(inputState),
       duration(inputDuration)
     {}
 
     bool state;
-    uint64_t duration;
+    uint16_t duration;
 };
 
 // This class is a macro that is specifically meant to run an Activator.
@@ -40,9 +40,7 @@ public:
     void process();
     void endCycle();
 
-    void setActivatorState(const bool state) { _activator = state; }
-
-    void setStartDelay(const uint64_t delay) { _start.duration = delay; }
+    void setStartDelay(const uint16_t delay) { _start.duration = delay; }
 
     void addInput(ActivatorMacroUnit input)  { _inputList.insertAtEnd(input); }
     void clearMacro();
@@ -55,6 +53,8 @@ public:
     const bool isRunning() const             { return _isRunning; }
     const bool isStarting() const            { return _isStarting; }
     const bool isInterruptible() const       { return _isInterruptible; }
+
+    Activator& operator =(const bool value)  { _activator = value; return *this; }
 
 private:
     Activator _activator;
@@ -115,13 +115,13 @@ void ActivatorMacro::startMacro()
     _inputIndex = -1;
     _timer.reset();
 
-    setState(_start.state);
+    Activator::operator=(_start.state);
     _timer.setTargetTime(_start.duration);
 }
 
 void ActivatorMacro::runStart()
 {
-    if (_timer.targetTimeReached())
+    if (_timer)
     {
         _isStarting = false;
         _isRunning = true;
@@ -130,7 +130,7 @@ void ActivatorMacro::runStart()
 
 void ActivatorMacro::runMacro()
 {
-    if (_timer.targetTimeReached())
+    if (_timer)
     {
         _timer.reset();
         ++_inputIndex;
@@ -147,7 +147,7 @@ void ActivatorMacro::runMacro()
             }
         }
 
-        setState(_inputList[_inputIndex].state);
+        Activator::operator=(_inputList[_inputIndex].state);
         _timer.setTargetTime(_inputList[_inputIndex].duration);
     }
 }

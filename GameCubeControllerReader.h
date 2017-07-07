@@ -3,6 +3,7 @@
 
 #include "Nintendo.h"
 #include "GameCubeController.h"
+#include "ScaleBipolar.h"
 
 class GameCubeControllerReader : public GameCubeController
 {
@@ -10,10 +11,7 @@ public:
     GameCubeControllerReader(const uint8_t pin)
     : GameCubeController(),
       _controller(pin)
-    {
-        _axisRange.setCenter(0.5 * 255.0);
-        _axisRange.setMagnitude(0.6250 * 0.5 * 255.0);
-    }
+    {}
 
     void process()
     {
@@ -26,8 +24,6 @@ public:
 
 private:
     CGamecubeController _controller;
-
-    Range<float> _axisRange;
 
     void updateControls(const Gamecube_Report_t& report)
     {
@@ -46,12 +42,12 @@ private:
         dUp = report.dup;
 
         // Analog
-        lAnalog = report.left / 255.0;
-        rAnalog = report.right / 255.0;
-        lsX = lsX.getValueRange().rescaleValue(report.xAxis, _axisRange);
-        lsY = lsY.getValueRange().rescaleValue(report.yAxis, _axisRange);
-        cX = cX.getValueRange().rescaleValue(report.cxAxis, _axisRange);
-        cY = cY.getValueRange().rescaleValue(report.cyAxis, _axisRange);
+        lAnalog = report.left;
+        rAnalog = report.right;
+        lsX = scaleBipolar(report.xAxis, 80);
+        lsY = scaleBipolar(report.yAxis, 80);
+        cX = scaleBipolar(report.cxAxis, 80);
+        cY = scaleBipolar(report.cyAxis, 80);
     }
 };
 

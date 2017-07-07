@@ -10,39 +10,39 @@ class JoystickTilter
 public:
     JoystickTilter()
     : _tiltState(false),
-      _tiltAmount(0.60)
+      _tiltAmount(77)
     {
-        _tiltXOut.setTime(frames(7.0));
-        _tiltYOut.setTime(frames(7.0));
+        _tiltX.setTime(frames(7));
+        _tiltY.setTime(frames(7));
     }
 
-    void process(Joystick& joystick)
+    void process(FightingJoystick& joystick)
     {
-        bool tiltResetX = joystick.getDeadZone().checkIfInRange(joystick.getXMagnitude())
-                       || joystick.getXControl().justCrossedInactiveRange();
+        bool tiltResetX = joystick.xIsInDeadZone()
+                       || joystick.xValue.justCrossedCenter();
 
-        bool tiltResetY = joystick.getDeadZone().checkIfInRange(joystick.getYMagnitude())
-                       || joystick.getYControl().justCrossedInactiveRange();
+        bool tiltResetY = joystick.yIsInDeadZone()
+                       || joystick.yValue.justCrossedCenter();
 
-        _tiltXOut.setActivatorState(tiltResetX);
-        _tiltYOut.setActivatorState(tiltResetY);
+        _tiltX = tiltResetX;
+        _tiltY = tiltResetY;
 
-        _tiltXOut.process();
-        _tiltYOut.process();
+        _tiltX.process();
+        _tiltY.process();
 
-        if (_tiltXOut && _tiltState)
-            joystick.setXValue(clampValue(joystick.getXValue()));
+        if (_tiltX && _tiltState)
+            joystick.xValue = clampValue(joystick.xValue);
 
-        if (_tiltYOut && _tiltState)
-            joystick.setYValue(clampValue(joystick.getYValue()));
+        if (_tiltY && _tiltState)
+            joystick.yValue = clampValue(joystick.yValue);
 
-        joystick.Joystick::process();
+        joystick.FightingJoystick::process();
     }
 
     void endCycle()
     {
-        _tiltXOut.endCycle();
-        _tiltYOut.endCycle();
+        _tiltX.endCycle();
+        _tiltY.endCycle();
     }
 
     void setTiltState(const bool state)  { _tiltState = state; }
@@ -50,15 +50,15 @@ public:
 private:
     bool _tiltState;
 
-    TemporaryActivator _tiltXOut;
-    TemporaryActivator _tiltYOut;
+    TemporaryActivator _tiltX;
+    TemporaryActivator _tiltY;
 
-    const float _tiltAmount;
+    const uint8_t _tiltAmount;
 
-    const float clampValue(const float value) const
+    const uint8_t clampValue(const uint8_t value) const
     {
-        float lowClamp = -_tiltAmount;
-        float highClamp = _tiltAmount;
+        uint8_t lowClamp = 128 - _tiltAmount;
+        uint8_t highClamp = 128 + _tiltAmount;
 
         if (value < lowClamp)
             return lowClamp;

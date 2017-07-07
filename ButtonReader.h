@@ -20,7 +20,7 @@ public:
         Activator::endCycle();
         _bounce.update();
 
-        setState(!_bounce.read());
+        *this = !_bounce.read();
     }
 
 private:
@@ -35,6 +35,8 @@ private:
         _bounce.attach(_pin);
         _bounce.interval(5);
     }
+
+    Activator& operator =(const bool value) { Activator::operator=(value); return *this; }
 };
 
 #endif // BUTTONREADER_H
