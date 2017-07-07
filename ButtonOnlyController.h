@@ -63,10 +63,10 @@ private:
 
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
-    Activator _trimShieldDropDown;
-    Activator _trimShieldDropUp;
-    Activator _trimModsInward;
-    Activator _trimModsOutward;
+    Activator _trimLsYDown;
+    Activator _trimLsYUp;
+    Activator _trimLsXDown;
+    Activator _trimLsXUp;
 
     Activator _meleeMode;
     Activator _projectMMode;
@@ -102,9 +102,9 @@ void ButtonOnlyController::process()
 
 
     // ====================== BUTTON COMBOS ======================
-    bool extraButtonCombo = _dLeftButton;
+    bool extraButtonCombo = _dDownButton;
     bool wavedashCombo = extraButtonCombo;
-    bool analogCombo = _dDownButton;
+    bool analogCombo = _dLeftButton;
     _disableMacros = _dRightButton;
     _disableMacros.process();
     _macrosAreOn = _disableMacros.justActivated();
@@ -112,10 +112,11 @@ void ButtonOnlyController::process()
 
     _trimWavedashDown = wavedashCombo && _cDownButton;
     _trimWavedashUp = wavedashCombo && _cUpButton;
-    _trimShieldDropDown = analogCombo && _cDownButton;
-    _trimShieldDropUp = analogCombo && _cUpButton;
-    _trimModsInward = analogCombo && _cLeftButton;
-    _trimModsOutward = analogCombo && _cRightButton;
+
+    _trimLsYDown = analogCombo && _cDownButton;
+    _trimLsYUp = analogCombo && _cUpButton;
+    _trimLsXDown = analogCombo && _cLeftButton;
+    _trimLsXUp = analogCombo && _cRightButton;
 
     _meleeMode = analogCombo && _aButton;
     _projectMMode = analogCombo && _bButton;
@@ -187,18 +188,21 @@ void ButtonOnlyController::process()
     if (_meleeMode.justActivated())
     {
         _leftStick.resetMods();
-        _leftStick.setShieldDrop(42);
+        _leftStick.resetShieldDrop();
+        _leftStick.resetTilt();
     }
     if (_projectMMode.justActivated())
     {
-        _leftStick.setModStart(54);
+        _leftStick.setModStart(49);
         _leftStick.setShieldDrop(13);
+        _leftStick.setTilt(100);
     }
 
-    if (_trimShieldDropDown.justActivated()) _leftStick.trimShieldDropDown();
-    if (_trimShieldDropUp.justActivated())   _leftStick.trimShieldDropUp();
-    if (_trimModsInward.justActivated())     _leftStick.trimModsInward();
-    if (_trimModsOutward.justActivated())    _leftStick.trimModsOutward();
+    if (_trimLsYDown.justActivated()) trimLsYDown();
+    if (_trimLsYUp.justActivated())   trimLsYUp();
+
+    if (_trimLsXDown.justActivated()) trimLsXDown();
+    if (_trimLsXUp.justActivated())   trimLsXUp();
 
     _leftStick.process();
 
@@ -260,12 +264,12 @@ void ButtonOnlyController::endCycle()
     _shieldExtension.endCycle();
     _shield.endCycle();
 
-    _trimShieldDropDown.endCycle();
-    _trimShieldDropUp.endCycle();
+    _trimLsYDown.endCycle();
+    _trimLsYUp.endCycle();
     _trimWavedashDown.endCycle();
     _trimWavedashUp.endCycle();
-    _trimModsInward.endCycle();
-    _trimModsOutward.endCycle();
+    _trimLsXDown.endCycle();
+    _trimLsXUp.endCycle();
 
     _meleeMode.endCycle();
     _projectMMode.endCycle();

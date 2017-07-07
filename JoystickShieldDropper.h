@@ -11,8 +11,10 @@ public:
     JoystickShieldDropper()
     : _shieldDropState(false),
       _shieldState(false),
-      _shieldDropValue(42)
-    {}
+      _shieldDropValue(0)
+    {
+        resetShieldDrop();
+    }
 
     void process(Joystick& joystick)
     {
@@ -27,22 +29,6 @@ public:
 
     void setShieldDropState(const bool state) { _shieldDropState = state; }
     void setShieldState(const bool state)     { _shieldState = state; }
-
-    void trimShieldDropDown()
-    {
-        if (_shieldDropValue <= 0)
-            return;
-
-        --_shieldDropValue;
-    }
-
-    void trimShieldDropUp()
-    {
-        if (_shieldDropValue >= 60)
-            return;
-
-        ++_shieldDropValue;
-    }
 
     void resetShieldDrop()
     {

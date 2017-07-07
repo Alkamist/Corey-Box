@@ -39,7 +39,7 @@ public:
 
         _wavedashState.process();
 
-        if (_wavedashState && (yValue > 128 - _yAxis.getMod1Value()))
+        if (_wavedashState && (yValue > (128 - _yAxis.getMod1Value())))
             yValue = 128 - _yAxis.getMod1Value();
 
         Joystick::process();
@@ -79,14 +79,14 @@ public:
     void setShieldState(const bool state)             { _joystickShieldDropper.setShieldState(state); }
     void setBackdashFixDisableState(const bool state) { _joystickBackdashFixer.setBackdashFixDisableState(state); }
 
-    void trimShieldDropDown()                         { _joystickShieldDropper.trimShieldDropDown(); }
-    void trimShieldDropUp()                           { _joystickShieldDropper.trimShieldDropUp(); }
-    void resetShieldDrop()                            { _joystickShieldDropper.resetShieldDrop(); }
     void setShieldDrop(const uint8_t value)           { _joystickShieldDropper.setShieldDrop(value); }
-    void trimModsOutward()                            { _xAxis.trimModsOutward(); _yAxis.trimModsOutward(); }
-    void trimModsInward()                             { _xAxis.trimModsInward(); _yAxis.trimModsInward(); }
+    void resetShieldDrop()                            { _joystickShieldDropper.resetShieldDrop(); }
+
     void setModStart(const uint8_t value)             { _xAxis.setModStart(value); _yAxis.setModStart(value); }
     void resetMods()                                  { _xAxis.resetMods(); _yAxis.resetMods(); }
+
+    void setTilt(const uint8_t value)                 { _joystickTilter.setTilt(value); }
+    void resetTilt()                                  { _joystickTilter.resetTilt();  }
 
 private:
     JoystickTilter _joystickTilter;

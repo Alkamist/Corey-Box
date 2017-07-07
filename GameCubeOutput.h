@@ -56,8 +56,12 @@ void GameCubeOutput::writeData()
     if (_controller->rAnalog.justChanged()) _rawData.report.right = _controller->rAnalog;
 
     // Analog Axes
-    if (_controller->lsX.justChanged())     _rawData.report.xAxis = scaleBipolar(_controller->lsX, 80);
-    if (_controller->lsY.justChanged())     _rawData.report.yAxis = scaleBipolar(_controller->lsY, 80);
+    if (_controller->lsX.justChanged() || _controller->lsXOffsetJustChanged())
+        _rawData.report.xAxis = scaleBipolar(_controller->lsX, 80) + _controller->getLsXOffset();
+
+    if (_controller->lsY.justChanged() || _controller->lsYOffsetJustChanged())
+        _rawData.report.yAxis = scaleBipolar(_controller->lsY, 80) + _controller->getLsYOffset();
+
     if (_controller->cX.justChanged())      _rawData.report.cxAxis = scaleBipolar(_controller->cX, 80);
     if (_controller->cY.justChanged())      _rawData.report.cyAxis = scaleBipolar(_controller->cY, 80);
 

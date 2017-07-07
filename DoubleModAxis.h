@@ -58,26 +58,6 @@ public:
 
     const int8_t getMod1Value() const   { return _mod1Value; }
 
-    void trimModsOutward()
-    {
-        if (_mod3Value > 114)
-            return;
-
-        ++_mod1Value;
-        ++_mod2Value;
-        ++_mod3Value;
-    }
-
-    void trimModsInward()
-    {
-        if (_mod1Value < 35)
-            return;
-
-        --_mod1Value;
-        --_mod2Value;
-        --_mod3Value;
-    }
-
     void setModStart(const uint8_t value)
     {
         uint8_t modAdditive = (127 - value) / 3;
@@ -89,7 +69,7 @@ public:
 
     void resetMods()
     {
-        setModStart(42);
+        setModStart(40);
     }
 
 private:

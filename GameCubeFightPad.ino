@@ -18,5 +18,17 @@ void loop()
     controller.process();
     gameCubeOutput.process();
 
+    /*if (controller.lsX.justChanged())
+    {
+        Serial.print("X: ");
+        Serial.println(controller.lsX);
+    }
+
+    if (controller.lsY.justChanged())
+    {
+        Serial.print("Y: ");
+        Serial.println(controller.lsY);
+    }*/
+
     controller.endCycle();
 }

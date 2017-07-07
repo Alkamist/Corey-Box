@@ -11,8 +11,10 @@ class JoystickTilter
 public:
     JoystickTilter()
     : _tiltState(false),
-      _tiltAmount(77)
+      _tiltAmount(0)
     {
+        resetTilt();
+
         _tiltX.setTime(frames(7));
         _tiltY.setTime(frames(7));
     }
@@ -48,13 +50,16 @@ public:
 
     void setTiltState(const bool state)  { _tiltState = state; }
 
+    void setTilt(const uint8_t value)    { _tiltAmount = value; }
+    void resetTilt()                     { _tiltAmount = 77; }
+
 private:
     bool _tiltState;
 
     TemporaryActivator _tiltX;
     TemporaryActivator _tiltY;
 
-    const uint8_t _tiltAmount;
+    uint8_t _tiltAmount;
 };
 
 #endif // JOYSTICKTILTER_H
