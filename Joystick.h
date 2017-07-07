@@ -22,9 +22,9 @@ public:
     {
         if (xValue.justChanged() || yValue.justChanged())
         {
-            _magnitude = calculateMagnitude(xValue, yValue);
+            _magnitude = calculateMagnitude(xValue.getBipolarMagnitude(), yValue.getBipolarMagnitude());
 
-            limitToMagnitude(45);
+            limitToMagnitude(127);
         }
     }
 
@@ -34,25 +34,22 @@ public:
         yValue.endCycle();
     }
 
-    void limitToMagnitude(const uint8_t value)
+    void limitToMagnitude(const uint8_t newMagnitude)
     {
-        if (_magnitude > value)
-            scaleToMagnitude(value);
+        if (_magnitude > newMagnitude)
+            scaleToMagnitude(newMagnitude);
     }
 
-    void scaleToMagnitude(const uint8_t value)
+    void scaleToMagnitude(const uint8_t newMagnitude)
     {
         if (_magnitude != 0)
         {
-            float scaleFactor = value / static_cast<float>(_magnitude);
+            uint8_t scaleFactor = (127 * newMagnitude) / _magnitude;
 
-            uint8_t xScale = xValue.getBipolarMagnitude() * scaleFactor;
-            uint8_t yScale = yValue.getBipolarMagnitude() * scaleFactor;
+            xValue = scaleBipolar(xValue, scaleFactor);
+            yValue = scaleBipolar(yValue, scaleFactor);
 
-            xValue = scaleBipolar(xValue, xScale);
-            yValue = scaleBipolar(yValue, yScale);
-
-            _magnitude = value;
+            _magnitude = newMagnitude;
         }
     }
 
@@ -61,7 +58,7 @@ public:
 private:
     uint8_t _magnitude;
 
-    const uint8_t calculateMagnitude(const uint8_t x, const uint8_t y) const { return sqrt(square(x - 128) + square(y - 128)); }
+    const uint8_t calculateMagnitude(const uint8_t x, const uint8_t y) const { return sqrt(square(x) + square(y)); }
 };
 
 #endif // JOYSTICK_H

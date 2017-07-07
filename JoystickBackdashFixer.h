@@ -16,7 +16,7 @@ public:
 
     void process(FightingJoystick& joystick)
     {
-        _killXTilt = joystick.xIsInDeadZone();
+        _killXTilt = joystick.xIsInDeadZone() || joystick.xValue.justCrossedCenter();
         _killXTilt.process();
 
         if (_killXTilt && !_backdashFixDisable)
