@@ -5,9 +5,7 @@
 #include "Timer.h"
 
 // This class is simply an Activator that is active for a defined period
-// of time. setActivatorState() will reset the timer constantly, so be
-// sure to pass in a justActivated() call if you want it to only happen
-// once.
+// of time.
 class TemporaryActivator : public Activator
 {
 public:

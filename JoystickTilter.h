@@ -4,6 +4,7 @@
 #include "Joystick.h"
 #include "TemporaryActivator.h"
 #include "Frames.h"
+#include "ClampBipolar.h"
 
 class JoystickTilter
 {
@@ -31,10 +32,10 @@ public:
         _tiltY.process();
 
         if (_tiltX && _tiltState)
-            joystick.xValue = clampValue(joystick.xValue);
+            joystick.xValue = clampBipolar(joystick.xValue, _tiltAmount);
 
         if (_tiltY && _tiltState)
-            joystick.yValue = clampValue(joystick.yValue);
+            joystick.yValue = clampBipolar(joystick.yValue, _tiltAmount);
 
         joystick.FightingJoystick::process();
     }
@@ -54,20 +55,6 @@ private:
     TemporaryActivator _tiltY;
 
     const uint8_t _tiltAmount;
-
-    const uint8_t clampValue(const uint8_t value) const
-    {
-        uint8_t lowClamp = 128 - _tiltAmount;
-        uint8_t highClamp = 128 + _tiltAmount;
-
-        if (value < lowClamp)
-            return lowClamp;
-
-        if (value > highClamp)
-            return highClamp;
-
-        return value;
-    }
 };
 
 #endif // JOYSTICKTILTER_H

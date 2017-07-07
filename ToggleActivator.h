@@ -22,13 +22,13 @@ public:
     {
         if (_activator && !*this)
         {
-            *this = true;
+            Activator::operator=(true);
             return;
         }
 
         if (_activator && *this)
         {
-            *this = false;
+            Activator::operator=(false);
             return;
         }
     }

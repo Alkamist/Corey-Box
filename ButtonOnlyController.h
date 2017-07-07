@@ -71,7 +71,7 @@ private:
     Activator _meleeMode;
     Activator _projectMMode;
 
-    Activator _disableMacros;
+    TimedActivator _disableMacros;
     ToggleActivator _macrosAreOn;
 };
 
@@ -102,10 +102,11 @@ void ButtonOnlyController::process()
 
 
     // ====================== BUTTON COMBOS ======================
-    bool extraButtonCombo = _yMod1Button && _xMod1Button;
-    bool wavedashCombo = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
-    bool analogCombo = extraButtonCombo && _shieldDropButton;
-    _disableMacros = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button && _dUpButton && _shieldDropButton;
+    bool extraButtonCombo = _dLeftButton;
+    bool wavedashCombo = extraButtonCombo;
+    bool analogCombo = _dDownButton;
+    _disableMacros = _dRightButton;
+    _disableMacros.process();
     _macrosAreOn = _disableMacros.justActivated();
     _macrosAreOn.process();
 
@@ -311,6 +312,7 @@ ButtonOnlyController::ButtonOnlyController()
   _dUpButton(10),
   _macrosAreOn(true)
 {
+    _disableMacros.setTime(3000);
     _shieldExtension.setTime(frames(1));
 }
 

@@ -19,17 +19,18 @@ public:
         _smashZone.setUpperBound(128);
 
         _crouchZone.setLowerBound(0);
-        _crouchZone.setUpperBound(50);
+        _crouchZone.setUpperBound(47);
     }
 
-    const bool xIsInDeadZone() const   { return _deadZone.checkIfInRange(xValue.getBipolarMagnitude()); }
-    const bool yIsInDeadZone() const   { return _deadZone.checkIfInRange(yValue.getBipolarMagnitude()); }
+    const bool xIsInDeadZone() const              { return _deadZone.checkIfInRange(xValue.getBipolarMagnitude()); }
+    const bool yIsInDeadZone() const              { return _deadZone.checkIfInRange(yValue.getBipolarMagnitude()); }
 
-    const bool xIsInTiltZone() const   { return _tiltZone.checkIfInRange(xValue.getBipolarMagnitude()); }
+    const bool xIsInTiltZone() const              { return _tiltZone.checkIfInRange(xValue.getBipolarMagnitude()); }
 
-    const bool yIsInCrouchZone() const { return _crouchZone.checkIfInRange(yValue); }
+    const bool yIsInCrouchZone() const            { return _crouchZone.checkIfInRange(yValue); }
 
-    const uint8_t getDeadZoneUpperBound() const { return _deadZone.getUpperBound(); }
+    const uint8_t getDeadZoneUpperBound() const   { return _deadZone.getUpperBound(); }
+    const uint8_t getCrouchZoneUpperBound() const { return _crouchZone.getUpperBound(); }
 
 private:
     Range<uint8_t> _deadZone;
