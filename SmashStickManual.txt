@@ -1,34 +1,44 @@
 ========================== GENERAL ==========================
-    L is meant for wavedashing. It temporarily disables tilt when pushed to
+    - Hold the tilt button to ensure you won't dash, spotdodge, roll, etc...
+    It is a good idea to hold tilt when in shield, unless you want to shield drop
+    or Up-B out of shield.
+
+    - L is meant for wavedashing. It temporarily disables tilt when pushed to
     ensure proper angles even in Project M.
 
-    tilt + lsUp + cXAxis = Upward forward smash.
-    tilt + lsDown + cXAxis = Downward forward smash.
+    - Press cUp while in shield to toggle light shield on and off.
+
+    - tilt + lsUp + cXAxis = Upward forward smash.
+    - tilt + lsDown + cXAxis = Downward forward smash.
+
+    - While macros are enabled, wavedash with L and waveland with R.
 
 
 
 ========================== SETUP ==========================
-    xMod1 + xMod2 + yMod1 + yMod2 + dUp + shieldDrop = Toggle macros on and off.
-    Hold yMod2 && yMod1 = Temporarily L is normal and X switches with X.
+    - Hold dPadRight for 3 seconds = Toggle macros on and off.
+    - Hold UnusedButton = Temporarily L is normal and Y switches with X.
 
 Wavedash macro:
 
-    xMod1 + xMod2 + yMod1 + yMod2 + cUp = Increase jumpsquat time by 1 frame.
-    xMod1 + xMod2 + yMod1 + yMod2 + cDown = Decrease jumpsquat time by 1 frame.
+    - UnusedButton + cUp = Increase jumpsquat time by 1 frame.
+    - UnusedButton + cDown = Decrease jumpsquat time by 1 frame.
 
-    You can't trim the jumpsquat time below 3 (default value) or higher than 8.
+    - You can't trim the jumpsquat time below 3 (default value) or higher than 8.
 
 Spam BA macro:
 
-    B first + A = Spam B really fast.
-    B first + A + cDown = Alternate between B and A really fast.
+    - B first + A = Spam B really fast.
+    - B first + A + cDown = Alternate between B and A really fast.
 
 Analog trimming:
 
-    yMod2 + xMod1 + shieldDrop + A = Turn on Melee Mode.
-    yMod2 + xMod1 + shieldDrop + B = Turn on Project M Mode.
+    - xMod1 + UnusedButton + A = Turn on Melee Mode.
+    - xMod1 + UnusedButton + B = Turn on Project M Mode.
 
-    yMod2 + xMod1 + shieldDrop + cUp = Trim shield drop upward.
-    yMod2 + xMod1 + shieldDrop + cDown = Trim shield drop downward.
-    yMod2 + xMod1 + shieldDrop + cRight = Trim mods outward.
-    yMod2 + xMod1 + shieldDrop + cLeft = Trim mods inward.
+Use these combos to trim the left analog stick if calibration is bad:
+
+    - xMod1 + UnusedButton + cUp = Trim left stick yAxis up.
+    - xMod1 + UnusedButton + cDown = Trim left stick yAxis down.
+    - xMod1 + UnusedButton + cRight = Trim left stick xAxis to the right.
+    - xMod1 + UnusedButton + cLeft = Trim left stick xAxis to the left.
