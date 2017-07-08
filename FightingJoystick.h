@@ -4,6 +4,8 @@
 #include "Joystick.h"
 #include "Range.h"
 
+// This class is just a joystick that has some defined zones that relate
+// to fighting games, particularly Melee.
 class FightingJoystick : public Joystick
 {
 public:

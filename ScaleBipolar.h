@@ -1,6 +1,8 @@
 #ifndef SCALEBIPOLAR_H
 #define SCALEBIPOLAR_H
 
+// This function will scale an 8bit integer to a given value offset from
+// the center (128).
 const uint8_t scaleBipolar(const uint8_t value, const uint8_t scaleMagnitude)
 {
     int8_t signedValue = value - 128;

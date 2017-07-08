@@ -33,7 +33,7 @@ public:
         }
     }
 
-    ToggleActivator& operator=(const bool value) { _activator = value; return *this; }
+    virtual ToggleActivator& operator=(const bool value) { _activator = value; return *this; }
 
 private:
     bool _activator;

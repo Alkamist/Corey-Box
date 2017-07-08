@@ -6,6 +6,8 @@
 #include "Control.h"
 #include "ScaleBipolar.h"
 
+// This is a basic joystick with an x and y value. It will automatically software-gate
+// itself to a magnitude of 127, to simulate a circular gate like Melee does internally.
 class Joystick
 {
 public:

@@ -4,6 +4,8 @@
 #include "Activator.h"
 #include "Control.h"
 
+// This is the basic data structure for a GameCube controller. It can trim
+// its left stick axes up or down to provide a defense for bad calibration.
 struct GameCubeController
 {
     GameCubeController()

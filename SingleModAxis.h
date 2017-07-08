@@ -5,7 +5,7 @@
 #include "ScaleBipolar.h"
 
 // This is a TwoButtonControl that can be modified by a fixed mod value
-// when told to do so
+// when told to do so.
 class SingleModAxis : public Control
 {
 public:

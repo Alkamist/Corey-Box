@@ -9,6 +9,7 @@
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
 #include "ToggleActivator.h"
+#include "ShieldManager.h"
 
 // This is the main controller class right now. I know it is kind of a
 // god class but I'm not sure how to split up this logic.
@@ -58,8 +59,7 @@ private:
     TwoButtonStateTracker _spamBAActivator;
     TwoButtonSpamMacro _spamBAMacro;
 
-    TemporaryActivator _shieldExtension;
-    Activator _shield;
+    ShieldManager _shieldManager;
 
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
@@ -80,18 +80,19 @@ private:
 void ButtonOnlyController::process()
 {
     // ====================== OUTPUT INITIALIZATION ======================
-    _shieldExtension = _rButton.justDeactivated();
-    _shieldExtension.process();
+    _shieldManager.setActivator(_rButton);
+    _shieldManager.setLightShieldState(_cUpButton && _rButton);
+    _shieldManager.process();
 
-    _shield = _rButton || _shieldExtension;
-
+    // Outputs
     a = _aButton;
     b = _bButton;
     x = false;
     y = _jumpButton;
     z = _zButton;
     l = _lButton;
-    r = _shield;
+    r = _shieldManager.getHardShieldState();
+    rAnalog = _shieldManager.getLightShieldOutput();
     start = _startButton;
     dLeft = _dLeftButton;
     dRight = _dRightButton;
@@ -182,7 +183,7 @@ void ButtonOnlyController::process()
     _leftStick.setTiltTempDisableState(l);
     _leftStick.setWavedashState(_wavedashMacro.getL());
     _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
-    _leftStick.setShieldState(_shield);
+    _leftStick.setShieldState(_shieldManager);
     _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || l || r || y || x || z || a || b);
 
     if (_meleeMode.justActivated())
@@ -224,6 +225,9 @@ void ButtonOnlyController::process()
 
     cX = _cStick.xValue;
     cY = _cStick.yValue;
+
+    if (_rButton)
+        cY = 128;
 }
 
 void ButtonOnlyController::endCycle()
@@ -261,15 +265,14 @@ void ButtonOnlyController::endCycle()
     _dDownButton.endCycle();
     _dUpButton.endCycle();
 
-    _shieldExtension.endCycle();
-    _shield.endCycle();
+    _shieldManager.endCycle();
 
-    _trimLsYDown.endCycle();
-    _trimLsYUp.endCycle();
     _trimWavedashDown.endCycle();
     _trimWavedashUp.endCycle();
     _trimLsXDown.endCycle();
     _trimLsXUp.endCycle();
+    _trimLsYDown.endCycle();
+    _trimLsYUp.endCycle();
 
     _meleeMode.endCycle();
     _projectMMode.endCycle();
@@ -317,7 +320,6 @@ ButtonOnlyController::ButtonOnlyController()
   _macrosAreOn(true)
 {
     _disableMacros.setTime(3000);
-    _shieldExtension.setTime(frames(1));
 }
 
 #endif // BUTTONONLYCONTROLLER_H

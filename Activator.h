@@ -17,18 +17,19 @@ public:
       _previousState(state)
     {}
 
-    virtual void endCycle()                        { _previousState = _currentState; }
+    virtual void setState(const bool state)               { _currentState = state; }
+    virtual void endCycle()                               { _previousState = _currentState; }
 
-    virtual const bool justActivated() const       { return justChanged() && _currentState; }
-    virtual const bool justDeactivated() const     { return justChanged() && !_currentState; }
-    virtual const bool justChanged() const         { return _currentState != _previousState; }
+    virtual const bool justActivated() const              { return justChanged() && _currentState; }
+    virtual const bool justDeactivated() const            { return justChanged() && !_currentState; }
+    virtual const bool justChanged() const                { return _currentState != _previousState; }
 
     //=================== OPERATORS ===================
 
-    operator bool() const                          { return _currentState; }
+    operator bool() const                                 { return _currentState; }
 
-    Activator& operator =(const Activator& value)  { _currentState = value._currentState; return *this; }
-    Activator& operator =(const bool value)        { _currentState = value; return *this; }
+    virtual Activator& operator =(const Activator& value) { _currentState = value._currentState; return *this; }
+    virtual Activator& operator =(const bool state)       { _currentState = state; return *this; }
 
 private:
     bool _currentState;

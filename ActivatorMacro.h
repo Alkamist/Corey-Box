@@ -40,21 +40,21 @@ public:
     void process();
     void endCycle();
 
-    void setStartDelay(const uint16_t delay) { _start.duration = delay; }
+    void setStartDelay(const uint16_t delay)            { _start.duration = delay; }
 
-    void addInput(ActivatorMacroUnit input)  { _inputList.insertAtEnd(input); }
+    void addInput(ActivatorMacroUnit input)             { _inputList.insertAtEnd(input); }
     void clearMacro();
 
-    void setInterruptible(const bool state)  { _isInterruptible = state; }
-    void setLooping(const bool state)        { _shouldLoop = state; }
+    void setInterruptible(const bool state)             { _isInterruptible = state; }
+    void setLooping(const bool state)                   { _shouldLoop = state; }
 
-    const unsigned int getLength() const     { return _inputList.getLength(); }
+    const unsigned int getLength() const                { return _inputList.getLength(); }
 
-    const bool isRunning() const             { return _isRunning; }
-    const bool isStarting() const            { return _isStarting; }
-    const bool isInterruptible() const       { return _isInterruptible; }
+    const bool isRunning() const                        { return _isRunning; }
+    const bool isStarting() const                       { return _isStarting; }
+    const bool isInterruptible() const                  { return _isInterruptible; }
 
-    Activator& operator =(const bool value)  { _activator = value; return *this; }
+    virtual ActivatorMacro& operator=(const bool value) { _activator = value; return *this; }
 
 private:
     Activator _activator;
@@ -115,7 +115,7 @@ void ActivatorMacro::startMacro()
     _inputIndex = -1;
     _timer.reset();
 
-    Activator::operator=(_start.state);
+    setState(_start.state);
     _timer.setTargetTime(_start.duration);
 }
 
@@ -147,7 +147,7 @@ void ActivatorMacro::runMacro()
             }
         }
 
-        Activator::operator=(_inputList[_inputIndex].state);
+        setState(_inputList[_inputIndex].state);
         _timer.setTargetTime(_inputList[_inputIndex].duration);
     }
 }

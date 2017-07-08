@@ -22,7 +22,7 @@ public:
     const ActivatorMacro& getButton1() const   { return _button1; }
     const ActivatorMacro& getButton2() const   { return _button2; }
 
-    TwoButtonSpamMacro& operator =(const bool value)
+    virtual TwoButtonSpamMacro& operator=(const bool value)
     {
         _button1 = value;
         _button2 = value;

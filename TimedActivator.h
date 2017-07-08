@@ -26,9 +26,9 @@ public:
             Activator::operator=(true);
     }
 
-    void setTime(const uint16_t time)                  { _timer.setTargetTime(time); }
+    void setTime(const uint16_t time)                    { _timer.setTargetTime(time); }
 
-    TimedActivator& operator =(const bool value)       { _activator = value; return *this; }
+    virtual TimedActivator& operator =(const bool value) { _activator = value; return *this; }
 
 private:
     bool _activator;

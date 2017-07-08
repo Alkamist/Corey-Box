@@ -49,7 +49,7 @@ public:
     const ActivatorMacro& getL() const    { return _L; }
     const ActivatorMacro& getR() const    { return _R; }
 
-    WavedashMacro& operator =(const bool value)
+    virtual WavedashMacro& operator=(const bool value)
     {
         _jump = value;
         _L = value;

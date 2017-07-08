@@ -6,6 +6,8 @@
 #include "Frames.h"
 #include "ClampBipolar.h"
 
+// This class provides the capability to force a joystick to move slowly.
+// This will prevent dash, rolling, spotdodging, and shield-dropping when activated.
 class JoystickTilter
 {
 public:

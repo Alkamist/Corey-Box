@@ -4,7 +4,7 @@
 #include "Activator.h"
 #include "Timer.h"
 
-// This class is simply an Activator that is active for a defined period
+// This class is an Activator that is active for a defined period
 // of time.
 class TemporaryActivator : public Activator
 {
@@ -26,9 +26,9 @@ public:
             Activator::operator=(false);
     }
 
-    void setTime(const uint16_t time)                      { _timer.setTargetTime(time); }
+    void setTime(const uint16_t time)                        { _timer.setTargetTime(time); }
 
-    TemporaryActivator& operator =(const bool value)       { _activator = value; return *this; }
+    virtual TemporaryActivator& operator =(const bool value) { _activator = value; return *this; }
 
 private:
     bool _activator;

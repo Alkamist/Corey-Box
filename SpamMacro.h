@@ -15,7 +15,7 @@ public:
         setLooping(true);
     }
 
-    SpamMacro& operator =(const bool value) { ActivatorMacro::operator=(value); return *this; }
+    virtual SpamMacro& operator=(const bool value) { ActivatorMacro::operator=(value); return *this; }
 
 private:
     void initMacro();

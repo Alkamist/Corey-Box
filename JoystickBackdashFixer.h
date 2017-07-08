@@ -7,6 +7,7 @@
 #include "Frames.h"
 #include "ClampBipolar.h"
 
+// This class hopefully should fix backdash problems associated with Melee.
 class JoystickBackdashFixer
 {
 public:
