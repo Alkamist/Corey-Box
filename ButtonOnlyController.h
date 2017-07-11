@@ -190,12 +190,14 @@ void ButtonOnlyController::process()
     {
         _leftStick.resetMods();
         _leftStick.resetShieldDrop();
+        _leftStick.setDeadZoneUpperBound(36);
         _leftStick.resetTilt();
     }
     if (_projectMMode.justActivated())
     {
         _leftStick.setModStart(49);
         _leftStick.setShieldDrop(13);
+        _leftStick.setDeadZoneUpperBound(47);
         _leftStick.setTilt(100);
     }
 

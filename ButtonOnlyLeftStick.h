@@ -86,7 +86,7 @@ public:
     void resetMods()                                  { _xAxis.resetMods(); _yAxis.resetMods(); }
 
     void setTilt(const uint8_t value)                 { _joystickTilter.setTilt(value); }
-    void resetTilt()                                  { _joystickTilter.resetTilt();  }
+    void resetTilt()                                  { _joystickTilter.resetTilt(); }
 
 private:
     JoystickTilter _joystickTilter;

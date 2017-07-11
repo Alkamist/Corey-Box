@@ -4,7 +4,8 @@
 #include "Joystick.h"
 #include "TemporaryActivator.h"
 #include "Frames.h"
-#include "ClampBipolar.h"
+#include "ScaleBipolar.h"
+#include "Signum.h"
 
 // This class provides the capability to force a joystick to move slowly.
 // This will prevent dash, rolling, spotdodging, and shield-dropping when activated.
@@ -36,10 +37,28 @@ public:
         _tiltY.process();
 
         if (_tiltX && _tiltState)
-            joystick.xValue = clampBipolar(joystick.xValue, _tiltAmount);
+        {
+            joystick.xValue = scaleBipolar(joystick.xValue, _tiltAmount);
+
+            if (joystick.xIsInDeadZone())
+            {
+                if (joystick.xValue < 128) joystick.xValue = 128 - joystick.getDeadZoneUpperBound() - 1;
+                if (joystick.xValue > 128) joystick.xValue = 128 + joystick.getDeadZoneUpperBound() + 1;
+            }
+        }
 
         if (_tiltY && _tiltState)
-            joystick.yValue = clampBipolar(joystick.yValue, _tiltAmount);
+        {
+            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount);
+
+            if (joystick.yIsInDeadZone())
+            {
+                if (joystick.yValue < 128) joystick.yValue = 128 - joystick.getDeadZoneUpperBound() - 1;
+                if (joystick.yValue > 128) joystick.yValue = 128 + joystick.getDeadZoneUpperBound() + 1;
+            }
+        }
+
+
 
         joystick.FightingJoystick::process();
     }
@@ -53,7 +72,7 @@ public:
     void setTiltState(const bool state)  { _tiltState = state; }
 
     void setTilt(const uint8_t value)    { _tiltAmount = value; }
-    void resetTilt()                     { _tiltAmount = 77; }
+    void resetTilt()                     { _tiltAmount = 84; }
 
 private:
     bool _tiltState;
