@@ -27,6 +27,10 @@ public:
 
     void process()
     {
+        _wavedashState.process();
+        _tiltTempDisable.process();
+        _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState);
+
         _xAxis.process();
         _yAxis.process();
 
@@ -37,15 +41,10 @@ public:
 
         _joystickBackdashFixer.process(*this);
 
-        _wavedashState.process();
-
         if (_wavedashState && (yValue > (128 - _yAxis.getMod1Value())))
             yValue = 128 - _yAxis.getMod1Value();
 
         Joystick::process();
-
-        _tiltTempDisable.process();
-        _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState);
 
         _joystickTilter.setTiltState(_tiltOut);
         _joystickTilter.process(*this);

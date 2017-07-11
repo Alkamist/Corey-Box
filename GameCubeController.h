@@ -12,7 +12,8 @@ struct GameCubeController
     : _lsXOffset(0),
       _lsYOffset(0),
       _lsXOffsetPrev(0),
-      _lsYOffsetPrev(0)
+      _lsYOffsetPrev(0),
+      _analogRange(80)
     {}
 
     // Digital values
@@ -86,11 +87,14 @@ struct GameCubeController
             ++_lsYOffset;
     }
 
-    const int8_t getLsXOffset() const { return _lsXOffset; }
-    const int8_t getLsYOffset() const { return _lsYOffset; }
+    void setAnalogRange(const uint8_t value) { _analogRange = value; }
+    const uint8_t getAnalogRange() const     { return _analogRange; }
 
-    const bool lsXOffsetJustChanged() const { return _lsXOffset != _lsXOffsetPrev; }
-    const bool lsYOffsetJustChanged() const { return _lsYOffset != _lsYOffsetPrev; }
+    const int8_t getLsXOffset() const        { return _lsXOffset; }
+    const int8_t getLsYOffset() const        { return _lsYOffset; }
+
+    const bool lsXOffsetJustChanged() const  { return _lsXOffset != _lsXOffsetPrev; }
+    const bool lsYOffsetJustChanged() const  { return _lsYOffset != _lsYOffsetPrev; }
 
 private:
     int8_t _lsXOffset;
@@ -98,6 +102,8 @@ private:
 
     int8_t _lsXOffsetPrev;
     int8_t _lsYOffsetPrev;
+
+    uint8_t _analogRange;
 };
 
 #endif // GAMECUBECONTROLLER_H

@@ -70,6 +70,7 @@ private:
 
     Activator _meleeMode;
     Activator _projectMMode;
+    Activator _rivalsMode;
 
     TimedActivator _disableMacros;
     ToggleActivator _macrosAreOn;
@@ -121,6 +122,7 @@ void ButtonOnlyController::process()
 
     _meleeMode = analogCombo && _aButton;
     _projectMMode = analogCombo && _bButton;
+    _rivalsMode = analogCombo && _jumpButton;
 
 
 
@@ -188,6 +190,7 @@ void ButtonOnlyController::process()
 
     if (_meleeMode.justActivated())
     {
+        setAnalogRange(80);
         _leftStick.resetMods();
         _leftStick.resetShieldDrop();
         _leftStick.setDeadZoneUpperBound(36);
@@ -195,10 +198,19 @@ void ButtonOnlyController::process()
     }
     if (_projectMMode.justActivated())
     {
+        setAnalogRange(80);
         _leftStick.setModStart(49);
         _leftStick.setShieldDrop(13);
         _leftStick.setDeadZoneUpperBound(47);
         _leftStick.setTilt(100);
+    }
+    if (_rivalsMode.justActivated())
+    {
+        setAnalogRange(100);
+        _leftStick.resetMods();
+        _leftStick.setShieldDrop(0);
+        _leftStick.setDeadZoneUpperBound(36);
+        _leftStick.resetTilt();
     }
 
     if (_trimLsYDown.justActivated()) trimLsYDown();
@@ -278,6 +290,7 @@ void ButtonOnlyController::endCycle()
 
     _meleeMode.endCycle();
     _projectMMode.endCycle();
+    _rivalsMode.endCycle();
 
     // Sticks:
     _cStick.endCycle();
