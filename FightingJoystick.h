@@ -24,7 +24,7 @@ public:
         _crouchZone.setUpperBound(47);
     }
 
-    void setDeadZoneUpperBound(const uint8_t value) { _deadZone.setUpperBound(value); }
+    void setDeadZoneUpperBound(const uint8_t value) { _deadZone.setUpperBound(value); _tiltZone.setLowerBound(value + 1); }
 
     const bool xIsInDeadZone() const                { return _deadZone.checkIfInRange(xValue.getBipolarMagnitude()); }
     const bool yIsInDeadZone() const                { return _deadZone.checkIfInRange(yValue.getBipolarMagnitude()); }

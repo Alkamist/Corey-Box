@@ -41,7 +41,7 @@ public:
 
         _joystickBackdashFixer.process(*this);
 
-        if (_wavedashState && (yValue > (128 - _yAxis.getMod1Value())))
+        if (_wavedashState && (yValue > (128 - getTiltLowerBound())))
             yValue = 128 - _yAxis.getMod1Value();
 
         Joystick::process();

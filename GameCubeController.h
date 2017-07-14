@@ -87,6 +87,9 @@ struct GameCubeController
             ++_lsYOffset;
     }
 
+    void resetLsXTrim() { _lsXOffset = 0; }
+    void resetLsYTrim() { _lsYOffset = 0; }
+
     void setAnalogRange(const uint8_t value) { _analogRange = value; }
     const uint8_t getAnalogRange() const     { return _analogRange; }
 
