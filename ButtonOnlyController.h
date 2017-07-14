@@ -9,6 +9,8 @@
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
 #include "ToggleActivator.h"
+#include "TemporaryActivator.h"
+#include "Frames.h"
 #include "ShieldManager.h"
 
 // This is the main controller class right now. I know it is kind of a
@@ -60,6 +62,7 @@ private:
     TwoButtonSpamMacro _spamBAMacro;
 
     ShieldManager _shieldManager;
+    TemporaryActivator _lightShieldJumpClear;
 
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
@@ -240,7 +243,11 @@ void ButtonOnlyController::process()
     cX = _cStick.xValue;
     cY = _cStick.yValue;
 
-    if (_rButton)
+    // This allows cUp to be pressed while in shield to toggle light shield.
+    // Pushing jump will disable this lock for 4 frames.
+    _lightShieldJumpClear = _jumpButton;
+    _lightShieldJumpClear.process();
+    if (_rButton && _cUpButton && !_lightShieldJumpClear)
         cY = 128;
 }
 
@@ -280,6 +287,7 @@ void ButtonOnlyController::endCycle()
     _dUpButton.endCycle();
 
     _shieldManager.endCycle();
+    _lightShieldJumpClear.endCycle();
 
     _trimWavedashDown.endCycle();
     _trimWavedashUp.endCycle();
@@ -335,6 +343,7 @@ ButtonOnlyController::ButtonOnlyController()
   _macrosAreOn(true)
 {
     _disableMacros.setTime(3000);
+    _lightShieldJumpClear.setTime(frames(4));
 }
 
 #endif // BUTTONONLYCONTROLLER_H
