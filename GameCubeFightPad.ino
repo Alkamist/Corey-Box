@@ -1,7 +1,7 @@
 #include "GameCubeOutput.h"
 #include "ButtonOnlyController.h"
 
-GameCubeOutput gameCubeOutput(26);
+GameCubeOutput gameCubeOutput(45);
 ButtonOnlyController controller;
 
 // This function runs one time when you plug in the controller
