@@ -2,7 +2,6 @@
 #define SHIELDMANAGER_H
 
 #include "Activator.h"
-#include "TemporaryActivator.h"
 #include "ToggleActivator.h"
 
 // This class manages toggling shield and lightshield. It also holds shield for
@@ -14,31 +13,22 @@ public:
     ShieldManager()
     : Activator(),
       _lightShieldValue(80)
-    {
-        _shieldExtension.setTime(frames(1));
-    }
+    {}
 
     void process()
     {
-        _shieldExtension = _activator.justDeactivated();
-        _shieldExtension.process();
-
-        if (_activator || _shieldExtension)
-            *this = true;
-        else
-            *this = false;
+        *this = _activator;
 
         _isLightShield = _lightShieldActivator.justActivated();
         _isLightShield.process();
 
-        if (!_activator && !_shieldExtension)
+        if (!_activator)
             _isLightShield.setState(false);
     }
 
     void endCycle()
     {
         _activator.endCycle();
-        _shieldExtension.endCycle();
         _isLightShield.endCycle();
         _lightShieldActivator.endCycle();
     }
@@ -62,8 +52,6 @@ public:
 
 private:
     Activator _activator;
-    TemporaryActivator _shieldExtension;
-
     Activator _lightShieldActivator;
 
     ToggleActivator _isLightShield;

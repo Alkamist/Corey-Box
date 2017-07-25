@@ -2,9 +2,8 @@
 #define BUTTONONLYLEFTSTICK_H
 
 #include "FightingJoystick.h"
-#include "JoystickTilter.h"
 #include "JoystickShieldDropper.h"
-#include "JoystickBackdashFixer.h"
+#include "JoystickTilter.h"
 #include "DoubleModAxis.h"
 #include "Signum.h"
 
@@ -18,19 +17,11 @@ public:
       _lsRightState(false),
       _lsDownState(false),
       _lsUpState(false),
-      _tiltState(false),
-      _tiltOut(false)
-    {
-        _tiltTempDisable.setTime(frames(5));
-        _wavedashState.setTime(frames(5));
-    }
+      _tiltDisablerState(false)
+    {}
 
     void process()
     {
-        _wavedashState.process();
-        _tiltTempDisable.process();
-        _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState);
-
         _xAxis.process();
         _yAxis.process();
 
@@ -39,26 +30,15 @@ public:
 
         Joystick::process();
 
-        _joystickBackdashFixer.process(*this);
-
-        if (_wavedashState && (yValue > (128 - getTiltLowerBound())))
-            yValue = 128 - _yAxis.getMod1Value();
-
-        Joystick::process();
-
-        _joystickTilter.setTiltState(_tiltOut);
-        _joystickTilter.process(*this);
-
         _joystickShieldDropper.process(*this);
+
+        _joystickTilter.setTiltState(_tiltState && !_tiltDisablerState);
+        _joystickTilter.process(*this);
     }
 
     void endCycle()
     {
         Joystick::endCycle();
-        _joystickTilter.endCycle();
-        _joystickBackdashFixer.endCycle();
-        _tiltTempDisable.endCycle();
-        _wavedashState.endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
     }
@@ -71,12 +51,10 @@ public:
     void setXMod2State(const bool state)              { _xAxis.setMod2State(state); }
     void setYMod1State(const bool state)              { _yAxis.setMod1State(state); }
     void setYMod2State(const bool state)              { _yAxis.setMod2State(state); }
-    void setTiltState(const bool state)               { _tiltState = state; }
-    void setTiltTempDisableState(const bool state)    { _tiltTempDisable = state; }
-    void setWavedashState(const bool state)           { _wavedashState = state; }
     void setShieldDropState(const bool state)         { _joystickShieldDropper.setShieldDropState(state); }
     void setShieldState(const bool state)             { _joystickShieldDropper.setShieldState(state); }
-    void setBackdashFixDisableState(const bool state) { _joystickBackdashFixer.setBackdashFixDisableState(state); }
+    void setTiltState(const bool state)               { _tiltState = state; }
+    void setTiltDisablerState(const bool state)       { _tiltDisablerState = state; }
 
     void setShieldDrop(const uint8_t value)           { _joystickShieldDropper.setShieldDrop(value); }
     void resetShieldDrop()                            { _joystickShieldDropper.resetShieldDrop(); }
@@ -90,16 +68,13 @@ public:
 private:
     JoystickTilter _joystickTilter;
     JoystickShieldDropper _joystickShieldDropper;
-    JoystickBackdashFixer _joystickBackdashFixer;
 
     bool _lsLeftState;
     bool _lsRightState;
     bool _lsDownState;
     bool _lsUpState;
     bool _tiltState;
-    bool _tiltOut;
-    TemporaryActivator _tiltTempDisable;
-    TemporaryActivator _wavedashState;
+    bool _tiltDisablerState;
 
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;

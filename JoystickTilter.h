@@ -2,8 +2,6 @@
 #define JOYSTICKTILTER_H
 
 #include "Joystick.h"
-#include "TemporaryActivator.h"
-#include "Frames.h"
 #include "ScaleBipolar.h"
 #include "Signum.h"
 
@@ -17,39 +15,20 @@ public:
       _tiltAmount(0)
     {
         resetTilt();
-
-        _tiltX.setTime(frames(7));
-        _tiltY.setTime(frames(7));
     }
 
     void process(FightingJoystick& joystick)
     {
-        bool tiltResetX = joystick.xIsInDeadZone()
-                       || joystick.xValue.justCrossedCenter();
-
-        bool tiltResetY = joystick.yIsInDeadZone()
-                       || joystick.yValue.justCrossedCenter();
-
-        _tiltX = tiltResetX;
-        _tiltY = tiltResetY;
-
-        _tiltX.process();
-        _tiltY.process();
-
-        if (_tiltX && _tiltState)
+        if (_tiltState)
         {
             joystick.xValue = scaleBipolar(joystick.xValue, _tiltAmount);
+            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount);
 
             if (joystick.xIsInDeadZone())
             {
                 if (joystick.xValue < 128) joystick.xValue = 128 - joystick.getDeadZoneUpperBound() - 1;
                 if (joystick.xValue > 128) joystick.xValue = 128 + joystick.getDeadZoneUpperBound() + 1;
             }
-        }
-
-        if (_tiltY && _tiltState)
-        {
-            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount);
 
             if (joystick.yIsInDeadZone())
             {
@@ -58,15 +37,7 @@ public:
             }
         }
 
-
-
         joystick.FightingJoystick::process();
-    }
-
-    void endCycle()
-    {
-        _tiltX.endCycle();
-        _tiltY.endCycle();
     }
 
     void setTiltState(const bool state)  { _tiltState = state; }
@@ -76,9 +47,6 @@ public:
 
 private:
     bool _tiltState;
-
-    TemporaryActivator _tiltX;
-    TemporaryActivator _tiltY;
 
     uint8_t _tiltAmount;
 };

@@ -2,8 +2,6 @@
 #define JOYSTICKSHIELDDROPPER_H
 
 #include "Joystick.h"
-#include "TemporaryActivator.h"
-#include "Frames.h"
 
 // This class will allow for a shield drop when the two input conditions
 // are met.
