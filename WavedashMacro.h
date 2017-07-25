@@ -43,25 +43,25 @@ public:
         initMacro();
     }
 
-    const bool isRunning() const          { return _jump.isRunning() || _L.isRunning() || _R.isRunning(); }
+    const bool isRunning() const          { return _jump.isRunning() || _LMacro.isRunning() || _RMacro.isRunning(); }
 
     const ActivatorMacro& getJump() const { return _jump; }
-    const ActivatorMacro& getL() const    { return _L; }
-    const ActivatorMacro& getR() const    { return _R; }
+    const ActivatorMacro& getL() const    { return _LMacro; }
+    const ActivatorMacro& getR() const    { return _RMacro; }
 
     virtual WavedashMacro& operator=(const bool value)
     {
         _jump = value;
-        _L = value;
-        _R = value;
+        _LMacro = value;
+        _RMacro = value;
 
         return *this;
     }
 
 private:
     ActivatorMacro _jump;
-    ActivatorMacro _L;
-    ActivatorMacro _R;
+    ActivatorMacro _LMacro;
+    ActivatorMacro _RMacro;
 
     uint16_t _airDodgeDelayFrames;
 
@@ -76,36 +76,36 @@ private:
 void WavedashMacro::process()
 {
     _jump.process();
-    _L.process();
-    _R.process();
+    _LMacro.process();
+    _RMacro.process();
 }
 
 void WavedashMacro::endCycle()
 {
     _jump.endCycle();
-    _L.endCycle();
-    _R.endCycle();
+    _LMacro.endCycle();
+    _RMacro.endCycle();
 }
 
 void WavedashMacro::initMacro()
 {
     _jump.clearMacro();
-    _L.clearMacro();
-    _R.clearMacro();
+    _LMacro.clearMacro();
+    _RMacro.clearMacro();
 
     // Jump
     _jump.addInput(ActivatorMacroUnit(true, frames(2)));
     _jump.addInput(ActivatorMacroUnit(false, frames(1)));
 
     // L
-    _L.setStartDelay(frames(_airDodgeDelayFrames - 1) + 8);
-    _L.addInput(ActivatorMacroUnit(true, frames(2)));
-    _L.addInput(ActivatorMacroUnit(false, frames(1)));
+    _LMacro.setStartDelay(frames(_airDodgeDelayFrames - 1) + 8);
+    _LMacro.addInput(ActivatorMacroUnit(true, frames(2)));
+    _LMacro.addInput(ActivatorMacroUnit(false, frames(1)));
 
     // R
-    _R.setStartDelay(frames(1) + 8);
-    _R.addInput(ActivatorMacroUnit(false, frames(_airDodgeDelayFrames - 1)));
-    _R.addInput(ActivatorMacroUnit(true, frames(2)));
+    _RMacro.setStartDelay(frames(1) + 8);
+    _RMacro.addInput(ActivatorMacroUnit(false, frames(_airDodgeDelayFrames - 1)));
+    _RMacro.addInput(ActivatorMacroUnit(true, frames(2)));
 }
 
 #endif // WAVEDASHMACRO_H

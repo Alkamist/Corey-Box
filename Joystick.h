@@ -60,7 +60,7 @@ public:
 private:
     uint8_t _magnitude;
 
-    const uint8_t calculateMagnitude(const uint8_t x, const uint8_t y) const { return sqrt(square(x) + square(y)); }
+    const uint8_t calculateMagnitude(const uint8_t x, const uint8_t y) const { return sqrt(sq(x) + sq(y)); }
 };
 
 #endif // JOYSTICK_H

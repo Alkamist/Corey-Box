@@ -29,9 +29,9 @@ THE SOFTWARE.
 
 #include <Arduino.h>
 
-#if (F_CPU != 16000000)
-#error This library only supports 16MHz AVRs
-#endif
+//#if (F_CPU != 16000000)
+//#error This library only supports 16MHz AVRs
+//#endif
 
 //================================================================================
 // Nintendo
