@@ -14,7 +14,8 @@ public:
     Joystick()
     : xValue(128),
       yValue(128),
-      _magnitude(0)
+      _magnitude(0),
+      _range(127)
     {}
 
     Control xValue;
@@ -26,7 +27,7 @@ public:
         {
             _magnitude = calculateMagnitude(xValue.getBipolarMagnitude(), yValue.getBipolarMagnitude());
 
-            limitToMagnitude(127);
+            limitToMagnitude(_range);
         }
     }
 
@@ -55,10 +56,13 @@ public:
         }
     }
 
-    const uint8_t getMagnitude() const { return _magnitude; }
+    const uint8_t getMagnitude() const         { return _magnitude; }
+
+    virtual void setRange(const uint8_t value) { _range = value; }
 
 private:
     uint8_t _magnitude;
+    uint8_t _range;
 
     const uint8_t calculateMagnitude(const uint8_t x, const uint8_t y) const { return sqrt(sq(x) + sq(y)); }
 };

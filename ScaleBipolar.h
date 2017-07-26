@@ -10,4 +10,11 @@ const uint8_t scaleBipolar(const uint8_t value, const uint8_t scaleMagnitude)
     return scaledValue + 128;
 }
 
+const uint8_t scaleBipolar(const uint8_t value, const uint8_t scaleMagnitude, const uint8_t fromRange)
+{
+    int8_t signedValue = value - 128;
+    int8_t scaledValue = (signedValue * scaleMagnitude) / fromRange;
+    return scaledValue + 128;
+}
+
 #endif // SCALEBIPOLAR_H

@@ -12,7 +12,8 @@ public:
     SingleModAxis()
     : Control(128),
       _modState(false),
-      _modValue(83)
+      _modValue(52),
+      _range(127)
     {}
 
     void process()
@@ -25,7 +26,7 @@ public:
             return;
         }
 
-        *this = _twoButtonControl;
+        *this = scaleBipolar(_twoButtonControl, _range);
     }
 
     void endCycle()
@@ -38,9 +39,13 @@ public:
     void setHighState(const bool state) { _twoButtonControl.setHighState(state); }
     void setModState(const bool state)  { _modState = state; }
 
+    void setRange(const uint8_t value)  { _range = value; }
+
 private:
     bool _modState;
     uint8_t _modValue;
+
+    uint8_t _range;
 
     TwoButtonControl _twoButtonControl;
 

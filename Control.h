@@ -8,19 +8,21 @@ class Control
 public:
     Control()
     : _currentValue(0),
-      _previousValue(0)
+      _previousValue(0),
+      _justCreated(true)
     {}
 
     explicit Control(const uint8_t value)
     : _currentValue(value),
-      _previousValue(value)
+      _previousValue(value),
+      _justCreated(true)
     {}
 
-    virtual void endCycle()                   { _previousValue = _currentValue; }
+    virtual void endCycle()                   { _previousValue = _currentValue; _justCreated = false; }
 
     const uint8_t getPreviousValue() const    { return _previousValue; }
 
-    const bool justChanged() const            { return _currentValue != _previousValue; }
+    const bool justChanged() const            { return (_currentValue != _previousValue) || _justCreated; }
 
     const uint8_t getBipolarMagnitude() const
     {
@@ -79,6 +81,8 @@ public:
 private:
     uint8_t _currentValue;
     uint8_t _previousValue;
+
+    bool _justCreated;
 };
 
 #endif // CONTROL_H

@@ -11,10 +11,8 @@ public:
     JoystickShieldDropper()
     : _shieldDropState(false),
       _shieldState(false),
-      _shieldDropValue(0)
-    {
-        resetShieldDrop();
-    }
+      _shieldDropValue(74)
+    {}
 
     void process(Joystick& joystick)
     {
@@ -30,15 +28,7 @@ public:
     void setShieldDropState(const bool state) { _shieldDropState = state; }
     void setShieldState(const bool state)     { _shieldState = state; }
 
-    void resetShieldDrop()
-    {
-        _shieldDropValue = 42;
-    }
-
-    void setShieldDrop(const uint8_t value)
-    {
-        _shieldDropValue = value;
-    }
+    void setShieldDrop(const uint8_t value)   { _shieldDropValue = value; }
 
 private:
     bool _shieldDropState;

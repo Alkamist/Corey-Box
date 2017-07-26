@@ -57,13 +57,18 @@ public:
     void setTiltDisablerState(const bool state)       { _tiltDisablerState = state; }
 
     void setShieldDrop(const uint8_t value)           { _joystickShieldDropper.setShieldDrop(value); }
-    void resetShieldDrop()                            { _joystickShieldDropper.resetShieldDrop(); }
 
     void setModStart(const uint8_t value)             { _xAxis.setModStart(value); _yAxis.setModStart(value); }
-    void resetMods()                                  { _xAxis.resetMods(); _yAxis.resetMods(); }
 
     void setTilt(const uint8_t value)                 { _joystickTilter.setTilt(value); }
-    void resetTilt()                                  { _joystickTilter.resetTilt(); }
+
+    void setRange(const uint8_t value)
+    {
+        FightingJoystick::setRange(value);
+        _xAxis.setRange(value);
+        _yAxis.setRange(value);
+        _joystickTilter.setRange(value);
+    }
 
 private:
     JoystickTilter _joystickTilter;

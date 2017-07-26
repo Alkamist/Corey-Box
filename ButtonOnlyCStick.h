@@ -65,6 +65,13 @@ public:
     void setLsUpState(const bool state)   { _lsUpState = state; }
     void setTiltState(const bool state)   { _tiltState = state; }
 
+    void setRange(const uint8_t value)
+    {
+        Joystick::setRange(value);
+        _xAxis.setRange(value);
+        _yAxis.setRange(value);
+    }
+
 private:
     bool _cLeftState;
     bool _cRightState;

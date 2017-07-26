@@ -12,17 +12,16 @@ class JoystickTilter
 public:
     JoystickTilter()
     : _tiltState(false),
-      _tiltAmount(0)
-    {
-        resetTilt();
-    }
+      _tiltAmount(52),
+      _range(127)
+    {}
 
     void process(FightingJoystick& joystick)
     {
         if (_tiltState)
         {
-            joystick.xValue = scaleBipolar(joystick.xValue, _tiltAmount);
-            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount);
+            joystick.xValue = scaleBipolar(joystick.xValue, _tiltAmount, _range);
+            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount, _range);
 
             if (joystick.xIsInDeadZone())
             {
@@ -43,12 +42,14 @@ public:
     void setTiltState(const bool state)  { _tiltState = state; }
 
     void setTilt(const uint8_t value)    { _tiltAmount = value; }
-    void resetTilt()                     { _tiltAmount = 84; }
+
+    void setRange(const uint8_t value)  { _range = value; }
 
 private:
     bool _tiltState;
 
     uint8_t _tiltAmount;
+    uint8_t _range;
 };
 
 #endif // JOYSTICKTILTER_H

@@ -1,7 +1,8 @@
-#ifndef BUTTONONLYCONTROLLER_H
-#define BUTTONONLYCONTROLLER_H
+#ifndef HYBRIDCONTROLLER_H
+#define HYBRIDCONTROLLER_H
 
 #include "GameCubeController.h"
+#include "GameCubeControllerReader.h"
 #include "ButtonReader.h"
 #include "ButtonOnlyLeftStick.h"
 #include "ButtonOnlyCStick.h"
@@ -9,29 +10,19 @@
 
 // This is the main controller class right now. I know it is kind of a
 // god class but I'm not sure how to split up this logic.
-class ButtonOnlyController : public GameCubeController
+class HybridController : public GameCubeController
 {
 public:
-    ButtonOnlyController();
+    HybridController();
 
     void process();
     void endCycle();
 
 private:
+    // GameCube Controller Input:
+    GameCubeControllerReader _controllerReader;
+
     // Buttons:
-    ButtonReader _tiltButton;
-    ButtonReader _unUsedButton;
-
-    ButtonReader _lsLeftButton;
-    ButtonReader _lsRightButton;
-    ButtonReader _lsDownButton;
-    ButtonReader _lsUpButton;
-
-    ButtonReader _xMod1Button;
-    ButtonReader _xMod2Button;
-    ButtonReader _yMod1Button;
-    ButtonReader _yMod2Button;
-
     ButtonReader _cLeftButton;
     ButtonReader _cRightButton;
     ButtonReader _cDownButton;
@@ -43,17 +34,13 @@ private:
     ButtonReader _zButton;
     ButtonReader _lButton;
     ButtonReader _rButton;
-    ButtonReader _startButton;
-    ButtonReader _wavedashTrimButton;
     ButtonReader _settingsButton;
-    ButtonReader _disableMacrosButton;
-    ButtonReader _dUpButton;
 
     // Game Mode:
     Control _gameMode;
 
     // Sticks:
-    ButtonOnlyLeftStick _leftStick;
+    AnalogLeftStick _leftStick;
     ButtonOnlyCStick _cStick;
 
     // Shield:
@@ -76,8 +63,10 @@ private:
 
 
 
-void ButtonOnlyController::process()
+void HybridController::process()
 {
+    _controllerReader.process();
+
     initializeOutputs();
     processActivators();
     processGameMode();
@@ -86,24 +75,11 @@ void ButtonOnlyController::process()
     processCStick();
 }
 
-void ButtonOnlyController::endCycle()
+void HybridController::endCycle()
 {
     GameCubeController::endCycle();
 
     // Buttons:
-    _tiltButton.endCycle();
-    _unUsedButton.endCycle();
-
-    _lsLeftButton.endCycle();
-    _lsRightButton.endCycle();
-    _lsDownButton.endCycle();
-    _lsUpButton.endCycle();
-
-    _xMod1Button.endCycle();
-    _xMod2Button.endCycle();
-    _yMod1Button.endCycle();
-    _yMod2Button.endCycle();
-
     _cLeftButton.endCycle();
     _cRightButton.endCycle();
     _cDownButton.endCycle();
@@ -115,11 +91,7 @@ void ButtonOnlyController::endCycle()
     _zButton.endCycle();
     _rButton.endCycle();
     _lButton.endCycle();
-    _startButton.endCycle();
-    _wavedashTrimButton.endCycle();
     _settingsButton.endCycle();
-    _disableMacrosButton.endCycle();
-    _dUpButton.endCycle();
 
     // Game Mode:
     _gameMode.endCycle();
@@ -138,7 +110,7 @@ void ButtonOnlyController::endCycle()
     _trimLsYUp.endCycle();
 }
 
-void ButtonOnlyController::initializeOutputs()
+void HybridController::initializeOutputs()
 {
     a = _aButton;
     b = _bButton;
@@ -148,23 +120,14 @@ void ButtonOnlyController::initializeOutputs()
     l = _lButton;
     r = _rButton;
     rAnalog = 0;
-    start = _startButton;
-    dLeft = false;
-    dRight = false;
-    dDown = false;
-    dUp = _dUpButton;
-
-    // D-pad Modifier:
-    if (_unUsedButton)
-    {
-        dLeft = _yMod1Button;
-        dRight = _xMod2Button;
-        dDown = _xMod1Button;
-        dUp = _yMod2Button || _dUpButton;
-    }
+    start = _controllerReader.start;
+    dLeft = _controllerReader.dLeft;
+    dRight = _controllerReader.dRight;
+    dDown = _controllerReader.dDown;
+    dUp = _controllerReader.dUp;
 }
 
-void ButtonOnlyController::processActivators()
+void HybridController::processActivators()
 {
     _trimLsYDown = _settingsButton && _cDownButton;
     _trimLsYUp = _settingsButton && _cUpButton;
@@ -172,23 +135,22 @@ void ButtonOnlyController::processActivators()
     _trimLsXUp = _settingsButton && _cRightButton;
 }
 
-void ButtonOnlyController::processGameMode()
+void HybridController::processGameMode()
 {
-    if (_settingsButton && _yMod2Button) _gameMode = 0;
-    if (_settingsButton && _yMod1Button) _gameMode = 1;
-    if (_settingsButton && _xMod2Button) _gameMode = 2;
+    if (_settingsButton && _controllerReader.dUp) _gameMode = 0;
+    if (_settingsButton && _controllerReader.dLeft) _gameMode = 1;
+    if (_settingsButton && _controllerReader.dDown) _gameMode = 2;
 
     if (_gameMode.justChanged())
     {
         // Melee:
         if (_gameMode == 0)
         {
-            _leftStick.setRange(80);
-            _cStick.setRange(80);
-            _leftStick.setModStart(24);
-            _leftStick.setShieldDrop(74);
-            _leftStick.setDeadZoneUpperBound(22);
-            _leftStick.setTilt(49);
+            setAnalogRange(80);
+            _leftStick.resetMods();
+            _leftStick.resetShieldDrop();
+            _leftStick.setDeadZoneUpperBound(36);
+            _leftStick.resetTilt();
             resetLsXTrim();
             resetLsYTrim();
             return;
@@ -196,12 +158,11 @@ void ButtonOnlyController::processGameMode()
         // Project M:
         if (_gameMode == 1)
         {
-            _leftStick.setRange(80);
-            _cStick.setRange(80);
-            _leftStick.setModStart(31);
-            _leftStick.setShieldDrop(56);
-            _leftStick.setDeadZoneUpperBound(30);
-            _leftStick.setTilt(64);
+            setAnalogRange(80);
+            _leftStick.setModStart(50);
+            _leftStick.setShieldDrop(13);
+            _leftStick.setDeadZoneUpperBound(48);
+            _leftStick.setTilt(100);
             resetLsXTrim();
             resetLsYTrim();
             return;
@@ -209,12 +170,11 @@ void ButtonOnlyController::processGameMode()
         // Rivals:
         if (_gameMode == 2)
         {
-            _leftStick.setRange(100);
-            _cStick.setRange(100);
-            _leftStick.setModStart(32);
-            _leftStick.setShieldDrop(28);
-            _leftStick.setDeadZoneUpperBound(27);
-            _leftStick.setTilt(61);
+            setAnalogRange(100);
+            _leftStick.resetMods();
+            _leftStick.setShieldDrop(0);
+            _leftStick.setDeadZoneUpperBound(36);
+            _leftStick.resetTilt();
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
@@ -223,7 +183,7 @@ void ButtonOnlyController::processGameMode()
     }
 }
 
-void ButtonOnlyController::processShieldManager()
+void HybridController::processShieldManager()
 {
     _shieldManager.setActivator(_rButton);
     _shieldManager.setLightShieldState(_cUpButton && _rButton);
@@ -233,20 +193,11 @@ void ButtonOnlyController::processShieldManager()
     rAnalog = _shieldManager.getLightShieldOutput();
 }
 
-void ButtonOnlyController::processLStick()
+void HybridController::processLStick()
 {
-    _leftStick.setLsLeftState(_lsLeftButton);
-    _leftStick.setLsRightState(_lsRightButton);
-    _leftStick.setLsDownState(_lsDownButton);
-    _leftStick.setLsUpState(_lsUpButton);
-    _leftStick.setXMod1State(_xMod1Button);
-    _leftStick.setXMod2State(_xMod2Button);
-    _leftStick.setYMod1State(_yMod1Button);
-    _leftStick.setYMod2State(_yMod2Button);
-    _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
     _leftStick.setShieldState(_shieldManager);
-    _leftStick.setTiltState(_tiltButton);
-    _leftStick.setTiltDisablerState(_lButton);
+    _leftStick.setXValue(_controllerReader.lsX);
+    _leftStick.setYValue(_controllerReader.lsY);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -260,7 +211,7 @@ void ButtonOnlyController::processLStick()
     lsY = _leftStick.yValue;
 }
 
-void ButtonOnlyController::processCStick()
+void HybridController::processCStick()
 {
     _cStick.setCLeftState(_cLeftButton);
     _cStick.setCRightState(_cRightButton);
@@ -281,18 +232,9 @@ void ButtonOnlyController::processCStick()
 }
 
 // Don't use pin 6 or 45 for buttons.
-ButtonOnlyController::ButtonOnlyController()
-: // Buttons:
-  _tiltButton(27),
-  _unUsedButton(9),
-  _lsLeftButton(0),
-  _lsRightButton(3),
-  _lsDownButton(1),
-  _lsUpButton(2),
-  _xMod1Button(8),
-  _xMod2Button(7),
-  _yMod1Button(5),
-  _yMod2Button(4),
+HybridController::HybridController()
+: _controllerReader(17),
+  // Buttons:
   _cLeftButton(38),
   _cRightButton(20),
   _cDownButton(39),
@@ -303,11 +245,7 @@ ButtonOnlyController::ButtonOnlyController()
   _zButton(24),
   _lButton(22),
   _rButton(25),
-  _startButton(11),
-  _wavedashTrimButton(12),
-  _settingsButton(14),
-  _disableMacrosButton(13),
-  _dUpButton(10)
+  _settingsButton(14)
 {}
 
-#endif // BUTTONONLYCONTROLLER_H
+#endif // HYBRIDCONTROLLER_H

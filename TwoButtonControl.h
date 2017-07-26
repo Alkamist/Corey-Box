@@ -10,15 +10,20 @@ class TwoButtonControl : public Control
 {
 public:
     TwoButtonControl()
-    : Control(128)
+    : Control(128),
+      _range(127)
     {}
 
     virtual void process();
 
-    void setLowState(const bool state)  { _stateTracker.setState1(state); }
-    void setHighState(const bool state) { _stateTracker.setState2(state); }
+    void setLowState(const bool state)         { _stateTracker.setState1(state); }
+    void setHighState(const bool state)        { _stateTracker.setState2(state); }
+
+    virtual void setRange(const uint8_t value) { _range = value; }
 
 private:
+    uint8_t _range;
+
     TwoButtonStateTracker _stateTracker;
 
     TwoButtonControl& operator =(const uint8_t value)  { Control::operator=(value); return *this; }
@@ -32,25 +37,25 @@ void TwoButtonControl::process()
 
     if (_stateTracker.getState1() && _stateTracker.state2WasFirst())
     {
-        *this = 1;
+        *this = 128 - _range;
         return;
     }
 
     if (_stateTracker.getState1() && !_stateTracker.getState2())
     {
-        *this = 1;
+        *this = 128 - _range;
         return;
     }
 
     if (_stateTracker.state1WasFirst() && _stateTracker.getState2())
     {
-        *this = 255;
+        *this = 128 + _range;
         return;
     }
 
     if (!_stateTracker.getState1() && _stateTracker.getState2())
     {
-        *this = 255;
+        *this = 128 + _range;
         return;
     }
 
