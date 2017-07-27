@@ -4,7 +4,7 @@
 #include "GameCubeController.h"
 #include "GameCubeControllerReader.h"
 #include "ButtonReader.h"
-#include "ButtonOnlyLeftStick.h"
+#include "AnalogLeftStick.h"
 #include "ButtonOnlyCStick.h"
 #include "ShieldManager.h"
 
@@ -79,6 +79,8 @@ void HybridController::endCycle()
 {
     GameCubeController::endCycle();
 
+    _controllerReader.endCycle();
+
     // Buttons:
     _cLeftButton.endCycle();
     _cRightButton.endCycle();
@@ -120,11 +122,11 @@ void HybridController::initializeOutputs()
     l = _lButton;
     r = _rButton;
     rAnalog = 0;
-    start = _controllerReader.start;
-    dLeft = _controllerReader.dLeft;
-    dRight = _controllerReader.dRight;
-    dDown = _controllerReader.dDown;
-    dUp = _controllerReader.dUp;
+    //start = _controllerReader.start;
+    //dLeft = _controllerReader.dLeft;
+    //dRight = _controllerReader.dRight;
+    //dDown = _controllerReader.dDown;
+    //dUp = _controllerReader.dUp;
 }
 
 void HybridController::processActivators()
@@ -137,20 +139,19 @@ void HybridController::processActivators()
 
 void HybridController::processGameMode()
 {
-    if (_settingsButton && _controllerReader.dUp) _gameMode = 0;
-    if (_settingsButton && _controllerReader.dLeft) _gameMode = 1;
-    if (_settingsButton && _controllerReader.dDown) _gameMode = 2;
+    //if (_settingsButton && _controllerReader.dUp) _gameMode = 0;
+    //if (_settingsButton && _controllerReader.dLeft) _gameMode = 1;
+    //if (_settingsButton && _controllerReader.dDown) _gameMode = 2;
 
     if (_gameMode.justChanged())
     {
         // Melee:
         if (_gameMode == 0)
         {
-            setAnalogRange(80);
-            _leftStick.resetMods();
-            _leftStick.resetShieldDrop();
-            _leftStick.setDeadZoneUpperBound(36);
-            _leftStick.resetTilt();
+            _leftStick.setRange(80);
+            _cStick.setRange(80);
+            _leftStick.setShieldDrop(74);
+            _leftStick.setDeadZoneUpperBound(22);
             resetLsXTrim();
             resetLsYTrim();
             return;
@@ -158,11 +159,10 @@ void HybridController::processGameMode()
         // Project M:
         if (_gameMode == 1)
         {
-            setAnalogRange(80);
-            _leftStick.setModStart(50);
-            _leftStick.setShieldDrop(13);
-            _leftStick.setDeadZoneUpperBound(48);
-            _leftStick.setTilt(100);
+            _leftStick.setRange(80);
+            _cStick.setRange(80);
+            _leftStick.setShieldDrop(56);
+            _leftStick.setDeadZoneUpperBound(30);
             resetLsXTrim();
             resetLsYTrim();
             return;
@@ -170,11 +170,10 @@ void HybridController::processGameMode()
         // Rivals:
         if (_gameMode == 2)
         {
-            setAnalogRange(100);
-            _leftStick.resetMods();
-            _leftStick.setShieldDrop(0);
-            _leftStick.setDeadZoneUpperBound(36);
-            _leftStick.resetTilt();
+            _leftStick.setRange(100);
+            _cStick.setRange(100);
+            _leftStick.setShieldDrop(28);
+            _leftStick.setDeadZoneUpperBound(27);
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
@@ -196,8 +195,8 @@ void HybridController::processShieldManager()
 void HybridController::processLStick()
 {
     _leftStick.setShieldState(_shieldManager);
-    _leftStick.setXValue(_controllerReader.lsX);
-    _leftStick.setYValue(_controllerReader.lsY);
+    //_leftStick.setXValue(_controllerReader.lsX);
+    //_leftStick.setYValue(_controllerReader.lsY);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -217,9 +216,9 @@ void HybridController::processCStick()
     _cStick.setCRightState(_cRightButton);
     _cStick.setCDownState(_cDownButton);
     _cStick.setCUpState(_cUpButton);
-    _cStick.setLsDownState(_lsDownButton);
-    _cStick.setLsUpState(_lsUpButton);
-    _cStick.setTiltState(_tiltButton);
+    _cStick.setLsDownState(false);
+    _cStick.setLsUpState(false);
+    _cStick.setTiltState(false);
 
     _cStick.process();
 

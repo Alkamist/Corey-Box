@@ -3,35 +3,26 @@
 
 #include "Nintendo.h"
 #include "GameCubeController.h"
-#include "ScaleBipolar.h"
 
 class GameCubeControllerReader : public GameCubeController
 {
 public:
     GameCubeControllerReader(const uint8_t pin)
     : GameCubeController(),
-      _controller(pin),
-      _isConnected(false)
+      _controller(pin)
     {}
 
     void process()
     {
         if (_controller.read())
         {
-            _isConnected = true;
             auto report = _controller.getReport();
             updateControls(report);
         }
-        else
-            _isConnected = false;
     }
-
-    const bool isConnected() const { return _isConnected; }
 
 private:
     CGamecubeController _controller;
-
-    bool _isConnected;
 
     void updateControls(const Gamecube_Report_t& report)
     {
@@ -55,7 +46,7 @@ private:
         lsX = report.xAxis;
         lsY = report.yAxis;
         cX = report.cxAxis;
-        cY = screport.cyAxis;
+        cY = report.cyAxis;
     }
 };
 

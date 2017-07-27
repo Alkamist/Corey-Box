@@ -29,6 +29,7 @@ public:
     void setShieldState(const bool state)     { _shieldState = state; }
 
     void setShieldDrop(const uint8_t value)   { _shieldDropValue = value; }
+    const uint8_t getShieldDrop() const       { return _shieldDropValue; }
 
 private:
     bool _shieldDropState;

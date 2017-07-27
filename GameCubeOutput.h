@@ -3,7 +3,6 @@
 
 #include "Nintendo.h"
 #include "GameCubeController.h"
-#include "ScaleBipolar.h"
 
 // This class is how you output to a GameCube. Set the pin, connect a controller,
 // and call process() to write the data.

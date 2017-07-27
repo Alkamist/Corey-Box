@@ -44,9 +44,7 @@ private:
     ButtonReader _lButton;
     ButtonReader _rButton;
     ButtonReader _startButton;
-    ButtonReader _wavedashTrimButton;
     ButtonReader _settingsButton;
-    ButtonReader _disableMacrosButton;
     ButtonReader _dUpButton;
 
     // Game Mode:
@@ -116,9 +114,7 @@ void ButtonOnlyController::endCycle()
     _rButton.endCycle();
     _lButton.endCycle();
     _startButton.endCycle();
-    _wavedashTrimButton.endCycle();
     _settingsButton.endCycle();
-    _disableMacrosButton.endCycle();
     _dUpButton.endCycle();
 
     // Game Mode:
@@ -304,9 +300,7 @@ ButtonOnlyController::ButtonOnlyController()
   _lButton(22),
   _rButton(25),
   _startButton(11),
-  _wavedashTrimButton(12),
-  _settingsButton(14),
-  _disableMacrosButton(13),
+  _settingsButton(12),
   _dUpButton(10)
 {}
 

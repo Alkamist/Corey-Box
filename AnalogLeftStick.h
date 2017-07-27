@@ -10,12 +10,16 @@ class AnalogLeftStick : public FightingJoystick
 {
 public:
     AnalogLeftStick()
-    : FightingJoystick()
+    : FightingJoystick(),
+      _shieldState(false)
     {}
 
     void process()
     {
         Joystick::process();
+
+        _joystickShieldDropper.setShieldDropState((yValue < _joystickShieldDropper.getShieldDrop())
+                                                  && _shieldState);
 
         _joystickShieldDropper.process(*this);
     }
@@ -25,16 +29,16 @@ public:
         Joystick::endCycle();
     }
 
-    void setShieldState(const bool state)             { _joystickShieldDropper.setShieldState(state); }
+    void setShieldState(const bool state)   { _joystickShieldDropper.setShieldState(state); _shieldState = state; }
 
-    void setXValue(const uint8_t value)               { xValue = value; }
-    void setYValue(const uint8_t value)               { yValue = value; }
+    void setXValue(const uint8_t value)     { xValue = value; }
+    void setYValue(const uint8_t value)     { yValue = value; }
 
-    void setShieldDrop(const uint8_t value)           { _joystickShieldDropper.setShieldDrop(value); }
-    void resetShieldDrop()                            { _joystickShieldDropper.resetShieldDrop(); }
+    void setShieldDrop(const uint8_t value) { _joystickShieldDropper.setShieldDrop(value); }
 
 private:
-    JoystickTilter _joystickTilter;
+    bool _shieldState;
+
     JoystickShieldDropper _joystickShieldDropper;
 };
 
