@@ -10,9 +10,7 @@ struct GameCubeController
 {
     GameCubeController()
     : _lsXOffset(0),
-      _lsYOffset(0),
-      _lsXOffsetPrev(0),
-      _lsYOffsetPrev(0)
+      _lsYOffset(0)
     {}
 
     // Digital values
@@ -39,9 +37,6 @@ struct GameCubeController
 
     void endCycle()
     {
-        _lsXOffsetPrev = _lsXOffset;
-        _lsYOffsetPrev = _lsYOffset;
-
         a.endCycle();
         b.endCycle();
         x.endCycle();
@@ -86,8 +81,8 @@ struct GameCubeController
             ++_lsYOffset;
     }
 
-    void resetLsXTrim() { _lsXOffset = 0; }
-    void resetLsYTrim() { _lsYOffset = 0; }
+    void resetLsXTrim()                      { _lsXOffset = 0; }
+    void resetLsYTrim()                      { _lsYOffset = 0; }
 
     const int8_t getLsXOffset() const        { return _lsXOffset; }
     const int8_t getLsYOffset() const        { return _lsYOffset; }
@@ -95,15 +90,9 @@ struct GameCubeController
     void setLsXOffset(const int8_t value)    { _lsXOffset = value; }
     void setLsYOffset(const int8_t value)    { _lsYOffset = value; }
 
-    const bool lsXOffsetJustChanged() const  { return _lsXOffset != _lsXOffsetPrev; }
-    const bool lsYOffsetJustChanged() const  { return _lsYOffset != _lsYOffsetPrev; }
-
 private:
     int8_t _lsXOffset;
     int8_t _lsYOffset;
-
-    int8_t _lsXOffsetPrev;
-    int8_t _lsYOffsetPrev;
 };
 
 #endif // GAMECUBECONTROLLER_H

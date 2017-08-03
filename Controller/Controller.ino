@@ -1,3 +1,6 @@
+// This code is meant for a Teensy++ 2.0. It runs all of the controller logic
+// and gives the data to the Arduino Nano when requested.
+
 #include <Wire.h>
 #include "ButtonOnlyController.h"
 

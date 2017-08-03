@@ -68,6 +68,16 @@ public:
     Control operator*(const uint8_t value)   { Control output(*this); output._currentValue *= value; return output; }
     Control operator/(const uint8_t value)   { Control output(*this); output._currentValue /= value; return output; }
 
+    Control& operator+=(const int8_t value)  { _currentValue += value; return *this; }
+    Control& operator-=(const int8_t value)  { _currentValue -= value; return *this; }
+    Control& operator*=(const int8_t value)  { _currentValue *= value; return *this; }
+    Control& operator/=(const int8_t value)  { _currentValue /= value; return *this; }
+
+    Control operator+(const int8_t value)    { Control output(*this); output._currentValue += value; return output; }
+    Control operator-(const int8_t value)    { Control output(*this); output._currentValue -= value; return output; }
+    Control operator*(const int8_t value)    { Control output(*this); output._currentValue *= value; return output; }
+    Control operator/(const int8_t value)    { Control output(*this); output._currentValue /= value; return output; }
+
     Control& operator+=(const float value)   { _currentValue += value; return *this; }
     Control& operator-=(const float value)   { _currentValue -= value; return *this; }
     Control& operator*=(const float value)   { _currentValue *= value; return *this; }

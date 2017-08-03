@@ -435,8 +435,8 @@ void ButtonOnlyController::finalizeOutputs()
     dUp = _dUpOut;
     lAnalog = _lAnalogOut;
     rAnalog = _rAnalogOut;
-    lsX = _lsXOut;
-    lsY = _lsYOut;
+    lsX = _lsXOut + getLsXOffset();
+    lsY = _lsYOut + getLsYOffset();
     cX = _cXOut;
     cY = _cYOut;
 }

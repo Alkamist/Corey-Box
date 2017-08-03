@@ -1,5 +1,11 @@
-#include <Wire.h>
+// This code is meant for an Arduino Nano. Plug in SDA (Pin A4) and SCL (Pin A5).
+// The code requests 8 bytes from another microcontroller via the Wire library,
+// and then writes them to the GameCube on Pin D2. Make sure to connect the
+// Arduino to a logic level converter before it goes to the GameCube.
+// It will work without it on Dolphin but it will disconnect randomly on
+// console if you don't.
 
+#include <Wire.h>
 #include "GameCubeController.h"
 #include "GameCubeOutput.h"
 
