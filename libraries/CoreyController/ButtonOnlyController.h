@@ -365,6 +365,7 @@ void ButtonOnlyController::processWavedashMacro()
     {
         _yOut = false;
         _xOut = _jumpButton;
+        _lOut = _lButton;
     }
 }
 
@@ -383,7 +384,8 @@ void ButtonOnlyController::processLStick()
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
     _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
     _leftStick.setShieldState(_shieldManager);
-    _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _rOut || _yOut || _xOut || _zOut || _aOut || _bOut);
+    _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _rOut || _yOut
+                                       || _xOut || _zOut || _aOut || _bOut || (_gameMode != 0));
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
