@@ -53,7 +53,6 @@ private:
     ButtonReader _startButton;
     ButtonReader _wavedashTrimButton;
     ButtonReader _settingsButton;
-    ButtonReader _disableMacrosButton;
     ButtonReader _dUpButton;
 
     // Game Mode:
@@ -164,7 +163,6 @@ void ButtonOnlyController::endCycle()
     _startButton.endCycle();
     _wavedashTrimButton.endCycle();
     _settingsButton.endCycle();
-    _disableMacrosButton.endCycle();
     _dUpButton.endCycle();
 
     // Game Mode:
@@ -235,16 +233,16 @@ void ButtonOnlyController::initializeOutputs()
     // D-pad Modifier:
     if (_unUsedButton)
     {
-        _dLeftOut = _yMod2Button;
+        _dLeftOut = _yMod1Button;
         _dRightOut = _xMod2Button;
         _dDownOut = _xMod1Button;
-        _dUpOut = _yMod1Button || _dUpButton;
+        _dUpOut = _yMod2Button || _dUpButton;
     }
 }
 
 void ButtonOnlyController::processActivators()
 {
-    _disableMacros = _disableMacrosButton;
+    _disableMacros = _wavedashTrimButton && _settingsButton;
     _disableMacros.process();
 
     _macrosAreOn = _disableMacros.justActivated();
@@ -261,8 +259,8 @@ void ButtonOnlyController::processActivators()
 
 void ButtonOnlyController::processGameMode()
 {
-    if (_settingsButton && _yMod1Button) _gameMode = 0;
-    if (_settingsButton && _yMod2Button) _gameMode = 1;
+    if (_settingsButton && _yMod2Button) _gameMode = 0;
+    if (_settingsButton && _yMod1Button) _gameMode = 1;
     if (_settingsButton && _xMod2Button) _gameMode = 2;
 
     if (_gameMode.justChanged())
@@ -348,13 +346,7 @@ void ButtonOnlyController::processWavedashMacro()
 
     _wavedashMacro.process();
 
-    if (_wavedashTrimButton)
-    {
-        _yOut = false;
-        _xOut = _jumpButton;
-    }
-
-    if (_macrosAreOn && !_wavedashTrimButton)
+    if (_macrosAreOn)
     {
         if (_wavedashMacro.getJump().isRunning())
             _yOut = _wavedashMacro.getJump();
@@ -363,6 +355,16 @@ void ButtonOnlyController::processWavedashMacro()
             _rOut = _wavedashMacro.getR();
 
         _lOut = _wavedashMacro.getL();
+    }
+    else
+    {
+        _lOut = _lButton;
+    }
+
+    if (_wavedashTrimButton)
+    {
+        _yOut = false;
+        _xOut = _jumpButton;
     }
 }
 
@@ -452,8 +454,8 @@ ButtonOnlyController::ButtonOnlyController()
   _lsUpButton(4),
   _xMod1Button(10),
   _xMod2Button(9),
-  _yMod1Button(7),
-  _yMod2Button(8),
+  _yMod1Button(8),
+  _yMod2Button(7),
   _cLeftButton(38),
   _cRightButton(20),
   _cDownButton(39),
@@ -461,13 +463,12 @@ ButtonOnlyController::ButtonOnlyController()
   _aButton(18),
   _bButton(19),
   _jumpButton(23),
-  _zButton(24),
+  _zButton(25),
   _lButton(22),
-  _rButton(25),
+  _rButton(24),
   _startButton(13),
   _wavedashTrimButton(14),
-  _settingsButton(16),
-  _disableMacrosButton(15),
+  _settingsButton(15),
   _dUpButton(12),
   _macrosAreOn(true)
 {
