@@ -5,7 +5,6 @@
 #include "ScaleBipolar.h"
 #include "Signum.h"
 #include "TemporaryActivator.h"
-#include "Frames.h"
 
 // This class provides the capability to force a joystick to move slowly.
 // This will prevent dash, rolling, spotdodging, and shield-dropping when activated.
@@ -17,8 +16,8 @@ public:
       _tiltAmount(49),
       _range(127)
     {
-        _tiltX.setTime(frames(8));
-        _tiltY.setTime(frames(8));
+        _tiltX.setTime(8);
+        _tiltY.setTime(8);
     }
 
     void process(FightingJoystick& joystick)

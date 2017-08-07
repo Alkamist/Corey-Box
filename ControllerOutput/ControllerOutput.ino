@@ -8,47 +8,59 @@
 #include <Wire.h>
 #include "GameCubeController.h"
 #include "GameCubeOutput.h"
+//#include "Timer.h"
 
 void boolsFromByte(const unsigned char inputByte, bool bools[8]);
 
 GameCubeController controller;
 GameCubeOutput output(2);
 
+//Timer initDelay;
+//bool okToStart = false;;
+
 void setup()
 {
-    Wire.begin();
+    //initDelay.setTargetTime(1000000);
+
     output.connectController(controller);
+    Wire.begin();
 }
 
 void loop()
 {
-    Wire.requestFrom(22, 8);
+    //if (initDelay && !okToStart)
+    //    okToStart = true;
 
-    bool buttons1[8];
-    boolsFromByte(Wire.read(), buttons1);
-    bool buttons2[8];
-    boolsFromByte(Wire.read(), buttons2);
+    //if (okToStart)
+    //{
+        Wire.requestFrom(22, 8);
 
-    controller.a = buttons1[0];
-    controller.b = buttons1[1];
-    controller.x = buttons1[2];
-    controller.y = buttons1[3];
-    controller.z = buttons1[4];
-    controller.l = buttons1[5];
-    controller.r = buttons1[6];
-    controller.start = buttons1[7];
+        bool buttons1[8];
+        boolsFromByte(Wire.read(), buttons1);
+        bool buttons2[8];
+        boolsFromByte(Wire.read(), buttons2);
 
-    controller.dLeft = buttons2[0];
-    controller.dRight = buttons2[1];
-    controller.dDown = buttons2[2];
-    controller.dUp = buttons2[3];
+        controller.a = buttons1[0];
+        controller.b = buttons1[1];
+        controller.x = buttons1[2];
+        controller.y = buttons1[3];
+        controller.z = buttons1[4];
+        controller.l = buttons1[5];
+        controller.r = buttons1[6];
+        controller.start = buttons1[7];
 
-    controller.lsX = Wire.read();
-    controller.lsY = Wire.read();
-    controller.cX = Wire.read();
-    controller.cY = Wire.read();
-    controller.lAnalog = Wire.read();
-    controller.rAnalog = Wire.read();
+        controller.dLeft = buttons2[0];
+        controller.dRight = buttons2[1];
+        controller.dDown = buttons2[2];
+        controller.dUp = buttons2[3];
+
+        controller.lsX = Wire.read();
+        controller.lsY = Wire.read();
+        controller.cX = Wire.read();
+        controller.cY = Wire.read();
+        controller.lAnalog = Wire.read();
+        controller.rAnalog = Wire.read();
+    //}
 
     output.process();
     controller.endCycle();

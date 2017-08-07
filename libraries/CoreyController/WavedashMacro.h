@@ -2,7 +2,6 @@
 #define WAVEDASHMACRO_H
 
 #include "ActivatorMacro.h"
-#include "Frames.h"
 
 // This class is a wavedash macro. You can trim the delay time to account for
 // different characters having different jumpsquats. I was having some timing
@@ -94,18 +93,18 @@ void WavedashMacro::initMacro()
     _RMacro.clearMacro();
 
     // Jump
-    _jump.addInput(ActivatorMacroUnit(true, frames(2)));
-    _jump.addInput(ActivatorMacroUnit(false, frames(1)));
+    _jump.addInput(ActivatorMacroUnit(true, 2));
+    _jump.addInput(ActivatorMacroUnit(false, 1));
 
     // L
-    _LMacro.setStartDelay(frames(_airDodgeDelayFrames));
-    _LMacro.addInput(ActivatorMacroUnit(true, frames(2)));
-    _LMacro.addInput(ActivatorMacroUnit(false, frames(1)));
+    _LMacro.setStartDelay(_airDodgeDelayFrames);
+    _LMacro.addInput(ActivatorMacroUnit(true, 2));
+    _LMacro.addInput(ActivatorMacroUnit(false, 1));
 
     // R
-    _RMacro.setStartDelay(frames(2));
-    _RMacro.addInput(ActivatorMacroUnit(false, frames(_airDodgeDelayFrames - 1)));
-    _RMacro.addInput(ActivatorMacroUnit(true, frames(2)));
+    _RMacro.setStartDelay(2);
+    _RMacro.addInput(ActivatorMacroUnit(false, _airDodgeDelayFrames - 1));
+    _RMacro.addInput(ActivatorMacroUnit(true, 2));
 }
 
 #endif // WAVEDASHMACRO_H

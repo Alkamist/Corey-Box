@@ -18,7 +18,7 @@ public:
       _justCreated(true)
     {}
 
-    virtual void endCycle()                   { _previousValue = _currentValue; _justCreated = false; }
+    virtual void endCycle()                   { _previousValue = _currentValue; if (_justCreated) _justCreated = false; }
 
     const uint8_t getPreviousValue() const    { return _previousValue; }
 

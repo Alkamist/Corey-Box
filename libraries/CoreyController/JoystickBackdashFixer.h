@@ -4,7 +4,6 @@
 #include "Joystick.h"
 #include "TemporaryActivator.h"
 #include "TimedActivator.h"
-#include "Frames.h"
 #include "ClampBipolar.h"
 
 // This class hopefully should fix backdash problems associated with Melee.
@@ -15,10 +14,10 @@ public:
     : _backdashFixDisable(false)
     {
         // You have to hold down for a certain period of time to get into crouch.
-        _inCrouch.setTime(frames(5));
+        _inCrouch.setTime(5);
 
-        _killCrouchGetup.setTime(frames(1));
-        _killXTilt.setTime(frames(1));
+        _killCrouchGetup.setTime(1);
+        _killXTilt.setTime(1);
     }
 
     void process(FightingJoystick& joystick)

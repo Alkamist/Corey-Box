@@ -13,13 +13,13 @@ struct ActivatorMacroUnit
       duration(0)
     {}
 
-    explicit ActivatorMacroUnit(const bool inputState, const uint32_t inputDuration)
+    explicit ActivatorMacroUnit(const bool inputState, const uint8_t inputDuration)
     : state(inputState),
       duration(inputDuration)
     {}
 
     bool state;
-    uint32_t duration;
+    uint8_t duration;
 };
 
 // This class is a macro that is specifically meant to run an Activator.
@@ -43,7 +43,7 @@ public:
     void process();
     void endCycle();
 
-    void setStartDelay(const uint32_t delay)            { _start.duration = delay; }
+    void setStartDelay(const uint8_t delay)            { _start.duration = delay; }
 
     void addInput(ActivatorMacroUnit input);
     void clearMacro();

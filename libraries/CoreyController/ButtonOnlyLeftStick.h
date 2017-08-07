@@ -21,8 +21,8 @@ public:
       _tiltState(false),
       _tiltOut(false)
     {
-        _tiltTempDisable.setTime(frames(5));
-        _wavedashState.setTime(frames(5));
+        _tiltTempDisable.setTime(5);
+        _wavedashState.setTime(5);
     }
 
     void process()

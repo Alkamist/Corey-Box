@@ -26,7 +26,7 @@ public:
             Activator::operator=(false);
     }
 
-    void setTime(const uint32_t time)                        { _timer.setTargetTime(time); }
+    void setTime(const uint8_t time)                         { _timer.setTargetTime(time); }
 
     virtual TemporaryActivator& operator =(const bool value) { _activator = value; return *this; }
 

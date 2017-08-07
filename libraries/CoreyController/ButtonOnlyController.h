@@ -11,7 +11,6 @@
 #include "ToggleActivator.h"
 #include "TemporaryActivator.h"
 #include "TimedActivator.h"
-#include "Frames.h"
 #include "ShieldManager.h"
 
 // This is the main controller class right now. I know it is kind of a
@@ -474,8 +473,8 @@ ButtonOnlyController::ButtonOnlyController()
   _dUpButton(12),
   _macrosAreOn(true)
 {
-    _disableMacros.setTime(frames(120));
-    _lightShieldJumpClear.setTime(frames(4));
+    _disableMacros.setTime(120);
+    _lightShieldJumpClear.setTime(4);
 }
 
 #endif // BUTTONONLYCONTROLLER_H

@@ -2,7 +2,6 @@
 #define SPAMMACRO_H
 
 #include "ActivatorMacro.h"
-#include "Frames.h"
 
 // This macro simply spams an input alternating on and off every frame.
 class SpamMacro : public ActivatorMacro
@@ -28,8 +27,8 @@ void SpamMacro::initMacro()
     ActivatorMacro::clearMacro();
 
     // Jump
-    ActivatorMacro::addInput(ActivatorMacroUnit(true, frames(1)));
-    ActivatorMacro::addInput(ActivatorMacroUnit(false, frames(1)));
+    ActivatorMacro::addInput(ActivatorMacroUnit(true, 1));
+    ActivatorMacro::addInput(ActivatorMacroUnit(false, 1));
 }
 
 #endif // SPAMMACRO_H
