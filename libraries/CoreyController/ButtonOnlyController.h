@@ -12,6 +12,7 @@
 #include "TemporaryActivator.h"
 #include "TimedActivator.h"
 #include "ShieldManager.h"
+#include "JumpManager.h"
 
 // This is the main controller class right now. I know it is kind of a
 // god class but I'm not sure how to split up this logic.
@@ -45,7 +46,8 @@ private:
 
     ButtonReader _aButton;
     ButtonReader _bButton;
-    ButtonReader _jumpButton;
+    ButtonReader _shortHopButton;
+    ButtonReader _fullHopButton;
     ButtonReader _zButton;
     ButtonReader _lButton;
     ButtonReader _rButton;
@@ -69,6 +71,9 @@ private:
     // Shield:
     ShieldManager _shieldManager;
     TemporaryActivator _lightShieldJumpClear;
+
+    // Jump:
+    JumpManager _jumpManager;
 
     // Extra Activators:
     Activator _trimWavedashDown;
@@ -108,6 +113,7 @@ private:
     void processActivators();
     void processGameMode();
     void processShieldManager();
+    void processJumpManager();
     void processSpamBAMacro();
     void processWavedashMacro();
     void processLStick();
@@ -123,6 +129,7 @@ void ButtonOnlyController::process()
     processActivators();
     processGameMode();
     processShieldManager();
+    processJumpManager();
     processSpamBAMacro();
     processWavedashMacro();
     processLStick();
@@ -155,7 +162,8 @@ void ButtonOnlyController::endCycle()
 
     _aButton.endCycle();
     _bButton.endCycle();
-    _jumpButton.endCycle();
+    _shortHopButton.endCycle();
+    _fullHopButton.endCycle();
     _zButton.endCycle();
     _rButton.endCycle();
     _lButton.endCycle();
@@ -178,6 +186,9 @@ void ButtonOnlyController::endCycle()
     // Shield:
     _shieldManager.endCycle();
     _lightShieldJumpClear.endCycle();
+
+    // Jump:
+    _jumpManager.endCycle();
 
     // Extra Activators:
     _trimWavedashDown.endCycle();
@@ -218,7 +229,7 @@ void ButtonOnlyController::initializeOutputs()
     _aOut = _aButton;
     _bOut = _bButton;
     _xOut = false;
-    _yOut = _jumpButton;
+    _yOut = false;
     _zOut = _zButton;
     _lOut = false;
     _rOut = false;
@@ -317,6 +328,16 @@ void ButtonOnlyController::processShieldManager()
     _rAnalogOut = _shieldManager.getLightShieldOutput();
 }
 
+void ButtonOnlyController::processJumpManager()
+{
+    _jumpManager.setShortHopState(_shortHopButton);
+    _jumpManager.setFullHopState(_fullHopButton);
+    _jumpManager.process();
+
+    _xOut = _jumpManager.getXState();
+    _yOut = _jumpManager.getYState();
+}
+
 void ButtonOnlyController::processSpamBAMacro()
 {
     _spamBAActivator.setState1(_bButton);
@@ -355,17 +376,8 @@ void ButtonOnlyController::processWavedashMacro()
 
         _lOut = _wavedashMacro.getL();
     }
-    else
-    {
-        _lOut = _lButton;
-    }
 
-    if (_wavedashTrimButton)
-    {
-        _yOut = false;
-        _xOut = _jumpButton;
-        _lOut = _lButton;
-    }
+    if (_wavedashTrimButton) _lOut = _lButton;
 }
 
 void ButtonOnlyController::processLStick()
@@ -416,7 +428,7 @@ void ButtonOnlyController::processCStick()
 
     // This allows cUp to be pressed while in shield to toggle light shield.
     // Pushing jump will disable this lock for 4 frames.
-    _lightShieldJumpClear = _jumpButton;
+    _lightShieldJumpClear = _shortHopButton || _fullHopButton;
     _lightShieldJumpClear.process();
     if (_rButton && _cUpButton && !_lightShieldJumpClear)
         _cYOut = 128;
@@ -424,6 +436,13 @@ void ButtonOnlyController::processCStick()
 
 void ButtonOnlyController::finalizeOutputs()
 {
+    if (!_macrosAreOn)
+    {
+        _xOut = _fullHopButton;
+        _yOut = _shortHopButton;
+        _lOut = _lButton;
+    }
+
     a = _aOut;
     b = _bOut;
     x = _xOut;
@@ -457,15 +476,16 @@ ButtonOnlyController::ButtonOnlyController()
   _xMod2Button(9),
   _yMod1Button(8),
   _yMod2Button(7),
-  _cLeftButton(38),
-  _cRightButton(20),
-  _cDownButton(39),
-  _cUpButton(21),
-  _aButton(18),
-  _bButton(19),
-  _jumpButton(23),
+  _cLeftButton(39),
+  _cRightButton(19),
+  _cDownButton(40),
+  _cUpButton(20),
+  _aButton(38),
+  _bButton(18),
+  _shortHopButton(23),
+  _fullHopButton(22),
   _zButton(25),
-  _lButton(22),
+  _lButton(21),
   _rButton(24),
   _startButton(13),
   _wavedashTrimButton(14),

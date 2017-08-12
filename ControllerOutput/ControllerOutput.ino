@@ -8,33 +8,24 @@
 #include <Wire.h>
 #include "GameCubeController.h"
 #include "GameCubeOutput.h"
-//#include "Timer.h"
 
 void boolsFromByte(const unsigned char inputByte, bool bools[8]);
 
 GameCubeController controller;
 GameCubeOutput output(2);
 
-//Timer initDelay;
-//bool okToStart = false;;
-
 void setup()
 {
-    //initDelay.setTargetTime(1000000);
-
     output.connectController(controller);
     Wire.begin();
 }
 
 void loop()
 {
-    //if (initDelay && !okToStart)
-    //    okToStart = true;
+    Wire.requestFrom(22, 8);
 
-    //if (okToStart)
-    //{
-        Wire.requestFrom(22, 8);
-
+    while (Wire.available())
+    {
         bool buttons1[8];
         boolsFromByte(Wire.read(), buttons1);
         bool buttons2[8];
@@ -60,7 +51,7 @@ void loop()
         controller.cY = Wire.read();
         controller.lAnalog = Wire.read();
         controller.rAnalog = Wire.read();
-    //}
+    }
 
     output.process();
     controller.endCycle();
