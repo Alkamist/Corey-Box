@@ -2,7 +2,8 @@
 #define BUTTONONLYCONTROLLER_H
 
 #include "GameCubeController.h"
-#include "ButtonReader.h"
+#include "BounceButton.h"
+#include "NormalButton.h"
 #include "ButtonOnlyLeftStick.h"
 #include "ButtonOnlyCStick.h"
 #include "WavedashMacro.h"
@@ -26,35 +27,35 @@ public:
 
 private:
     // Buttons:
-    ButtonReader _tiltButton;
-    ButtonReader _unUsedButton;
+    BounceButton _tiltButton;
+    BounceButton _unUsedButton;
 
-    ButtonReader _lsLeftButton;
-    ButtonReader _lsRightButton;
-    ButtonReader _lsDownButton;
-    ButtonReader _lsUpButton;
+    BounceButton _lsLeftButton;
+    BounceButton _lsRightButton;
+    BounceButton _lsDownButton;
+    BounceButton _lsUpButton;
 
-    ButtonReader _xMod1Button;
-    ButtonReader _xMod2Button;
-    ButtonReader _yMod1Button;
-    ButtonReader _yMod2Button;
+    BounceButton _xMod1Button;
+    BounceButton _xMod2Button;
+    BounceButton _yMod1Button;
+    BounceButton _yMod2Button;
 
-    ButtonReader _cLeftButton;
-    ButtonReader _cRightButton;
-    ButtonReader _cDownButton;
-    ButtonReader _cUpButton;
+    BounceButton _cLeftButton;
+    BounceButton _cRightButton;
+    BounceButton _cDownButton;
+    BounceButton _cUpButton;
 
-    ButtonReader _aButton;
-    ButtonReader _bButton;
-    ButtonReader _shortHopButton;
-    ButtonReader _fullHopButton;
-    ButtonReader _zButton;
-    ButtonReader _lButton;
-    ButtonReader _rButton;
-    ButtonReader _startButton;
-    ButtonReader _wavedashTrimButton;
-    ButtonReader _settingsButton;
-    ButtonReader _dUpButton;
+    BounceButton _aButton;
+    BounceButton _bButton;
+    BounceButton _shortHopButton;
+    BounceButton _fullHopButton;
+    BounceButton _zButton;
+    BounceButton _lButton;
+    BounceButton _rButton;
+    BounceButton _startButton;
+    BounceButton _wavedashTrimButton;
+    BounceButton _settingsButton;
+    BounceButton _dUpButton;
 
     // Game Mode:
     Control _gameMode;
@@ -109,6 +110,7 @@ private:
     Control _cYOut;
 
     // Process Functions:
+    void setTiming();
     void initializeOutputs();
     void processActivators();
     void processGameMode();
@@ -125,6 +127,7 @@ private:
 
 void ButtonOnlyController::process()
 {
+    setTiming();
     initializeOutputs();
     processActivators();
     processGameMode();
@@ -222,6 +225,15 @@ void ButtonOnlyController::endCycle()
     _lsYOut.endCycle();
     _cXOut.endCycle();
     _cYOut.endCycle();
+}
+
+void ButtonOnlyController::setTiming()
+{
+    if (_settingsButton && _zButton)
+        FramesElapsed::setConsoleTiming();
+
+    if (_settingsButton && _rButton)
+        FramesElapsed::setDolphinTiming();
 }
 
 void ButtonOnlyController::initializeOutputs()

@@ -1,5 +1,5 @@
-#ifndef BUTTONREADER_H
-#define BUTTONREADER_H
+#ifndef BOUNCEBUTTON_H
+#define BOUNCEBUTTON_H
 
 #include <Bounce2.h>
 #include "Activator.h"
@@ -8,10 +8,10 @@
 // the Bounce2 library to reduce button chatter. This prevents
 // things like the wavedash macro from triggering accidentally
 // when you release the button.
-class ButtonReader : public Activator
+class BounceButton : public Activator
 {
 public:
-    explicit ButtonReader(const uint8_t pin)
+    explicit BounceButton(const uint8_t pin)
     : Activator(),
       _pin(pin)
     {
@@ -36,10 +36,10 @@ private:
         pinMode(_pin, INPUT_PULLUP);
 
         _bounce.attach(_pin);
-        _bounce.interval(5);
+        _bounce.interval(1);
     }
 
     Activator& operator =(const bool value) { Activator::operator=(value); return *this; }
 };
 
-#endif // BUTTONREADER_H
+#endif // BOUNCEBUTTON_H

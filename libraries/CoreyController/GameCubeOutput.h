@@ -3,6 +3,7 @@
 
 #include "Nintendo.h"
 #include "GameCubeController.h"
+#include "Timer.h"
 
 // This class is how you output to a GameCube. Set the pin, connect a controller,
 // and call process() to write the data.
@@ -61,6 +62,7 @@ void GameCubeOutput::writeData()
     if (_controller->cY.justChanged())      _rawData.report.cyAxis = _controller->cY;
 
     write(_rawData);
+    FramesElapsed::count();
 }
 
 #endif // GAMECUBEOUTPUT_H

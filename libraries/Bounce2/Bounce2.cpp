@@ -6,6 +6,7 @@
 #include "WProgram.h"
 #endif
 #include "Bounce2.h"
+#include "Timer.h"
 
 #define DEBOUNCED_STATE 0
 #define UNSTABLE_STATE  1
@@ -28,13 +29,13 @@ void Bounce::attach(int pin) {
 #ifdef BOUNCE_LOCK_OUT
     previous_millis = 0;
 #else
-    previous_millis = millis();
+    previous_millis = FramesElapsed::getHalfFrames();
 #endif
 }
 
 void Bounce::attach(int pin, int mode){
   pinMode(pin, mode);
-  
+
   this->attach(pin);
 }
 
@@ -48,10 +49,10 @@ bool Bounce::update()
 #ifdef BOUNCE_LOCK_OUT
     state &= ~_BV(STATE_CHANGED);
     // Ignore everything if we are locked out
-    if (millis() - previous_millis >= interval_millis) {
+    if (FramesElapsed::getHalfFrames() - previous_millis >= interval_millis) {
         bool currentState = digitalRead(pin);
         if ((bool)(state & _BV(DEBOUNCED_STATE)) != currentState) {
-            previous_millis = millis();
+            previous_millis = FramesElapsed::getHalfFrames();
             state ^= _BV(DEBOUNCED_STATE);
             state |= _BV(STATE_CHANGED);
         }
@@ -68,7 +69,7 @@ bool Bounce::update()
     if ( readState != (bool)(state & _BV(DEBOUNCED_STATE))) {
       // We have seen a change from the current button state.
 
-      if ( millis() - previous_millis >= interval_millis ) {
+      if ( FramesElapsed::getHalfFrames() - previous_millis >= interval_millis ) {
 	// We have passed the time threshold, so a new change of state is allowed.
 	// set the STATE_CHANGED flag and the new DEBOUNCED_STATE.
 	// This will be prompt as long as there has been greater than interval_misllis ms since last change of input.
@@ -83,7 +84,7 @@ bool Bounce::update()
     if ( readState != (bool)(state & _BV(UNSTABLE_STATE)) ) {
 	// Update Unstable Bit to macth readState
         state ^= _BV(UNSTABLE_STATE);
-        previous_millis = millis();
+        previous_millis = FramesElapsed::getHalfFrames();
     }
     // return just the sate changed bit
     return state & _BV(STATE_CHANGED);
@@ -94,14 +95,14 @@ bool Bounce::update()
 
     // If the reading is different from last reading, reset the debounce counter
     if ( currentState != (bool)(state & _BV(UNSTABLE_STATE)) ) {
-        previous_millis = millis();
+        previous_millis = FramesElapsed::getHalfFrames();
         state ^= _BV(UNSTABLE_STATE);
     } else
-        if ( millis() - previous_millis >= interval_millis ) {
+        if ( FramesElapsed::getHalfFrames() - previous_millis >= interval_millis ) {
             // We have passed the threshold time, so the input is now stable
             // If it is different from last state, set the STATE_CHANGED flag
             if ((bool)(state & _BV(DEBOUNCED_STATE)) != currentState) {
-                previous_millis = millis();
+                previous_millis = FramesElapsed::getHalfFrames();
                 state ^= _BV(DEBOUNCED_STATE);
                 state |= _BV(STATE_CHANGED);
             }
