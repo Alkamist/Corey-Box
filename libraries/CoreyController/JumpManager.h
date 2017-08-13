@@ -14,8 +14,8 @@ public:
     : Activator()
     {
         _yHold.setTime(4);
-        _xHold.setTime(18);
-        _xSafety.setTime(22);
+        _xHold.setTime(20);
+        _xSafety.setTime(24);
     }
 
     void process()

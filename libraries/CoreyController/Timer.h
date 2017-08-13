@@ -23,6 +23,7 @@ public:
     static void setDolphinTiming()                                { _writesPerHalfFrame = 6; }
 
     static const uint32_t getHalfFrames();
+    static const bool dolphinMode()                               { return _writesPerHalfFrame != 1; }
 
 private:
     uint8_t _halfFrames;
@@ -53,7 +54,7 @@ public:
     operator bool() const                             { return _timer >= _targetTime; }
 
     Timer& operator=(const Timer& value)              { _timer = value._timer; return *this; }
-    Timer& operator=(const HalfFramesElapsed& value)      { _timer = value; return *this; }
+    Timer& operator=(const HalfFramesElapsed& value)  { _timer = value; return *this; }
     Timer& operator=(const uint8_t value)             { _timer = value; return *this; }
 
     Timer& operator +=(const uint8_t value)           { _timer += value; return *this; }
