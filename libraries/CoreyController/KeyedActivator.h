@@ -3,6 +3,8 @@
 
 #include "Activator.h"
 
+// This class is an activator that requires a key condition to be met before activation.
+// It will continue to be activated while the hold condition remains held down.
 class KeyedActivator : public Activator
 {
 public:

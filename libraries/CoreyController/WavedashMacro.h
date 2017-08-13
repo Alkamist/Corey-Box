@@ -6,8 +6,7 @@
 // This class is a wavedash macro. You can trim the delay time to account for
 // different characters having different jumpsquats. I was having some timing
 // issues in the game so I had to do a trick where you push L and R spaced apart
-// by 1 frame. The macro does some wavedashes a frame late but I'm not sure how
-// to fix that.
+// by 1 frame.
 class WavedashMacro
 {
 public:
@@ -93,18 +92,18 @@ void WavedashMacro::initMacro()
     _RMacro.clearMacro();
 
     // Jump
-    _jump.addInput(ActivatorMacroUnit(true, 2));
-    _jump.addInput(ActivatorMacroUnit(false, 1));
+    _jump.addInput(ActivatorMacroUnit(true, 4));
+    _jump.addInput(ActivatorMacroUnit(false, 4));
 
     // L
-    _LMacro.setStartDelay(_airDodgeDelayFrames);
-    _LMacro.addInput(ActivatorMacroUnit(true, 2));
-    _LMacro.addInput(ActivatorMacroUnit(false, 1));
+    _LMacro.setStartDelay(_airDodgeDelayFrames * 2);
+    _LMacro.addInput(ActivatorMacroUnit(true, 4));
+    _LMacro.addInput(ActivatorMacroUnit(false, 4));
 
     // R
-    _RMacro.setStartDelay(2);
-    _RMacro.addInput(ActivatorMacroUnit(false, _airDodgeDelayFrames - 1));
-    _RMacro.addInput(ActivatorMacroUnit(true, 2));
+    _RMacro.setStartDelay(4);
+    _RMacro.addInput(ActivatorMacroUnit(false, (_airDodgeDelayFrames - 1) * 2));
+    _RMacro.addInput(ActivatorMacroUnit(true, 4));
 }
 
 #endif // WAVEDASHMACRO_H

@@ -1,7 +1,7 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
-// This class is an 8bit integer that keeps track of its value last clock cycle.
+// This class is an 8bit integer that keeps track of its value last cycle.
 // It can tell you if it has changed, along with other useful traits.
 class Control
 {

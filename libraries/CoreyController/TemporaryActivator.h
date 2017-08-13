@@ -4,8 +4,7 @@
 #include "Activator.h"
 #include "Timer.h"
 
-// This class is an Activator that is active for a defined period
-// of time.
+// This class is an Activator that is active for a defined period of time.
 class TemporaryActivator : public Activator
 {
 public:

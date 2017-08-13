@@ -4,7 +4,7 @@
 #include "SpamMacro.h"
 
 // This class is a macro that will spam two buttons alternating
-// every frame.
+// every 3 half frames.
 class TwoButtonSpamMacro
 {
 public:
@@ -52,7 +52,7 @@ void TwoButtonSpamMacro::endCycle()
 
 void TwoButtonSpamMacro::initMacro()
 {
-    _button2.setStartDelay(1);
+    _button2.setStartDelay(3);
 }
 
 #endif // TWOBUTTONSPAMMACRO_H

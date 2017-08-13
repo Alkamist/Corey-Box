@@ -16,8 +16,8 @@ public:
       _tiltAmount(49),
       _range(127)
     {
-        _tiltX.setTime(8);
-        _tiltY.setTime(8);
+        _tiltX.setTime(16);
+        _tiltY.setTime(16);
     }
 
     void process(FightingJoystick& joystick)

@@ -2,11 +2,11 @@
 #include "Arduino.h"
 #include "Timer.h"
 
-uint8_t FramesElapsed::_writesPerHalfFrame = 1;
-uint32_t FramesElapsed::_halfFramesCounted = 0;
-uint16_t FramesElapsed::_writeCounter = 0;
+uint8_t HalfFramesElapsed::_writesPerHalfFrame = 1;
+uint32_t HalfFramesElapsed::_halfFramesCounted = 0;
+uint16_t HalfFramesElapsed::_writeCounter = 0;
 
-void FramesElapsed::count()
+void HalfFramesElapsed::count()
 {
     ++_writeCounter;
 
@@ -17,17 +17,7 @@ void FramesElapsed::count()
     }
 }
 
-const uint16_t FramesElapsed::getWrites()
-{
-    return _writeCounter;
-}
-
-void FramesElapsed::resetWrites()
-{
-    _writeCounter = 0;
-}
-
-const uint32_t FramesElapsed::getHalfFrames()
+const uint32_t HalfFramesElapsed::getHalfFrames()
 {
     return _halfFramesCounted;
 }

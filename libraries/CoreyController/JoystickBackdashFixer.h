@@ -14,10 +14,10 @@ public:
     : _backdashFixDisable(false)
     {
         // You have to hold down for a certain period of time to get into crouch.
-        _inCrouch.setTime(5);
+        _inCrouch.setTime(10);
 
-        _killCrouchGetup.setTime(1);
-        _killXTilt.setTime(1);
+        _killCrouchGetup.setTime(3);
+        _killXTilt.setTime(3);
     }
 
     void process(FightingJoystick& joystick)

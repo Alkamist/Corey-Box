@@ -4,9 +4,8 @@
 #include "Control.h"
 #include "TwoButtonStateTracker.h"
 
-// This class is responsible for the base logic of how
-// two buttons interact with a joystick axis. The most
-// recently pushed button gets priority.
+// This class is responsible for the base logic of how two buttons interact with
+// a joystick axis. The most recently pushed button gets priority.
 class TwoButtonControl : public Control
 {
 public:

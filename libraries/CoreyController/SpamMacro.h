@@ -3,7 +3,8 @@
 
 #include "ActivatorMacro.h"
 
-// This macro simply spams an input alternating on and off every frame.
+// This macro simply spams an input alternating on and off every 3 half frames.
+// If you set it any faster then it will eat inputs on console.
 class SpamMacro : public ActivatorMacro
 {
 public:
@@ -27,8 +28,8 @@ void SpamMacro::initMacro()
     ActivatorMacro::clearMacro();
 
     // Jump
-    ActivatorMacro::addInput(ActivatorMacroUnit(true, 1));
-    ActivatorMacro::addInput(ActivatorMacroUnit(false, 1));
+    ActivatorMacro::addInput(ActivatorMacroUnit(true, 3));
+    ActivatorMacro::addInput(ActivatorMacroUnit(false, 3));
 }
 
 #endif // SPAMMACRO_H

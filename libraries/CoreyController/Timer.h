@@ -1,60 +1,38 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-/*class MillisElapsed
-{
-private:
-    uint32_t ms;
-public:
-    MillisElapsed(void)                                    { ms = millis(); }
-    MillisElapsed(uint32_t value)                          { ms = millis() - value; }
-    MillisElapsed(const MillisElapsed& input)              { ms = input.ms; }
-
-    operator uint32_t () const                             { return millis() - ms; }
-    MillisElapsed& operator = (const MillisElapsed &input) { ms = input.ms; return *this; }
-    MillisElapsed& operator = (uint32_t value)             { ms = millis() - value; return *this; }
-
-    MillisElapsed& operator += (uint32_t value)            { ms -= value ; return *this; }
-    MillisElapsed& operator -= (uint32_t value)            { ms += value ; return *this; }
-    MillisElapsed operator + (uint32_t value) const        { MillisElapsed output(*this); output.ms -= value; return output; }
-    MillisElapsed operator - (uint32_t value) const        { MillisElapsed output(*this); output.ms += value; return output; }
-};*/
-
-class FramesElapsed
+class HalfFramesElapsed
 {
 public:
-    FramesElapsed()                                       { _frames = _halfFramesCounted / 2; }
-    FramesElapsed(uint8_t value)                          { _frames = _halfFramesCounted / 2 - value; }
-    FramesElapsed(const FramesElapsed& input)             { _frames = input._frames; }
+    HalfFramesElapsed()                                           { _halfFrames = _halfFramesCounted; }
+    HalfFramesElapsed(uint8_t value)                              { _halfFrames = _halfFramesCounted - value; }
+    HalfFramesElapsed(const HalfFramesElapsed& input)             { _halfFrames = input._halfFrames; }
 
-    operator uint8_t() const                              { return _halfFramesCounted / 2 - _frames; }
-    FramesElapsed& operator =(const FramesElapsed& input) { _frames = input._frames; return *this; }
-    FramesElapsed& operator =(uint8_t value)              { _frames = _halfFramesCounted / 2 - value; return *this; }
+    operator uint8_t() const                                      { return _halfFramesCounted - _halfFrames; }
+    HalfFramesElapsed& operator =(const HalfFramesElapsed& input) { _halfFrames = input._halfFrames; return *this; }
+    HalfFramesElapsed& operator =(uint8_t value)                  { _halfFrames = _halfFramesCounted - value; return *this; }
 
-    FramesElapsed& operator +=(uint8_t value)             { _frames -= value; return *this; }
-    FramesElapsed& operator -=(uint8_t value)             { _frames += value; return *this; }
-    FramesElapsed operator +(uint8_t value) const         { FramesElapsed output(*this); output._frames -= value; return output; }
-    FramesElapsed operator -(uint8_t value) const         { FramesElapsed output(*this); output._frames += value; return output; }
+    HalfFramesElapsed& operator +=(uint8_t value)                 { _halfFrames -= value; return *this; }
+    HalfFramesElapsed& operator -=(uint8_t value)                 { _halfFrames += value; return *this; }
+    HalfFramesElapsed operator +(uint8_t value) const             { HalfFramesElapsed output(*this); output._halfFrames -= value; return output; }
+    HalfFramesElapsed operator -(uint8_t value) const             { HalfFramesElapsed output(*this); output._halfFrames += value; return output; }
 
     static void count();
 
-    static void setConsoleTiming()                        { _writesPerHalfFrame = 1; }
-    static void setDolphinTiming()                        { _writesPerHalfFrame = 6; }
-
-    static const uint16_t getWrites();
-    static void resetWrites();
+    static void setConsoleTiming()                                { _writesPerHalfFrame = 1; }
+    static void setDolphinTiming()                                { _writesPerHalfFrame = 6; }
 
     static const uint32_t getHalfFrames();
 
 private:
-    uint8_t _frames;
+    uint8_t _halfFrames;
 
     static uint8_t _writesPerHalfFrame;
     static uint32_t _halfFramesCounted;
     static uint16_t _writeCounter;
 };
 
-// This class is a timer based in frames. You can set a target time and
+// This class is a timer based in half frames. You can set a target time and
 // reset the timer, and it will tell you when it has reached the target time.
 class Timer
 {
@@ -70,12 +48,12 @@ public:
 
     //=================== OPERATORS ===================
 
-    operator FramesElapsed() const                    { return _timer; }
+    operator HalfFramesElapsed() const                { return _timer; }
     operator uint8_t() const                          { return _timer; }
     operator bool() const                             { return _timer >= _targetTime; }
 
     Timer& operator=(const Timer& value)              { _timer = value._timer; return *this; }
-    Timer& operator=(const FramesElapsed& value)      { _timer = value; return *this; }
+    Timer& operator=(const HalfFramesElapsed& value)      { _timer = value; return *this; }
     Timer& operator=(const uint8_t value)             { _timer = value; return *this; }
 
     Timer& operator +=(const uint8_t value)           { _timer += value; return *this; }
@@ -95,7 +73,7 @@ public:
     const bool operator <=(const uint8_t value) const { return _timer <= value; }
 
 private:
-    FramesElapsed _timer;
+    HalfFramesElapsed _timer;
     uint8_t _targetTime;
 };
 

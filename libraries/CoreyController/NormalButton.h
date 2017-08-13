@@ -3,8 +3,8 @@
 
 #include "Activator.h"
 
-// This is the basic class to read input from a button.
-
+// This is the basic class to read input from a button. It has no chatter
+// reduction.
 class ButtonReader : public Activator
 {
 public:

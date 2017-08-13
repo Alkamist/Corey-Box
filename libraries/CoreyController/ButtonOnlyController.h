@@ -3,7 +3,6 @@
 
 #include "GameCubeController.h"
 #include "BounceButton.h"
-#include "NormalButton.h"
 #include "ButtonOnlyLeftStick.h"
 #include "ButtonOnlyCStick.h"
 #include "WavedashMacro.h"
@@ -230,10 +229,10 @@ void ButtonOnlyController::endCycle()
 void ButtonOnlyController::setTiming()
 {
     if (_settingsButton && _zButton)
-        FramesElapsed::setConsoleTiming();
+        HalfFramesElapsed::setConsoleTiming();
 
     if (_settingsButton && _rButton)
-        FramesElapsed::setDolphinTiming();
+        HalfFramesElapsed::setDolphinTiming();
 }
 
 void ButtonOnlyController::initializeOutputs()
@@ -505,8 +504,8 @@ ButtonOnlyController::ButtonOnlyController()
   _dUpButton(12),
   _macrosAreOn(true)
 {
-    _disableMacros.setTime(120);
-    _lightShieldJumpClear.setTime(4);
+    _disableMacros.setTime(240);
+    _lightShieldJumpClear.setTime(8);
 }
 
 #endif // BUTTONONLYCONTROLLER_H

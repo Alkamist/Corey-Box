@@ -62,7 +62,7 @@ void GameCubeOutput::writeData()
     if (_controller->cY.justChanged())      _rawData.report.cyAxis = _controller->cY;
 
     write(_rawData);
-    FramesElapsed::count();
+    HalfFramesElapsed::count();
 }
 
 #endif // GAMECUBEOUTPUT_H

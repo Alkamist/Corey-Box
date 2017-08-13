@@ -5,27 +5,33 @@
 #include "TemporaryActivator.h"
 #include "KeyedActivator.h"
 
+// This class handles the short hop and full hop buttons. It allows for double jumps with
+// either button. Be sure to use the full hop button for floating (Peach etc...).
 class JumpManager : public Activator
 {
 public:
     JumpManager()
     : Activator()
     {
-        _yHold.setTime(2);
-        _xHold.setTime(9);
+        _yHold.setTime(4);
+        _xHold.setTime(18);
+        _xSafety.setTime(22);
     }
 
     void process()
     {
-        _yAlternate.setKeyState(_xHold && _fullHop.justActivated());
+        _yAlternate.setKeyState(_xSafety && _fullHop.justActivated());
         _yAlternate.setHoldState(_fullHop);
         _yAlternate.process();
 
         _yHold = (_yAlternate.justActivated() || _shortHop.justActivated()) && !_yHold;
         _yHold.process();
 
-        _xHold = _fullHop.justActivated() && !_xHold;
+        bool xCondition = _fullHop.justActivated() && !_xSafety;
+        _xHold = xCondition;
+        _xSafety = xCondition;
         _xHold.process();
+        _xSafety.process();
     }
 
     void endCycle()
@@ -35,6 +41,7 @@ public:
         _yAlternate.endCycle();
         _xHold.endCycle();
         _yHold.endCycle();
+        _xSafety.endCycle();
     }
 
     const bool getXState() const                     { return _xHold || _fullHop; }
@@ -53,6 +60,7 @@ private:
 
     TemporaryActivator _xHold;
     TemporaryActivator _yHold;
+    TemporaryActivator _xSafety;
 };
 
 #endif // JUMPMANAGER_H
