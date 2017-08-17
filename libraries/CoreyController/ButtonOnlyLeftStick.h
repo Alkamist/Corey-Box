@@ -20,15 +20,10 @@ public:
       _lsUpState(false),
       _tiltState(false),
       _tiltOut(false)
-    {
-        _tiltTempDisable.setTime(5);
-        _wavedashState.setTime(5);
-    }
+    {}
 
     void process()
     {
-        _wavedashState.process();
-        _tiltTempDisable.process();
         _tiltOut = _tiltState && !(_tiltTempDisable || _wavedashState);
 
         _xAxis.process();
@@ -101,8 +96,8 @@ private:
     bool _lsUpState;
     bool _tiltState;
     bool _tiltOut;
-    TemporaryActivator _tiltTempDisable;
-    TemporaryActivator _wavedashState;
+    Activator _tiltTempDisable;
+    Activator _wavedashState;
 
     DoubleModAxis _xAxis;
     DoubleModAxis _yAxis;

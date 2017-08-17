@@ -259,6 +259,13 @@ void ButtonOnlyController::initializeOutputs()
         _dDownOut = _xMod1Button;
         _dUpOut = _yMod2Button || _dUpButton;
     }
+
+    if (!_macrosAreOn)
+    {
+        _xOut = _fullHopButton;
+        _yOut = _shortHopButton;
+        _lOut = _lButton;
+    }
 }
 
 void ButtonOnlyController::processActivators()
@@ -402,12 +409,12 @@ void ButtonOnlyController::processLStick()
     _leftStick.setYMod1State(_yMod1Button);
     _leftStick.setYMod2State(_yMod2Button);
     _leftStick.setTiltState(_tiltButton);
-    _leftStick.setTiltTempDisableState(l);
+    _leftStick.setTiltTempDisableState(_lOut);
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
     _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
     _leftStick.setShieldState(_shieldManager);
-    _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _rOut || _yOut
-                                       || _xOut || _zOut || _aOut || _bOut || (_gameMode != 0));
+    _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _yOut || _xOut
+                                       || _zOut || _aOut || _bOut || _rOut || (_gameMode != 0));
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -447,13 +454,6 @@ void ButtonOnlyController::processCStick()
 
 void ButtonOnlyController::finalizeOutputs()
 {
-    if (!_macrosAreOn)
-    {
-        _xOut = _fullHopButton;
-        _yOut = _shortHopButton;
-        _lOut = _lButton;
-    }
-
     a = _aOut;
     b = _bOut;
     x = _xOut;
