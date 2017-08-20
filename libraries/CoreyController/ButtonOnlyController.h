@@ -2,15 +2,13 @@
 #define BUTTONONLYCONTROLLER_H
 
 #include "GameCubeController.h"
-#include "BounceButton.h"
+#include "ButtonReader.h"
 #include "ButtonOnlyLeftStick.h"
 #include "ButtonOnlyCStick.h"
 #include "WavedashMacro.h"
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
 #include "ToggleActivator.h"
-#include "TemporaryActivator.h"
-#include "TimedActivator.h"
 #include "ShieldManager.h"
 #include "JumpManager.h"
 
@@ -26,35 +24,35 @@ public:
 
 private:
     // Buttons:
-    BounceButton _tiltButton;
-    BounceButton _unUsedButton;
+    ButtonReader _tiltButton;
+    ButtonReader _unUsedButton;
 
-    BounceButton _lsLeftButton;
-    BounceButton _lsRightButton;
-    BounceButton _lsDownButton;
-    BounceButton _lsUpButton;
+    ButtonReader _lsLeftButton;
+    ButtonReader _lsRightButton;
+    ButtonReader _lsDownButton;
+    ButtonReader _lsUpButton;
 
-    BounceButton _xMod1Button;
-    BounceButton _xMod2Button;
-    BounceButton _yMod1Button;
-    BounceButton _yMod2Button;
+    ButtonReader _xMod1Button;
+    ButtonReader _xMod2Button;
+    ButtonReader _yMod1Button;
+    ButtonReader _yMod2Button;
 
-    BounceButton _cLeftButton;
-    BounceButton _cRightButton;
-    BounceButton _cDownButton;
-    BounceButton _cUpButton;
+    ButtonReader _cLeftButton;
+    ButtonReader _cRightButton;
+    ButtonReader _cDownButton;
+    ButtonReader _cUpButton;
 
-    BounceButton _aButton;
-    BounceButton _bButton;
-    BounceButton _shortHopButton;
-    BounceButton _fullHopButton;
-    BounceButton _zButton;
-    BounceButton _lButton;
-    BounceButton _rButton;
-    BounceButton _startButton;
-    BounceButton _wavedashTrimButton;
-    BounceButton _settingsButton;
-    BounceButton _dUpButton;
+    ButtonReader _aButton;
+    ButtonReader _bButton;
+    ButtonReader _shortHopButton;
+    ButtonReader _fullHopButton;
+    ButtonReader _zButton;
+    ButtonReader _lButton;
+    ButtonReader _rButton;
+    ButtonReader _startButton;
+    ButtonReader _wavedashTrimButton;
+    ButtonReader _settingsButton;
+    ButtonReader _dUpButton;
 
     // Game Mode:
     Control _gameMode;
@@ -70,7 +68,6 @@ private:
 
     // Shield:
     ShieldManager _shieldManager;
-    TemporaryActivator _lightShieldJumpClear;
 
     // Jump:
     JumpManager _jumpManager;
@@ -85,7 +82,7 @@ private:
 
     Activator _spamBA;
 
-    TimedActivator _disableMacros;
+    Activator _disableMacros;
     ToggleActivator _macrosAreOn;
 
     // Outputs:
@@ -187,7 +184,6 @@ void ButtonOnlyController::endCycle()
 
     // Shield:
     _shieldManager.endCycle();
-    _lightShieldJumpClear.endCycle();
 
     // Jump:
     _jumpManager.endCycle();
@@ -270,11 +266,17 @@ void ButtonOnlyController::initializeOutputs()
 
 void ButtonOnlyController::processActivators()
 {
-    _disableMacros = _wavedashTrimButton && _settingsButton;
-    _disableMacros.process();
+    bool allMods = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
+    bool macrosOff = allMods && _unUsedButton;
+    bool macrosOn = allMods && _dUpButton;
+
+    if (_macrosAreOn) _disableMacros = macrosOff;
+    if (!_macrosAreOn) _disableMacros = macrosOn;
 
     _macrosAreOn = _disableMacros.justActivated();
     _macrosAreOn.process();
+
+    ButtonReader::setUseBounce(_macrosAreOn);
 
     _trimWavedashDown = _wavedashTrimButton && _cDownButton;
     _trimWavedashUp = _wavedashTrimButton && _cUpButton;
@@ -304,6 +306,7 @@ void ButtonOnlyController::processGameMode()
             _leftStick.setTilt(49);
             resetLsXTrim();
             resetLsYTrim();
+            _wavedashMacro.setDelayLongJumpSquats(true);
             return;
         }
         // Project M:
@@ -317,6 +320,7 @@ void ButtonOnlyController::processGameMode()
             _leftStick.setTilt(64);
             resetLsXTrim();
             resetLsYTrim();
+            _wavedashMacro.setDelayLongJumpSquats(false);
             return;
         }
         // Rivals:
@@ -331,6 +335,7 @@ void ButtonOnlyController::processGameMode()
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
+            _wavedashMacro.setDelayLongJumpSquats(false);
             return;
         }
     }
@@ -348,30 +353,36 @@ void ButtonOnlyController::processShieldManager()
 
 void ButtonOnlyController::processJumpManager()
 {
-    _jumpManager.setShortHopState(_shortHopButton);
-    _jumpManager.setFullHopState(_fullHopButton);
-    _jumpManager.process();
+    if (_macrosAreOn)
+    {
+        _jumpManager.setShortHopState(_shortHopButton);
+        _jumpManager.setFullHopState(_fullHopButton);
+        _jumpManager.process();
 
-    _xOut = _jumpManager.getXState();
-    _yOut = _jumpManager.getYState();
+        _xOut = _jumpManager.getXState();
+        _yOut = _jumpManager.getYState();
+    }
 }
 
 void ButtonOnlyController::processSpamBAMacro()
 {
-    _spamBAActivator.setState1(_bButton);
-    _spamBAActivator.setState2(_aButton);
-    _spamBAActivator.process();
-
-    _spamBA = _spamBAActivator.state1WasFirst() && _spamBAActivator.getState2();
-
-    _spamBAMacro = _spamBA && _macrosAreOn;
-    _spamBAMacro.process();
-
-    if (_spamBAMacro.isRunning())
+    if (_macrosAreOn)
     {
-        _bOut = _spamBAMacro.getButton1();
+        _spamBAActivator.setState1(_bButton);
+        _spamBAActivator.setState2(_aButton);
+        _spamBAActivator.process();
 
-        if (_spamBA && _cDownButton) _aOut = _spamBAMacro.getButton2();
+        _spamBA = _spamBAActivator.state1WasFirst() && _spamBAActivator.getState2();
+
+        _spamBAMacro = _spamBA && _macrosAreOn;
+        _spamBAMacro.process();
+
+        if (_spamBAMacro.isRunning())
+        {
+            _bOut = _spamBAMacro.getButton1();
+
+            if (_spamBA && _cDownButton) _aOut = _spamBAMacro.getButton2();
+        }
     }
 }
 
@@ -413,8 +424,9 @@ void ButtonOnlyController::processLStick()
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
     _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
     _leftStick.setShieldState(_shieldManager);
+    _leftStick.setUseMacros(_macrosAreOn);
     _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _yOut || _xOut
-                                       || _zOut || _aOut || _bOut || _rOut || (_gameMode != 0));
+                                       || _zOut || _aOut || _bOut || _rOut || (_gameMode != 0) || !_macrosAreOn);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -445,10 +457,8 @@ void ButtonOnlyController::processCStick()
     _cYOut = _cStick.yValue;
 
     // This allows cUp to be pressed while in shield to toggle light shield.
-    // Pushing jump will disable this lock for 4 frames.
-    _lightShieldJumpClear = _shortHopButton || _fullHopButton;
-    _lightShieldJumpClear.process();
-    if (_rButton && _cUpButton && !_lightShieldJumpClear)
+    bool lightShieldJumpClear = _shortHopButton || _fullHopButton;
+    if (_rButton && _cUpButton && !lightShieldJumpClear)
         _cYOut = 128;
 }
 
@@ -502,10 +512,7 @@ ButtonOnlyController::ButtonOnlyController()
   _wavedashTrimButton(14),
   _settingsButton(15),
   _dUpButton(12),
-  _macrosAreOn(true)
-{
-    _disableMacros.setTime(240);
-    _lightShieldJumpClear.setTime(8);
-}
+  _macrosAreOn(false)
+{}
 
 #endif // BUTTONONLYCONTROLLER_H

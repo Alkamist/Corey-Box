@@ -12,7 +12,8 @@ class WavedashMacro
 {
 public:
     WavedashMacro()
-    : _airDodgeDelayFrames(3),
+    : _delayLongJumpSquats(false),
+      _airDodgeDelayFrames(3),
       _minimumDelay(3),
       _maximumDelay(8)
     {
@@ -42,11 +43,13 @@ public:
         initMacro();
     }
 
-    const bool isRunning() const          { return _jump.isRunning() || _LMacro.isRunning() || _RMacro.isRunning(); }
+    const bool isRunning() const                  { return _jump.isRunning() || _LMacro.isRunning() || _RMacro.isRunning(); }
 
-    const ActivatorMacro& getJump() const { return _jump; }
-    const ActivatorMacro& getL() const    { return _LMacro; }
-    const ActivatorMacro& getR() const    { return _RMacro; }
+    const ActivatorMacro& getJump() const         { return _jump; }
+    const ActivatorMacro& getL() const            { return _LMacro; }
+    const ActivatorMacro& getR() const            { return _RMacro; }
+
+    void setDelayLongJumpSquats(const bool state) { _delayLongJumpSquats = state; initMacro(); }
 
     virtual WavedashMacro& operator=(const bool value)
     {
@@ -62,6 +65,7 @@ private:
     ActivatorMacro _LMacro;
     ActivatorMacro _RMacro;
 
+    bool _delayLongJumpSquats;
     uint8_t _airDodgeDelayFrames;
 
     const uint8_t _minimumDelay;
@@ -97,22 +101,10 @@ void WavedashMacro::initMacro()
     _jump.addInput(ActivatorMacroUnit(false, 4));
 
     // This check is needed for dolphin mode. Characters with Falco's jumpsquat timing
-    // or greater need the triggers delayed by one half frame on dolphin. If they aren't
-    // delayed it can eat wavedashes. The delay causes bad timing on console so we turn
-    // it off there.
-    if (_airDodgeDelayFrames < 5 || !HalfFramesElapsed::dolphinMode())
-    {
-        // L
-        _LMacro.setStartDelay(_airDodgeDelayFrames * 2);
-        _LMacro.addInput(ActivatorMacroUnit(true, 4));
-        _LMacro.addInput(ActivatorMacroUnit(false, 4));
-
-        // R
-        _RMacro.setStartDelay(4);
-        _RMacro.addInput(ActivatorMacroUnit(false, (_airDodgeDelayFrames - 1) * 2));
-        _RMacro.addInput(ActivatorMacroUnit(true, 4));
-    }
-    else
+    // or greater need the triggers delayed by one half frame on dolphin in Melee. If
+    // they aren't delayed it can eat wavedashes. The delay causes bad timing on console
+    // so we turn it off there.
+    if (_delayLongJumpSquats && (_airDodgeDelayFrames >= 5) && HalfFramesElapsed::dolphinMode())
     {
         // L
         _LMacro.setStartDelay(_airDodgeDelayFrames * 2 + 1);
@@ -124,6 +116,19 @@ void WavedashMacro::initMacro()
         _RMacro.addInput(ActivatorMacroUnit(false, (_airDodgeDelayFrames - 1) * 2 + 1));
         _RMacro.addInput(ActivatorMacroUnit(true, 4));
     }
+    else
+    {
+        // L
+        _LMacro.setStartDelay(_airDodgeDelayFrames * 2);
+        _LMacro.addInput(ActivatorMacroUnit(true, 4));
+        _LMacro.addInput(ActivatorMacroUnit(false, 4));
+
+        // R
+        _RMacro.setStartDelay(4);
+        _RMacro.addInput(ActivatorMacroUnit(false, (_airDodgeDelayFrames - 1) * 2));
+        _RMacro.addInput(ActivatorMacroUnit(true, 4));
+    }
 }
+
 
 #endif // WAVEDASHMACRO_H

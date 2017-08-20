@@ -77,6 +77,8 @@ public:
     void setModStart(const uint8_t value)             { _xAxis.setModStart(value); _yAxis.setModStart(value); }
     void setTilt(const uint8_t value)                 { _joystickTilter.setTilt(value); }
 
+    void setUseMacros(const bool state)               { _joystickTilter.setUseMacros(state); }
+
     void setRange(const uint8_t value)
     {
         FightingJoystick::setRange(value);

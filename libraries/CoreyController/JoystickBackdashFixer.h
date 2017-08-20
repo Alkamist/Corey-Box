@@ -16,8 +16,8 @@ public:
         // You have to hold down for a certain period of time to get into crouch.
         _inCrouch.setTime(10);
 
-        _killCrouchGetup.setTime(3);
-        _killXTilt.setTime(3);
+        _killCrouchGetup.setTime(4);
+        _killXTilt.setTime(4);
     }
 
     void process(FightingJoystick& joystick)
