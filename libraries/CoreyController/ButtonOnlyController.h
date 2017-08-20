@@ -250,10 +250,10 @@ void ButtonOnlyController::initializeOutputs()
     // D-pad Modifier:
     if (_unUsedButton)
     {
-        _dLeftOut = _yMod1Button;
-        _dRightOut = _xMod2Button;
-        _dDownOut = _xMod1Button;
-        _dUpOut = _yMod2Button || _dUpButton;
+        _dLeftOut = _lsLeftButton;
+        _dRightOut = _lsRightButton;
+        _dDownOut = _lsDownButton;
+        _dUpOut = _lsUpButton || _dUpButton;
     }
 
     if (!_macrosAreOn)
@@ -269,6 +269,8 @@ void ButtonOnlyController::processActivators()
     bool allMods = _xMod1Button && _xMod2Button && _yMod1Button && _yMod2Button;
     bool macrosOff = allMods && _unUsedButton;
     bool macrosOn = allMods && _dUpButton;
+
+    if (allMods) _dUpOut = false;
 
     if (_macrosAreOn) _disableMacros = macrosOff;
     if (!_macrosAreOn) _disableMacros = macrosOn;
@@ -289,9 +291,9 @@ void ButtonOnlyController::processActivators()
 
 void ButtonOnlyController::processGameMode()
 {
-    if (_settingsButton && _yMod2Button) _gameMode = 0;
-    if (_settingsButton && _yMod1Button) _gameMode = 1;
-    if (_settingsButton && _xMod2Button) _gameMode = 2;
+    if (_settingsButton && _lsDownButton) _gameMode = 0;
+    if (_settingsButton && _lsUpButton) _gameMode = 1;
+    if (_settingsButton && _lsLeftButton) _gameMode = 2;
 
     if (_gameMode.justChanged())
     {
@@ -411,10 +413,14 @@ void ButtonOnlyController::processWavedashMacro()
 
 void ButtonOnlyController::processLStick()
 {
-    _leftStick.setLsLeftState(_lsLeftButton);
-    _leftStick.setLsRightState(_lsRightButton);
-    _leftStick.setLsDownState(_lsDownButton);
-    _leftStick.setLsUpState(_lsUpButton);
+    bool disableDirections = _unUsedButton || _settingsButton;
+
+    _leftStick.setLsLeftState(_lsLeftButton && !disableDirections);
+    _leftStick.setLsRightState(_lsRightButton && !disableDirections);
+    _leftStick.setLsDownState(_lsDownButton && !disableDirections);
+    _leftStick.setLsUpState(_lsUpButton && !disableDirections);
+    _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton && !disableDirections);
+
     _leftStick.setXMod1State(_xMod1Button);
     _leftStick.setXMod2State(_xMod2Button);
     _leftStick.setYMod1State(_yMod1Button);
@@ -422,11 +428,10 @@ void ButtonOnlyController::processLStick()
     _leftStick.setTiltState(_tiltButton);
     _leftStick.setTiltTempDisableState(_lOut);
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
-    _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton);
     _leftStick.setShieldState(_shieldManager);
     _leftStick.setUseMacros(_macrosAreOn);
     _leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _yOut || _xOut
-                                       || _zOut || _aOut || _bOut || _rOut || (_gameMode != 0) || !_macrosAreOn);
+                                       || _zOut || _aOut || _bOut || _rOut || (_gameMode != 0));
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -442,11 +447,13 @@ void ButtonOnlyController::processLStick()
 
 void ButtonOnlyController::processCStick()
 {
-    _cStick.setCLeftState(_cLeftButton);
-    _cStick.setCRightState(_cRightButton);
+    bool disableCDirections = _wavedashTrimButton || _settingsButton;
+
+    _cStick.setCLeftState(_cLeftButton && !disableCDirections);
+    _cStick.setCRightState(_cRightButton && !disableCDirections);
     // Disable cDown while the Spam BA macro is active.
-    _cStick.setCDownState(_cDownButton && !_spamBA);
-    _cStick.setCUpState(_cUpButton);
+    _cStick.setCDownState(_cDownButton && !_spamBA && !disableCDirections);
+    _cStick.setCUpState(_cUpButton && !disableCDirections);
     _cStick.setLsDownState(_lsDownButton);
     _cStick.setLsUpState(_lsUpButton);
     _cStick.setTiltState(_tiltButton);
