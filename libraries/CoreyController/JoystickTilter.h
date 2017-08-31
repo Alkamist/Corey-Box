@@ -6,7 +6,7 @@
 #include "Signum.h"
 #include "TemporaryActivator.h"
 
-// This class provides the capability to force a joystick to move slowly.
+// This class provides the capability to limit a joystick to a certain range.
 // This will prevent dash, rolling, spotdodging, and shield-dropping when activated.
 class JoystickTilter
 {
@@ -16,39 +16,20 @@ public:
       _useMacros(false),
       _tiltAmount(49),
       _range(127)
-    {
-        _tiltX.setTime(16);
-        _tiltY.setTime(16);
-    }
+    {}
 
     void process(FightingJoystick& joystick)
     {
-        bool tiltResetX = joystick.xIsInDeadZone()
-                       || joystick.xValue.justCrossedCenter();
-
-        bool tiltResetY = joystick.yIsInDeadZone()
-                       || joystick.yValue.justCrossedCenter();
-
-        _tiltX = tiltResetX;
-        _tiltY = tiltResetY;
-
-        _tiltX.process();
-        _tiltY.process();
-
-        if ((_tiltX || !_useMacros) && _tiltState)
+        if (_tiltState)
         {
             joystick.xValue = scaleBipolar(joystick.xValue, _tiltAmount, _range);
+            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount, _range);
 
             if (joystick.xIsInDeadZone())
             {
                 if (joystick.xValue < 128) joystick.xValue = 128 - joystick.getDeadZoneUpperBound() - 1;
                 if (joystick.xValue > 128) joystick.xValue = 128 + joystick.getDeadZoneUpperBound() + 1;
             }
-        }
-
-        if ((_tiltY || !_useMacros) && _tiltState)
-        {
-            joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount, _range);
 
             if (joystick.yIsInDeadZone())
             {
@@ -60,11 +41,7 @@ public:
         joystick.FightingJoystick::process();
     }
 
-    void endCycle()
-    {
-        _tiltX.endCycle();
-        _tiltY.endCycle();
-    }
+    void endCycle() {}
 
     void setUseMacros(const bool state)  { _useMacros = state; }
     void setTiltState(const bool state)  { _tiltState = state; }
@@ -77,9 +54,6 @@ private:
 
     uint8_t _tiltAmount;
     uint8_t _range;
-
-    TemporaryActivator _tiltX;
-    TemporaryActivator _tiltY;
 };
 
 #endif // JOYSTICKTILTER_H

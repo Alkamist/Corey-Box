@@ -237,7 +237,7 @@ void ButtonOnlyController::initializeOutputs()
     _bOut = _bButton;
     _xOut = false;
     _yOut = false;
-    _zOut = _zButton;
+    _zOut = false;
     _lOut = false;
     _rOut = false;
     _rAnalogOut = 0;
@@ -262,6 +262,8 @@ void ButtonOnlyController::initializeOutputs()
         _yOut = _shortHopButton;
         _lOut = _lButton;
     }
+
+    if (!_settingsButton) _zOut = _zButton;
 }
 
 void ButtonOnlyController::processActivators()
@@ -349,8 +351,11 @@ void ButtonOnlyController::processShieldManager()
     _shieldManager.setLightShieldState(_cUpButton && _rButton);
     _shieldManager.process();
 
-    _rOut = _shieldManager.getHardShieldState();
-    _rAnalogOut = _shieldManager.getLightShieldOutput();
+    if (!_settingsButton)
+    {
+        _rOut = _shieldManager.getHardShieldState();
+        _rAnalogOut = _shieldManager.getLightShieldOutput();
+    }
 }
 
 void ButtonOnlyController::processJumpManager()
