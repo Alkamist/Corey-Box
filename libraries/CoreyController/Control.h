@@ -40,6 +40,22 @@ public:
         return 0;
     }
 
+    const uint8_t getPreviousBipolarMagnitude() const
+    {
+        if (_previousValue >= 128)
+            return _previousValue - 128;
+
+        if (_previousValue < 128)
+        {
+            if (_previousValue == 0)
+                return 127;
+
+            return 128 - _previousValue;
+        }
+
+        return 0;
+    }
+
     const bool justCrossedCenter() const
     {
         if (_currentValue >= 128 && _previousValue < 128)

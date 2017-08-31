@@ -29,6 +29,16 @@ public:
     const bool xIsInDeadZone() const                { return _deadZone.checkIfInRange(xValue.getBipolarMagnitude()); }
     const bool yIsInDeadZone() const                { return _deadZone.checkIfInRange(yValue.getBipolarMagnitude()); }
 
+    const bool xJustLeftDeadZone() const
+    {
+        return !_deadZone.checkIfInRange(xValue.getBipolarMagnitude()) && _deadZone.checkIfInRange(xValue.getPreviousBipolarMagnitude());
+    }
+
+    const bool yJustLeftDeadZone() const
+    {
+        return !_deadZone.checkIfInRange(yValue.getBipolarMagnitude()) && _deadZone.checkIfInRange(yValue.getPreviousBipolarMagnitude());
+    }
+
     const bool xIsInTiltZone() const                { return _tiltZone.checkIfInRange(xValue.getBipolarMagnitude()); }
 
     const bool yIsInCrouchZone() const              { return _crouchZone.checkIfInRange(yValue); }

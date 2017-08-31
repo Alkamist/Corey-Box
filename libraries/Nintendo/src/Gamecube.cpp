@@ -22,6 +22,7 @@ THE SOFTWARE.
 */
 
 #include "Gamecube.h"
+#include "Timer.h"
 
 //================================================================================
 // Gamecube Controller
@@ -93,6 +94,8 @@ uint8_t gc_write(const uint8_t pin, Gamecube_Status_t* status, Gamecube_Origin_t
     // Don't want interrupts getting in the way
     uint8_t oldSREG = SREG;
     cli();
+
+    HalfFramesElapsed::count();
 
     // Read in data from the console
     // After receiving the init command you have max 80us to respond (for the data command)!
