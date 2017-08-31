@@ -310,7 +310,6 @@ void ButtonOnlyController::processGameMode()
             _leftStick.setTilt(49);
             resetLsXTrim();
             resetLsYTrim();
-            _wavedashMacro.setDelayLongJumpSquats(true);
             return;
         }
         // Project M:
@@ -324,7 +323,6 @@ void ButtonOnlyController::processGameMode()
             _leftStick.setTilt(64);
             resetLsXTrim();
             resetLsYTrim();
-            _wavedashMacro.setDelayLongJumpSquats(false);
             return;
         }
         // Rivals:
@@ -339,7 +337,6 @@ void ButtonOnlyController::processGameMode()
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
-            _wavedashMacro.setDelayLongJumpSquats(false);
             return;
         }
     }

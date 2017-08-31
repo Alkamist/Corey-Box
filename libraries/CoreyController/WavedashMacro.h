@@ -49,8 +49,6 @@ public:
     const ActivatorMacro& getL() const            { return _LMacro; }
     const ActivatorMacro& getR() const            { return _RMacro; }
 
-    void setDelayLongJumpSquats(const bool state) { _delayLongJumpSquats = state; initMacro(); }
-
     virtual WavedashMacro& operator=(const bool value)
     {
         _jump = value;
@@ -100,11 +98,11 @@ void WavedashMacro::initMacro()
     _jump.addInput(ActivatorMacroUnit(true, 4));
     _jump.addInput(ActivatorMacroUnit(false, 4));
 
-    // This check is needed for dolphin mode. Characters with a 6 frame jumpsquat
-    // or greater need the triggers delayed by one half frame on dolphin in Melee. If
+    // This check is needed for dolphin mode. Characters with a 5 frame jumpsquat
+    // or greater need the triggers delayed by one half frame on dolphin. If
     // they aren't delayed it can eat wavedashes. The delay causes bad timing on console
     // so we turn it off there.
-    if (_delayLongJumpSquats && (_airDodgeDelayFrames >= 6) && HalfFramesElapsed::dolphinMode())
+    if ((_airDodgeDelayFrames >= 5) && HalfFramesElapsed::dolphinMode())
     {
         // L
         _LMacro.setStartDelay(_airDodgeDelayFrames * 2 + 1);
