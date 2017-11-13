@@ -1,0 +1,34 @@
+=========================== CALIBRATION ===========================
+
+-b first then a = spam b
+-b first then a then c down = spam b and a alternating
+
+-dpad mod + analog direction = respective dpad direction
+-all analog mods + dpad mod = turn off macros
+-all analog mods + dpad up shortcut = turn macros on
+
+-settings button 1 + c up = make wavedash slower
+-settings button 1 + c down = make wavedash faster
+
+-settings button 2 + r = dolphin timing
+-settings button 2 + z = console timing
+
+-settings button 2 + c direction = trim analog values in respective direction
+
+-settings button 2 + analog up = melee mode
+-settings button 2 + analog down = project m mode
+-settings button 2 + analog left = rivals mode
+
+=========================== TIPS ===========================
+
+-almost always hold tilt while in shield.
+
+-tilt + either x mod + reverse analog direction + up = quick turnaround uptilt
+-tilt + analog up or down + c left or right = respective angled f-smash
+
+-to moonwalk: while walking, hold the direction you are walking, push the opposite direction, then tilt,
+then quickly let go of the opposite direction and tilt and keep holding the walking direction.
+
+-make sure to change the timing depending if you are on dolphin or console. the controller starts in console timing.
+-the timing can get slightly messed up depending on what controllers are plugged in on dolphin. plug in additional
+controllers to fix it.

@@ -3,6 +3,7 @@
 
 #include "Activator.h"
 #include "ToggleActivator.h"
+#include "TwoButtonStateTracker.h"
 
 // This class manages toggling shield and lightshield.
 class ShieldManager : public Activator
@@ -17,7 +18,11 @@ public:
     {
         *this = _activator;
 
-        _isLightShield = _lightShieldActivator.justActivated();
+        _toggleTracker.setState1(_activator);
+        _toggleTracker.setState2(_toggleState);
+        _toggleTracker.process();
+
+        _isLightShield = _activator && _toggleTracker.state1WasFirst() && _toggleState.justActivated();
         _isLightShield.process();
 
         if (!_activator)
@@ -28,7 +33,7 @@ public:
     {
         _activator.endCycle();
         _isLightShield.endCycle();
-        _lightShieldActivator.endCycle();
+        _toggleState.endCycle();
     }
 
     const bool getHardShieldState() const              { return *this && !_isLightShield; }
@@ -43,14 +48,16 @@ public:
         return lightShieldOutput;
     }
 
-    void setLightShieldState(const bool value)         { _lightShieldActivator = value; }
+    void setToggleState(const bool state)              { _toggleState = state; }
     void setActivator(const bool activator)            { _activator = activator; }
 
     virtual ShieldManager& operator=(const bool value) { setState(value); return *this; }
 
 private:
     Activator _activator;
-    Activator _lightShieldActivator;
+    Activator _toggleState;
+
+    TwoButtonStateTracker _toggleTracker;
 
     ToggleActivator _isLightShield;
 

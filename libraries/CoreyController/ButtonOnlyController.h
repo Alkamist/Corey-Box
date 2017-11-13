@@ -345,7 +345,7 @@ void ButtonOnlyController::processGameMode()
 void ButtonOnlyController::processShieldManager()
 {
     _shieldManager.setActivator(_rButton);
-    _shieldManager.setLightShieldState(_cUpButton && _rButton);
+    _shieldManager.setToggleState(_cUpButton);
     _shieldManager.process();
 
     if (!_settingsButton)
