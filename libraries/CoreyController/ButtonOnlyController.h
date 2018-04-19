@@ -296,6 +296,7 @@ void ButtonOnlyController::processGameMode()
     if (_settingsButton && _lsDownButton) _gameMode = 0;
     if (_settingsButton && _lsUpButton) _gameMode = 1;
     if (_settingsButton && _lsLeftButton) _gameMode = 2;
+    if (_settingsButton && _lsRightButton) _gameMode = 3;
 
     if (_gameMode.justChanged())
     {
@@ -310,6 +311,7 @@ void ButtonOnlyController::processGameMode()
             _leftStick.setTilt(49);
             resetLsXTrim();
             resetLsYTrim();
+            _wavedashMacro.setMinimumDelay(3);
             return;
         }
         // Project M:
@@ -323,6 +325,7 @@ void ButtonOnlyController::processGameMode()
             _leftStick.setTilt(64);
             resetLsXTrim();
             resetLsYTrim();
+            _wavedashMacro.setMinimumDelay(3);
             return;
         }
         // Rivals:
@@ -337,6 +340,22 @@ void ButtonOnlyController::processGameMode()
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
+            _wavedashMacro.setMinimumDelay(3);
+            return;
+        }
+        // Icons:
+        if (_gameMode == 3)
+        {
+            _leftStick.setRange(100);
+            _cStick.setRange(100);
+            _leftStick.setModStart(43);
+            _leftStick.setShieldDrop(28);
+            _leftStick.setDeadZoneUpperBound(27);
+            _leftStick.setTilt(61);
+            resetLsXTrim();
+            resetLsYTrim();
+            trimLsYDown();
+            _wavedashMacro.setMinimumDelay(2);
             return;
         }
     }
@@ -478,19 +497,30 @@ void ButtonOnlyController::finalizeOutputs()
     x = _xOut;
     y = _yOut;
     z = _zOut;
-    l = _lOut;
-    r = _rOut;
     start = _startOut;
     dLeft = _dLeftOut;
     dRight = _dRightOut;
     dDown = _dDownOut;
     dUp = _dUpOut;
-    lAnalog = _lAnalogOut;
-    rAnalog = _rAnalogOut;
     lsX = _lsXOut + getLsXOffset();
     lsY = _lsYOut + getLsYOffset();
     cX = _cXOut;
     cY = _cYOut;
+
+    if (_gameMode != 3)
+    {
+        l = _lOut;
+        r = _rOut;
+        lAnalog = _lAnalogOut;
+        rAnalog = _rAnalogOut;
+    }
+    else
+    {
+        l = false;
+        r = false;
+        lAnalog = _lOut * 120;
+        rAnalog = _rOut * 120;
+    }
 }
 
 // Don't use pin 6 or 26 for buttons.

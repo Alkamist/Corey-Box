@@ -49,6 +49,8 @@ public:
     const ActivatorMacro& getL() const            { return _LMacro; }
     const ActivatorMacro& getR() const            { return _RMacro; }
 
+    void setMinimumDelay(const uint8_t delay) { _minimumDelay = delay; }
+
     virtual WavedashMacro& operator=(const bool value)
     {
         _jump = value;
@@ -66,7 +68,7 @@ private:
     bool _delayLongJumpSquats;
     uint8_t _airDodgeDelayFrames;
 
-    const uint8_t _minimumDelay;
+    uint8_t _minimumDelay;
     const uint8_t _maximumDelay;
 
     void initMacro();
