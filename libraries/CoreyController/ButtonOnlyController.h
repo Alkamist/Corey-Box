@@ -440,7 +440,7 @@ void ButtonOnlyController::processLStick()
     _leftStick.setLsRightState(_lsRightButton && !disableDirections);
     _leftStick.setLsDownState(_lsDownButton && !disableDirections);
     _leftStick.setLsUpState(_lsUpButton && !disableDirections);
-    _leftStick.setShieldDropState(_lsDownButton && !_lsLeftButton && !_lsRightButton && !_tiltButton && !disableDirections);
+    _leftStick.setShieldDropState(!_wavedashMacro.isRunning() && !_tiltButton && !disableDirections);
 
     _leftStick.setXMod1State(_xMod1Button);
     _leftStick.setXMod2State(_xMod2Button);

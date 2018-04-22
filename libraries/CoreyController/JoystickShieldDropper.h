@@ -9,8 +9,8 @@ class JoystickShieldDropper
 {
 public:
     JoystickShieldDropper()
-    : _shieldDropState(false),
-      _shieldState(false),
+    : _shieldState(false),
+      _shieldDropState(false),
       _shieldDropValue(74)
     {}
 
@@ -18,8 +18,8 @@ public:
     {
         if (_shieldDropState && _shieldState)
         {
-            joystick.xValue = 128;
-            joystick.yValue = _shieldDropValue;
+            if (joystick.yValue < _shieldDropValue)
+                joystick.yValue = _shieldDropValue;
         }
 
         joystick.Joystick::process();
@@ -32,8 +32,9 @@ public:
     const uint8_t getShieldDrop() const       { return _shieldDropValue; }
 
 private:
-    bool _shieldDropState;
     bool _shieldState;
+    bool _shieldDropState;
+    bool _forbidShieldDrop;
 
     uint8_t _shieldDropValue;
 };
