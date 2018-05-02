@@ -12,12 +12,11 @@ class JoystickTilter
 {
 public:
     JoystickTilter()
-    : _tiltState(false),
-      _useMacros(false),
-      _tiltAmount(49),
+    : _tiltAmount(49),
       _range(127)
     {
-        _tiltActivator.setTime(16);
+        _tiltXActivator.setTime(16);
+        _tiltYActivator.setTime(16);
     }
 
     void process(FightingJoystick& joystick)
@@ -28,21 +27,31 @@ public:
         bool tiltResetY = joystick.yJustLeftDeadZone()
                        || joystick.yValue.justCrossedCenter();
 
-        _tiltActivator = tiltResetX || tiltResetY;
-        _tiltActivator.process();
+        _tiltXActivator = tiltResetX;
+        _tiltXActivator.process();
 
-        if ((_tiltActivator || !_useMacros) && _tiltState)
+        _tiltYActivator = tiltResetY;
+        _tiltYActivator.process();
+
+        // Tilt X
+        if ((_tiltXActivator || !_useMacros) && _tiltState)
         {
             joystick.xValue = scaleBipolar(joystick.xValue, _tiltAmount, _range);
 
+            // Don't let the tilt scaling force values into the deadzone unintentionally.
             if (joystick.xIsInDeadZone())
             {
                 if (joystick.xValue < 128) joystick.xValue = 128 - joystick.getDeadZoneUpperBound() - 1;
                 if (joystick.xValue > 128) joystick.xValue = 128 + joystick.getDeadZoneUpperBound() + 1;
             }
+        }
 
+        // Tilt Y
+        if ((_tiltYActivator || !_useMacros) && _tiltState && !_tiltYDisable)
+        {
             joystick.yValue = scaleBipolar(joystick.yValue, _tiltAmount, _range);
 
+            // Don't let the tilt scaling force values into the deadzone unintentionally.
             if (joystick.yIsInDeadZone())
             {
                 if (joystick.yValue < 128) joystick.yValue = 128 - joystick.getDeadZoneUpperBound() - 1;
@@ -55,22 +64,42 @@ public:
 
     void endCycle()
     {
-        _tiltActivator.endCycle();
+        _tiltState.endCycle();
+        _shieldState.endCycle();
+        _wavedashState.endCycle();
+        _lsDownState.endCycle();
+        _useMacros.endCycle();
+
+        _tiltXActivator.endCycle();
+        _tiltYActivator.endCycle();
     }
 
-    void setUseMacros(const bool state)  { _useMacros = state; }
-    void setTiltState(const bool state)  { _tiltState = state; }
-    void setTilt(const uint8_t value)    { _tiltAmount = value; }
-    void setRange(const uint8_t value)   { _range = value; }
+    void setUseMacros(const bool state)     { _useMacros = state; }
+
+    void setTiltState(const bool state)     { _tiltState = state; }
+    void setShieldState(const bool state)   { _shieldState = state; }
+    void setWavedashState(const bool state) { _wavedashState = state; }
+    void setLsDownState(const bool state)   { _lsDownState = state; }
+
+    void setTilt(const uint8_t value)       { _tiltAmount = value; }
+    void setRange(const uint8_t value)      { _range = value; }
+
+    void setTiltYDisable(const bool state)  { _tiltYDisable = state; }
+
+    const bool xTiltIsFinished() const      { return !_tiltXActivator; }
 
 private:
-    bool _tiltState;
-    bool _useMacros;
+    Activator _tiltState;
+    Activator _shieldState;
+    Activator _wavedashState;
+    Activator _lsDownState;
+    Activator _useMacros;
 
     uint8_t _tiltAmount;
     uint8_t _range;
 
-    TemporaryActivator _tiltActivator;
+    TemporaryActivator _tiltXActivator;
+    TemporaryActivator _tiltYActivator;
 };
 
 #endif // JOYSTICKTILTER_H

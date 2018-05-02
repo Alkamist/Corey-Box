@@ -35,11 +35,16 @@ public:
         _twoButtonControl.endCycle();
     }
 
-    void setLowState(const bool state)  { _twoButtonControl.setLowState(state); }
-    void setHighState(const bool state) { _twoButtonControl.setHighState(state); }
-    void setModState(const bool state)  { _modState = state; }
+    void setLowState(const bool state)    { _twoButtonControl.setLowState(state); }
+    void setHighState(const bool state)   { _twoButtonControl.setHighState(state); }
+    void setModState(const bool state)    { _modState = state; }
 
-    void setRange(const uint8_t value)  { _range = value; }
+    void setModValue(const uint8_t value) { _modValue = value; }
+
+    void setRange(const uint8_t value)    { _range = value; }
+
+    const int8_t getRange() const         { return _range; }
+    const int8_t getModValue() const      { return _modValue; }
 
 private:
     bool _modState;

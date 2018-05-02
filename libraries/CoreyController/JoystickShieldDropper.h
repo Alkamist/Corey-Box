@@ -34,7 +34,6 @@ public:
 private:
     bool _shieldState;
     bool _shieldDropState;
-    bool _forbidShieldDrop;
 
     uint8_t _shieldDropValue;
 };
