@@ -78,7 +78,7 @@ public:
 
     void handleTilting()
     {
-        bool tiltCondition = _tiltState || _shieldState;
+        bool tiltCondition = _tiltState || _shieldState || _xModState || _yModState;
         bool disableTilt = _wavedashState;
 
         bool tiltResetX = (xJustLeftDeadZone() || xValue.justCrossedCenter()) && tiltCondition;
@@ -136,6 +136,8 @@ public:
         _lsLeftState.endCycle();
         _lsRightState.endCycle();
         _jumpState.endCycle();
+        _xModState.endCycle();
+        _yModState.endCycle();
 
         _tiltXActivator.endCycle();
         _tiltYActivator.endCycle();
@@ -149,8 +151,8 @@ public:
     void setLsRightState(const bool state)            { _lsRightState = state; _xAxis.setHighState(state); }
     void setLsDownState(const bool state)             { _lsDownState = state; _yAxis.setLowState(state); }
     void setLsUpState(const bool state)               { _lsUpState = state; _yAxis.setHighState(state); }
-    void setXModState(const bool state)               { _xAxis.setModState(state); }
-    void setYModState(const bool state)               { _yAxis.setModState(state); }
+    void setXModState(const bool state)               { _xModState = state; _xAxis.setModState(state); }
+    void setYModState(const bool state)               { _yModState = state; _yAxis.setModState(state); }
 
     void setTiltState(const bool state)               { _tiltState = state; }
     void setWavedashState(const bool state)           { _wavedashState = state; }
@@ -181,6 +183,8 @@ private:
     Activator _lsLeftState;
     Activator _lsRightState;
     Activator _jumpState;
+    Activator _xModState;
+    Activator _yModState;
 
     uint8_t _tiltAmount;
     uint8_t _range;
