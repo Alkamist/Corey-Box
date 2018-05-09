@@ -50,7 +50,7 @@ private:
 
     ButtonReader _dPadButton;
     ButtonReader _settingsButton;
-    ButtonReader _extraLButton;
+    ButtonReader _smashDIButton;
 
     // Game Mode:
     Control _gameMode;
@@ -162,7 +162,7 @@ void EightWayController::endCycle()
 
     _dPadButton.endCycle();
     _settingsButton.endCycle();
-    _extraLButton.endCycle();
+    _smashDIButton.endCycle();
 
     // Game Mode:
     _gameMode.endCycle();
@@ -389,9 +389,13 @@ void EightWayController::processWavedashMacro()
     if (_wavedashMacro.getR().isRunning())
         _rOut = _wavedashMacro.getR();
 
-    _lOut = _wavedashMacro.getL() || _extraLButton;
+    _lOut = _wavedashMacro.getL();
 
-    if (_settingsButton) _rOut = _rButton;
+    if (_settingsButton)
+    {
+        _lOut = _lButton;
+        _rOut = _rButton;
+    }
 }
 
 void EightWayController::processLStick()
@@ -402,7 +406,7 @@ void EightWayController::processLStick()
     _leftStick.setLsRightState(_lsRightButton && !disableDirections);
     _leftStick.setLsDownState(_lsDownButton && !disableDirections);
     _leftStick.setLsUpState(_lsUpButton && !disableDirections);
-    _leftStick.setShieldDropState(!_wavedashMacro.getR().isRunning() && !_tiltButton && !disableDirections);
+    _leftStick.setShieldDropState(!disableDirections);
 
     _leftStick.setXModState(_xModButton);
     _leftStick.setYModState(_yModButton);
@@ -412,6 +416,7 @@ void EightWayController::processLStick()
     _leftStick.setJumpState(_shortHopButton || _fullHopButton);
     _leftStick.setAState(_aButton);
     _leftStick.setBState(_bButton);
+    _leftStick.setSmashDIState(_smashDIButton);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -436,7 +441,7 @@ void EightWayController::processCStick()
     _cStick.setCUpState(_cUpButton && !disableCDirections);
     _cStick.setLsDownState(_lsDownButton);
     _cStick.setLsUpState(_lsUpButton);
-    _cStick.setTiltState(_tiltButton);
+    _cStick.setTiltState(_tiltButton || _xModButton || _yModButton);
 
     _cStick.process();
 
@@ -507,7 +512,7 @@ EightWayController::EightWayController()
   _startButton(12),
   _dPadButton(25),
   _settingsButton(7),
-  _extraLButton(20)
+  _smashDIButton(20)
 {
     ButtonReader::setUseBounce(true);
 }

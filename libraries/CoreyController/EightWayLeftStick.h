@@ -6,6 +6,8 @@
 #include "Signum.h"
 #include "TemporaryActivator.h"
 #include "ScaleBipolar.h"
+#include "TwoButtonSpamMacro.h"
+#include "TwoButtonStateTracker.h"
 
 // This class represents the left analog stick used in the eight way controller.
 class EightWayLeftStick : public FightingJoystick
@@ -38,6 +40,7 @@ public:
         handleShieldDropping();
         handleTilting();
         handleABAngles();
+        handleSmashDI();
     }
 
     // Force perfect wavelands when holding straight left or right.
@@ -69,7 +72,10 @@ public:
 
     void handleShieldDropping()
     {
-        if (_shieldDropState && _shieldState)
+        bool shieldDropCondition = _shieldDropState && _shieldState;
+        bool shieldDropDisable = _wavedashState || _tiltState || _xModState || _yModState;
+
+        if (shieldDropCondition && !shieldDropDisable)
         {
             if (yValue < _shieldDropValue)
                 yValue = _shieldDropValue;
@@ -108,7 +114,7 @@ public:
             }
         }
 
-        bool disableYTilt = _shieldState && _lsDownState && !_tiltState && !_lsUpState;
+        bool disableYTilt = _shieldState && _lsDownState && !_tiltState && !_xModState && !_yModState && !_lsUpState;
 
         // Tilt Y
         if (tiltActivator && tiltCondition && !disableTilt && !disableYTilt)
@@ -140,6 +146,47 @@ public:
         {
             xValue = scaleBipolar(xValue, _ABTiltValue);
         }
+
+        FightingJoystick::process();
+    }
+
+    void handleSmashDI()
+    {
+        bool leftOrRight = _lsLeftState || _lsRightState;
+        bool downOrUp = _lsDownState || _lsUpState;
+        bool activateSmashDI = (leftOrRight || downOrUp) && _smashDIState;
+
+        _smashDIMacro = activateSmashDI;
+        _smashDIMacro.process();
+
+        if (_smashDIMacro.isRunning())
+        {
+            if (_smashDIMacro.getButton1())
+            {
+                if (_lsLeftState)
+                    xValue = 128 - _range;
+                if (_lsRightState)
+                    xValue = 128 + _range;
+            }
+            else
+            {
+                xValue = 128;
+            }
+
+            if (_smashDIMacro.getButton2())
+            {
+                if (_lsDownState)
+                    yValue = 128 - _range;
+                if (_lsUpState)
+                    yValue = 128 + _range;
+            }
+            else
+            {
+                yValue = 128;
+            }
+        }
+
+        FightingJoystick::process();
     }
 
     void endCycle()
@@ -159,6 +206,7 @@ public:
         _yModState.endCycle();
         _AState.endCycle();
         _BState.endCycle();
+        _smashDIState.endCycle();
 
         _tiltXActivator.endCycle();
         _tiltYActivator.endCycle();
@@ -166,6 +214,8 @@ public:
 
         _xAxis.endCycle();
         _yAxis.endCycle();
+
+        _smashDIMacro.endCycle();
     }
 
     void setLsLeftState(const bool state)             { _lsLeftState = state; _xAxis.setLowState(state); }
@@ -182,6 +232,7 @@ public:
     void setJumpState(const bool state)               { _jumpState = state; }
     void setAState(const bool state)                  { _AState = state; }
     void setBState(const bool state)                  { _BState = state; }
+    void setSmashDIState(const bool state)            { _smashDIState = state; }
 
     void setShieldDrop(const uint8_t value)           { _shieldDropValue = value; }
     void setTilt(const uint8_t value)                 { _tiltAmount = value; }
@@ -210,6 +261,7 @@ private:
     Activator _yModState;
     Activator _AState;
     Activator _BState;
+    Activator _smashDIState;
 
     uint8_t _tiltAmount;
     uint8_t _range;
@@ -222,6 +274,8 @@ private:
 
     SingleModAxis _xAxis;
     SingleModAxis _yAxis;
+
+    TwoButtonSpamMacro _smashDIMacro;
 };
 
 #endif // EIGHTWAYLEFTSTICK_H

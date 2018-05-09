@@ -27,7 +27,6 @@ void SpamMacro::initMacro()
 {
     ActivatorMacro::clearMacro();
 
-    // Jump
     ActivatorMacro::addInput(ActivatorMacroUnit(true, 3));
     ActivatorMacro::addInput(ActivatorMacroUnit(false, 3));
 }
