@@ -15,7 +15,8 @@ public:
     : FightingJoystick(),
       _tiltAmount(49),
       _range(127),
-      _shieldDropValue(74)
+      _shieldDropValue(74),
+      _ABTiltValue(100)
     {
         _tiltXActivator.setTime(16);
         _tiltYActivator.setTime(16);
@@ -36,6 +37,7 @@ public:
         handleWavedashes();
         handleShieldDropping();
         handleTilting();
+        handleABAngles();
     }
 
     // Force perfect wavelands when holding straight left or right.
@@ -78,8 +80,9 @@ public:
 
     void handleTilting()
     {
-        bool tiltCondition = _tiltState || _shieldState || _xModState || _yModState;
-        bool disableTilt = _wavedashState;
+        bool passiveYTilt = _lsUpState && !_BState;
+        bool tiltCondition = _tiltState || _shieldState || _xModState || _yModState || passiveYTilt;
+        bool disableTilt = _wavedashState || (_BState && _shieldState);
 
         bool tiltResetX = (xJustLeftDeadZone() || xValue.justCrossedCenter()) && tiltCondition;
         bool tiltResetY = (yJustLeftDeadZone() || yValue.justCrossedCenter()) && tiltCondition;
@@ -105,7 +108,7 @@ public:
             }
         }
 
-        bool disableYTilt = _shieldState && _lsDownState && !_tiltState;
+        bool disableYTilt = _shieldState && _lsDownState && !_tiltState && !_lsUpState;
 
         // Tilt Y
         if (tiltActivator && tiltCondition && !disableTilt && !disableYTilt)
@@ -123,6 +126,22 @@ public:
         FightingJoystick::process();
     }
 
+    void handleABAngles()
+    {
+        bool AOrB = _AState || _BState;
+
+        bool onlyLeft = _lsLeftState && !(_lsUpState || _lsDownState);
+        bool onlyRight = _lsRightState && !(_lsUpState || _lsDownState);
+        //bool ABTiltDisabler = _jumpState || _shieldState || _wavedashState
+        //                   || _xModState || _yModState || onlyLeft || onlyRight;
+        bool ABTiltDisabler = _xModState || _yModState || onlyLeft || onlyRight;
+
+        if (AOrB && !ABTiltDisabler)
+        {
+            xValue = scaleBipolar(xValue, _ABTiltValue);
+        }
+    }
+
     void endCycle()
     {
         Joystick::endCycle();
@@ -138,6 +157,8 @@ public:
         _jumpState.endCycle();
         _xModState.endCycle();
         _yModState.endCycle();
+        _AState.endCycle();
+        _BState.endCycle();
 
         _tiltXActivator.endCycle();
         _tiltYActivator.endCycle();
@@ -159,6 +180,8 @@ public:
     void setShieldDropState(const bool state)         { _shieldDropState = state; }
     void setShieldState(const bool state)             { _shieldState = state; }
     void setJumpState(const bool state)               { _jumpState = state; }
+    void setAState(const bool state)                  { _AState = state; }
+    void setBState(const bool state)                  { _BState = state; }
 
     void setShieldDrop(const uint8_t value)           { _shieldDropValue = value; }
     void setTilt(const uint8_t value)                 { _tiltAmount = value; }
@@ -185,10 +208,13 @@ private:
     Activator _jumpState;
     Activator _xModState;
     Activator _yModState;
+    Activator _AState;
+    Activator _BState;
 
     uint8_t _tiltAmount;
     uint8_t _range;
     uint8_t _shieldDropValue;
+    uint8_t _ABTiltValue;
 
     TemporaryActivator _tiltXActivator;
     TemporaryActivator _tiltYActivator;

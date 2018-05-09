@@ -278,7 +278,8 @@ void EightWayController::processGameMode()
             _leftStick.setModStart(30);
             _leftStick.setShieldDrop(74);
             _leftStick.setDeadZoneUpperBound(22);
-            _leftStick.setTilt(49);
+            // Max 49
+            _leftStick.setTilt(40);
             resetLsXTrim();
             resetLsYTrim();
             _wavedashMacro.setMinimumDelay(3);
@@ -409,8 +410,8 @@ void EightWayController::processLStick()
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
     _leftStick.setShieldState(_shieldManager);
     _leftStick.setJumpState(_shortHopButton || _fullHopButton);
-    //_leftStick.setBackdashFixDisableState(_wavedashMacro.isRunning() || _lOut || _yOut || _xOut
-    //                                   || _zOut || _aOut || _bOut || _rOut || (_gameMode != 0));
+    _leftStick.setAState(_aButton);
+    _leftStick.setBState(_bButton);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -485,28 +486,28 @@ void EightWayController::finalizeOutputs()
 // Don't use pin 6 or 26 for buttons.
 EightWayController::EightWayController()
 : // Buttons:
-  _tiltButton(24),
-  _lsLeftButton(11),
+  _tiltButton(18),
+  _lsLeftButton(9),
   _lsRightButton(8),
-  _lsDownButton(10),
-  _lsUpButton(9),
-  _xModButton(20),
+  _lsDownButton(11),
+  _lsUpButton(10),
+  _xModButton(24),
   _yModButton(22),
   _cLeftButton(5),
-  _cRightButton(38),
+  _cRightButton(39),
   _cDownButton(4),
   _cUpButton(27),
   _aButton(2),
   _bButton(3),
   _shortHopButton(19),
   _fullHopButton(23),
-  _zButton(18),
+  _zButton(38),
   _lButton(40),
   _rButton(21),
-  _startButton(7),
+  _startButton(12),
   _dPadButton(25),
-  _settingsButton(12),
-  _extraLButton(39)
+  _settingsButton(7),
+  _extraLButton(20)
 {
     ButtonReader::setUseBounce(true);
 }
