@@ -5,7 +5,9 @@
 #include "SingleModAxis.h"
 #include "Signum.h"
 #include "TemporaryActivator.h"
+#include "TimedActivator.h"
 #include "ScaleBipolar.h"
+#include "ClampBipolar.h"
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
 
@@ -23,6 +25,12 @@ public:
         _tiltXActivator.setTime(16);
         _tiltYActivator.setTime(16);
         _forceWaveland.setTime(8);
+        _walkTiltActivator.setTime(16);
+
+        // You have to hold down for a certain period of time to get into crouch.
+        _inCrouch.setTime(10);
+
+        _killXTilt.setTime(4);
     }
 
     void process()
@@ -40,6 +48,7 @@ public:
         handleShieldDropping();
         handleTilting();
         handleABAngles();
+        handleBackdashOutOfCrouchFix();
         handleSmashDI();
     }
 
@@ -86,23 +95,30 @@ public:
 
     void handleTilting()
     {
-        bool passiveYTilt = _lsUpState && !_BState;
-        bool tiltCondition = _tiltState || _shieldState || _xModState || _yModState || passiveYTilt;
-        bool disableTilt = _wavedashState || (_BState && _shieldState);
+        // Tilt reset conditions
+        bool walkTilt = _lsUpState.justDeactivated() && (_lsLeftState || _lsRightState);
 
-        bool tiltResetX = (xJustLeftDeadZone() || xValue.justCrossedCenter()) && tiltCondition;
-        bool tiltResetY = (yJustLeftDeadZone() || yValue.justCrossedCenter()) && tiltCondition;
-
-        _tiltXActivator = tiltResetX || _shieldState.justActivated();
+        _tiltXActivator = xJustLeftDeadZone() || xValue.justCrossedCenter() || _shieldState.justActivated() || _AState.justActivated() || walkTilt;
         _tiltXActivator.process();
 
-        _tiltYActivator = tiltResetY || _shieldState.justActivated();
+        _tiltYActivator = yJustLeftDeadZone() || yValue.justCrossedCenter() || _shieldState.justActivated() || _AState.justActivated();
         _tiltYActivator.process();
 
-        bool tiltActivator = _tiltXActivator || _tiltYActivator;
+        // Tilt conditions
+        _walkTiltActivator = walkTilt;
+        _walkTiltActivator.process();
+
+        bool passiveYTilt = _lsUpState && !_BState;
+        bool allowShieldDrop = _shieldState && _lsDownState && !_tiltState && !_xModState && !_yModState && !_lsUpState;
+        bool disableTilt = _wavedashState || (_BState && _shieldState);
+
+        bool tiltXCondition = (_tiltState || _shieldState || _xModState || _yModState || _AState || _walkTiltActivator)
+                           && !disableTilt;
+        bool tiltYCondition = (_tiltState || _shieldState || _xModState || _yModState || passiveYTilt || _AState)
+                           && !disableTilt && !allowShieldDrop;
 
         // Tilt X
-        if (tiltActivator && tiltCondition && !disableTilt)
+        if (_tiltXActivator && tiltXCondition)
         {
             xValue = scaleBipolar(xValue, _tiltAmount, _range);
 
@@ -114,10 +130,8 @@ public:
             }
         }
 
-        bool disableYTilt = _shieldState && _lsDownState && !_tiltState && !_xModState && !_yModState && !_lsUpState;
-
         // Tilt Y
-        if (tiltActivator && tiltCondition && !disableTilt && !disableYTilt)
+        if (_tiltYActivator && tiltYCondition)
         {
             yValue = scaleBipolar(yValue, _tiltAmount, _range);
 
@@ -138,13 +152,34 @@ public:
 
         bool onlyLeft = _lsLeftState && !(_lsUpState || _lsDownState);
         bool onlyRight = _lsRightState && !(_lsUpState || _lsDownState);
-        //bool ABTiltDisabler = _jumpState || _shieldState || _wavedashState
-        //                   || _xModState || _yModState || onlyLeft || onlyRight;
         bool ABTiltDisabler = _xModState || _yModState || onlyLeft || onlyRight;
 
         if (AOrB && !ABTiltDisabler)
         {
             xValue = scaleBipolar(xValue, _ABTiltValue);
+        }
+
+        FightingJoystick::process();
+    }
+
+    void handleBackdashOutOfCrouchFix()
+    {
+        bool onlyLeft = _lsLeftState && !(_lsUpState || _lsDownState);
+        bool onlyRight = _lsRightState && !(_lsUpState || _lsDownState);
+
+        bool backdashFixDisable = (_gameMode != 0) || _AState || _BState || _shieldState || _xModState || _yModState
+                               || _jumpState || _wavedashState || _smashDIState || onlyLeft || onlyRight;
+
+        _inCrouch = _lsDownState;
+        _inCrouch.process();
+
+        _killXTilt = (_lsLeftState.justActivated() || _lsRightState.justActivated()) && _inCrouch;
+        _killXTilt.process();
+
+        if (_killXTilt && !backdashFixDisable)
+        {
+                yValue = 128 - _range;
+                xValue = 128;
         }
 
         FightingJoystick::process();
@@ -208,9 +243,15 @@ public:
         _BState.endCycle();
         _smashDIState.endCycle();
 
+        _gameMode.endCycle();
+
         _tiltXActivator.endCycle();
         _tiltYActivator.endCycle();
         _forceWaveland.endCycle();
+        _walkTiltActivator.endCycle();
+        _killXTilt.endCycle();
+
+        _inCrouch.endCycle();
 
         _xAxis.endCycle();
         _yAxis.endCycle();
@@ -224,7 +265,6 @@ public:
     void setLsUpState(const bool state)               { _lsUpState = state; _yAxis.setHighState(state); }
     void setXModState(const bool state)               { _xModState = state; _xAxis.setModState(state); }
     void setYModState(const bool state)               { _yModState = state; _yAxis.setModState(state); }
-
     void setTiltState(const bool state)               { _tiltState = state; }
     void setWavedashState(const bool state)           { _wavedashState = state; }
     void setShieldDropState(const bool state)         { _shieldDropState = state; }
@@ -234,6 +274,7 @@ public:
     void setBState(const bool state)                  { _BState = state; }
     void setSmashDIState(const bool state)            { _smashDIState = state; }
 
+    void setGameMode(const uint8_t value)             { _gameMode = value; }
     void setShieldDrop(const uint8_t value)           { _shieldDropValue = value; }
     void setTilt(const uint8_t value)                 { _tiltAmount = value; }
 
@@ -263,6 +304,8 @@ private:
     Activator _BState;
     Activator _smashDIState;
 
+    Control _gameMode;
+
     uint8_t _tiltAmount;
     uint8_t _range;
     uint8_t _shieldDropValue;
@@ -271,6 +314,10 @@ private:
     TemporaryActivator _tiltXActivator;
     TemporaryActivator _tiltYActivator;
     TemporaryActivator _forceWaveland;
+    TemporaryActivator _walkTiltActivator;
+    TemporaryActivator _killXTilt;
+
+    TimedActivator _inCrouch;
 
     SingleModAxis _xAxis;
     SingleModAxis _yAxis;

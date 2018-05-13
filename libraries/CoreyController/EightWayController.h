@@ -24,8 +24,6 @@ public:
 
 private:
     // Buttons:
-    ButtonReader _tiltButton;
-
     ButtonReader _lsLeftButton;
     ButtonReader _lsRightButton;
     ButtonReader _lsDownButton;
@@ -136,8 +134,6 @@ void EightWayController::endCycle()
     GameCubeController::endCycle();
 
     // Buttons:
-    _tiltButton.endCycle();
-
     _lsLeftButton.endCycle();
     _lsRightButton.endCycle();
     _lsDownButton.endCycle();
@@ -407,16 +403,16 @@ void EightWayController::processLStick()
     _leftStick.setLsDownState(_lsDownButton && !disableDirections);
     _leftStick.setLsUpState(_lsUpButton && !disableDirections);
     _leftStick.setShieldDropState(!disableDirections);
-
     _leftStick.setXModState(_xModButton);
     _leftStick.setYModState(_yModButton);
-    _leftStick.setTiltState(_tiltButton);
+    _leftStick.setTiltState(false);
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
     _leftStick.setShieldState(_shieldManager);
     _leftStick.setJumpState(_shortHopButton || _fullHopButton);
     _leftStick.setAState(_aButton);
     _leftStick.setBState(_bButton);
     _leftStick.setSmashDIState(_smashDIButton);
+    _leftStick.setGameMode(_gameMode);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -441,7 +437,7 @@ void EightWayController::processCStick()
     _cStick.setCUpState(_cUpButton && !disableCDirections);
     _cStick.setLsDownState(_lsDownButton);
     _cStick.setLsUpState(_lsUpButton);
-    _cStick.setTiltState(_tiltButton || _xModButton || _yModButton);
+    _cStick.setTiltState(_xModButton || _yModButton);
 
     _cStick.process();
 
@@ -456,7 +452,12 @@ void EightWayController::processCStick()
 
 void EightWayController::finalizeOutputs()
 {
-    a = _aOut;
+    // Push A at the same time as any c-stick button if one of the mods is pressed.
+    // This allows for charged smashes since you can't get them with the stick and A.
+    bool anyCDirection = _cLeftButton || _cDownButton || _cRightButton || _cUpButton;
+    bool eitherMod = _xModButton || _yModButton;
+
+    a = _aOut || (eitherMod && anyCDirection);
     b = _bOut;
     x = _xOut;
     y = _yOut;
@@ -491,28 +492,27 @@ void EightWayController::finalizeOutputs()
 // Don't use pin 6 or 26 for buttons.
 EightWayController::EightWayController()
 : // Buttons:
-  _tiltButton(18),
   _lsLeftButton(9),
   _lsRightButton(8),
   _lsDownButton(11),
   _lsUpButton(10),
   _xModButton(24),
   _yModButton(22),
-  _cLeftButton(5),
+  _cLeftButton(2),
   _cRightButton(39),
-  _cDownButton(4),
-  _cUpButton(27),
-  _aButton(2),
-  _bButton(3),
+  _cDownButton(3),
+  _cUpButton(38),
+  _aButton(27),
+  _bButton(40),
   _shortHopButton(19),
   _fullHopButton(23),
-  _zButton(38),
-  _lButton(40),
+  _zButton(20),
+  _lButton(18),
   _rButton(21),
-  _startButton(12),
+  _startButton(5),
   _dPadButton(25),
   _settingsButton(7),
-  _smashDIButton(20)
+  _smashDIButton(4)
 {
     ButtonReader::setUseBounce(true);
 }
