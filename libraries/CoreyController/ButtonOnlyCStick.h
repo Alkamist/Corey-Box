@@ -1,26 +1,20 @@
 #ifndef BUTTONONLYCSTICK_H
 #define BUTTONONLYCSTICK_H
 
-#include "Joystick.h"
-#include "SingleModAxis.h"
 #include "TwoButtonControl.h"
 
 // This class represents the c stick used in the button only controller.
-class ButtonOnlyCStick : public Joystick
+class ButtonOnlyCStick
 {
 public:
     ButtonOnlyCStick()
-    : Joystick(),
-      _cLeftState(false),
+    : _cLeftState(false),
       _cRightState(false),
       _cDownState(false),
       _cUpState(false),
       _lsDownState(false),
       _lsUpState(false),
-      _tiltState(false),
-      _skewOut(false),
-      _cDownOut(false),
-      _cUpOut(false)
+      _tiltState(false)
     {}
 
     virtual void process()
@@ -29,30 +23,26 @@ public:
         bool cLeftOrRight = _cLeftState || _cRightState;
         bool cDownOrUp = _cDownState || _cUpState;
 
-        _skewOut = _tiltState && lsDownOrUp && cLeftOrRight && !cDownOrUp;
+        bool skewOut = _tiltState && lsDownOrUp && cLeftOrRight && !cDownOrUp;
 
-        bool skewDown = _lsDownState && _skewOut;
-        bool skewUp = _lsUpState && _skewOut;
+        bool skewDown = _lsDownState && skewOut;
+        bool skewUp = _lsUpState && skewOut;
 
-        _cDownOut = _cDownState || skewDown;
-        _cUpOut = _cUpState || skewUp;
+        bool cDownOut = _cDownState || skewDown;
+        bool cUpOut = _cUpState || skewUp;
 
-        _yAxis.setLowState(_cDownOut);
-        _yAxis.setHighState(_cUpOut);
-        _yAxis.setModState(_skewOut);
+        _yAxis.setLowState(cDownOut);
+        _yAxis.setHighState(cUpOut);
 
         _xAxis.process();
         _yAxis.process();
 
-        Joystick::xValue = _xAxis;
-        Joystick::yValue = _yAxis;
-
-        Joystick::process();
+        if (skewOut)
+            _yAxis.setBipolarMagnitude(50);
     }
 
     virtual void endCycle()
     {
-        Joystick::endCycle();
         _xAxis.endCycle();
         _yAxis.endCycle();
     }
@@ -67,10 +57,12 @@ public:
 
     void setRange(const uint8_t value)
     {
-        Joystick::setRange(value);
         _xAxis.setRange(value);
         _yAxis.setRange(value);
     }
+
+    const uint8_t getXValue() const       { return _xAxis; }
+    const uint8_t getYValue() const       { return _yAxis; }
 
 private:
     bool _cLeftState;
@@ -81,12 +73,8 @@ private:
     bool _lsUpState;
     bool _tiltState;
 
-    bool _skewOut;
-    bool _cDownOut;
-    bool _cUpOut;
-
     TwoButtonControl _xAxis;
-    SingleModAxis _yAxis;
+    TwoButtonControl _yAxis;
 };
 
 #endif // BUTTONONLYCSTICK_H

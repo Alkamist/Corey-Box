@@ -1,28 +1,30 @@
 #ifndef EIGHTWAYLEFTSTICK_H
 #define EIGHTWAYLEFTSTICK_H
 
-#include "FightingJoystick.h"
-#include "SingleModAxis.h"
-#include "Signum.h"
 #include "TemporaryActivator.h"
 #include "TimedActivator.h"
-#include "ScaleBipolar.h"
-#include "ClampBipolar.h"
+#include "TwoButtonControl.h"
 #include "TwoButtonSpamMacro.h"
 #include "TwoButtonStateTracker.h"
 
 // This class represents the left analog stick used in the eight way controller.
-class EightWayLeftStick : public FightingJoystick
+class EightWayLeftStick
 {
 public:
     EightWayLeftStick()
-    : FightingJoystick(),
-      _tiltAmount(49),
-      _range(127),
+    : _xValue(128),
+      _yValue(128),
+      _maxWavelandValue(25),
+      _maxWavedashValue(25),
+      _shortWavedashValue(35),
+      _tiltXValue(40),
+      _tiltYValue(40),
       _shieldDropValue(74),
-      _ABTiltValue(100)
+      _ABTiltValue(60),
+      _xModValue(25),
+      _yModValue(25)
     {
-        _tiltXActivator.setTime(16);
+        _tiltXActivator.setTime(12);
         _tiltYActivator.setTime(16);
         _forceWaveland.setTime(8);
         _walkTiltActivator.setTime(16);
@@ -38,17 +40,16 @@ public:
         _xAxis.process();
         _yAxis.process();
 
-        xValue = _xAxis;
-        yValue = _yAxis;
-
-        Joystick::process();
+        _xValue = _xAxis;
+        _yValue = _yAxis;
 
         handleBackdashOutOfCrouchFix();
         handleABAngles();
+        handleTilting();
         handleWavelands();
         handleWavedashes();
         handleShieldDropping();
-        handleTilting();
+        handleModifiers();
         handleSmashDI();
     }
 
@@ -61,22 +62,48 @@ public:
         _forceWaveland.process();
 
         if (_shieldState && straightLeftOrRight && _forceWaveland)
-            yValue = 128 - _yAxis.getModValue();
-
-        //Joystick::process();
+            _yValue = 128 - _maxWavelandValue;
     }
 
     // Force perfect wavedashes when holding straight left or right.
-    // Also force wavedash down when the stick is neutral.
+    // Force wavedash down when stick is neutral.
+    // Force short wavedash when stick is 45 degrees up.
     void handleWavedashes()
     {
         if (_wavedashState)
         {
-            if (yValue > (128 - getTiltLowerBound()))
-                yValue = 128 - _yAxis.getModValue();
-        }
+            bool straightLeftOrRight = (_lsLeftState || _lsRightState) && !(_lsDownState || _lsUpState);
+            bool diagonallyDown = (_lsLeftState || _lsRightState) && !_lsUpState && _lsDownState;
+            bool diagonallyUp = (_lsLeftState || _lsRightState) && _lsUpState && !_lsDownState;
+            bool stickIsNeutral = !(_lsLeftState || _lsRightState);
 
-        //Joystick::process();
+            // Max wavedash
+            if (straightLeftOrRight)
+            {
+                _yValue = 128 - _maxWavedashValue;
+                _xValue = _xAxis;
+            }
+
+            // Normal wavedash
+            if (diagonallyDown)
+            {
+                _yValue.setToMinimum();
+                _xValue = _xAxis;
+            }
+
+            // Short wavedash
+            if (diagonallyUp)
+            {
+                _yValue.setToMinimum();
+                _xValue.setBipolarMagnitude(_shortWavedashValue);
+            }
+
+            // Wavedash down
+            if (stickIsNeutral)
+            {
+                _yValue.setToMinimum();
+            }
+        }
     }
 
     void handleShieldDropping()
@@ -86,22 +113,24 @@ public:
 
         if (shieldDropCondition && !shieldDropDisable)
         {
-            if (yValue < _shieldDropValue)
-                yValue = _shieldDropValue;
+            if (_lsDownState && !(_lsLeftState || _lsRightState))
+                _yValue = _shieldDropValue;
         }
-
-        //Joystick::process();
     }
 
     void handleTilting()
     {
         // Tilt reset conditions
-        bool walkTilt = _lsUpState.justDeactivated() && (_lsLeftState || _lsRightState);
+        bool walkTilt = (_lsUpState.justDeactivated() || _lsUpState.justActivated()) && (_lsLeftState || _lsRightState);
 
-        _tiltXActivator = xJustLeftDeadZone() || xValue.justCrossedCenter() || _shieldState.justActivated() || _AState.justActivated() || walkTilt;
+        bool xAxisMoved = _lsLeftState.justActivated() || _lsRightState.justActivated();
+        _tiltXActivator = (xAxisMoved && _shieldState) || (xAxisMoved && _yModState)
+                       || _AState.justActivated() || walkTilt;
         _tiltXActivator.process();
 
-        _tiltYActivator = yJustLeftDeadZone() || yValue.justCrossedCenter() || _shieldState.justActivated() || _AState.justActivated();
+        bool yAxisMoved = _lsDownState.justActivated() || _lsUpState.justActivated();
+        _tiltYActivator = (yAxisMoved && _shieldState)
+                       || _AState.justActivated() || _lsUpState.justActivated();
         _tiltYActivator.process();
 
         // Tilt conditions
@@ -109,41 +138,22 @@ public:
         _walkTiltActivator.process();
 
         bool passiveYTilt = _lsUpState && !_BState;
-        bool allowShieldDrop = _shieldState && _lsDownState && !_tiltState && !_xModState && !_yModState && !_lsUpState;
+        bool onlyDown = _lsDownState && !(_lsLeftState || _lsRightState || _lsUpState);
+        bool allowShieldDrop = _shieldState && onlyDown && !_tiltState && !_xModState && !_yModState && !_lsUpState;
         bool disableTilt = _wavedashState || (_BState && _shieldState);
 
-        bool tiltXCondition = (_tiltState || _shieldState || _xModState || _yModState || _AState || _walkTiltActivator)
+        bool tiltXCondition = (_tiltState || _shieldState || _yModState || _AState || _walkTiltActivator)
                            && !disableTilt;
-        bool tiltYCondition = (_tiltState || _shieldState || _xModState || _yModState || passiveYTilt || _AState)
+        bool tiltYCondition = (_tiltState || _shieldState || passiveYTilt || _AState)
                            && !disableTilt && !allowShieldDrop;
 
         // Tilt X
         if (_tiltXActivator && tiltXCondition)
-        {
-            xValue = scaleBipolar(xValue, _tiltAmount, _range);
-
-            // Don't let the tilt scaling force values into the deadzone unintentionally.
-            if (xIsInDeadZone())
-            {
-                if (xValue < 128) xValue = 128 - getDeadZoneUpperBound() - 1;
-                if (xValue > 128) xValue = 128 + getDeadZoneUpperBound() + 1;
-            }
-        }
+            _xValue.scaleBipolarMagnitude(_tiltXValue);
 
         // Tilt Y
         if (_tiltYActivator && tiltYCondition)
-        {
-            yValue = scaleBipolar(yValue, _tiltAmount, _range);
-
-            // Don't let the tilt scaling force values into the deadzone unintentionally.
-            if (yIsInDeadZone())
-            {
-                if (yValue < 128) yValue = 128 - getDeadZoneUpperBound() - 1;
-                if (yValue > 128) yValue = 128 + getDeadZoneUpperBound() + 1;
-            }
-        }
-
-        //FightingJoystick::process();
+            _yValue.scaleBipolarMagnitude(_tiltYValue);
     }
 
     void handleABAngles()
@@ -155,11 +165,7 @@ public:
         bool ABTiltDisabler = _xModState || _yModState || onlyLeft || onlyRight || _wavedashState || _lButtonState;
 
         if (AOrB && !ABTiltDisabler)
-        {
-            xValue = scaleBipolar(xValue, _ABTiltValue);
-        }
-
-        //FightingJoystick::process();
+            _xValue.setBipolarMagnitude(_ABTiltValue);
     }
 
     void handleBackdashOutOfCrouchFix()
@@ -178,11 +184,18 @@ public:
 
         if (_killXTilt && !backdashFixDisable)
         {
-                yValue = 128 - _range;
-                xValue = 128;
+                _yValue.setToMinimum();
+                _xValue.setToCenter();
         }
+    }
 
-        //FightingJoystick::process();
+    void handleModifiers()
+    {
+        if (_xModState)
+            _xValue.setBipolarMagnitude(_xModValue);
+
+        if (_yModState)
+            _yValue.setBipolarMagnitude(_yModValue);
     }
 
     void handleSmashDI()
@@ -197,36 +210,21 @@ public:
         if (_smashDIMacro.isRunning())
         {
             if (_smashDIMacro.getButton1())
-            {
-                if (_lsLeftState)
-                    xValue = 128 - _range;
-                if (_lsRightState)
-                    xValue = 128 + _range;
-            }
+                _xValue = _xAxis;
             else
-            {
-                xValue = 128;
-            }
+                _xValue = 128;
 
             if (_smashDIMacro.getButton2())
-            {
-                if (_lsDownState)
-                    yValue = 128 - _range;
-                if (_lsUpState)
-                    yValue = 128 + _range;
-            }
+                _yValue = _yAxis;
             else
-            {
-                yValue = 128;
-            }
+                _yValue = 128;
         }
-
-        FightingJoystick::process();
     }
 
     void endCycle()
     {
-        Joystick::endCycle();
+        _xValue.endCycle();
+        _yValue.endCycle();
 
         _tiltState.endCycle();
         _shieldState.endCycle();
@@ -260,37 +258,47 @@ public:
         _smashDIMacro.endCycle();
     }
 
-    void setLsLeftState(const bool state)             { _lsLeftState = state; _xAxis.setLowState(state); }
-    void setLsRightState(const bool state)            { _lsRightState = state; _xAxis.setHighState(state); }
-    void setLsDownState(const bool state)             { _lsDownState = state; _yAxis.setLowState(state); }
-    void setLsUpState(const bool state)               { _lsUpState = state; _yAxis.setHighState(state); }
-    void setXModState(const bool state)               { _xModState = state; _xAxis.setModState(state); }
-    void setYModState(const bool state)               { _yModState = state; _yAxis.setModState(state); }
-    void setTiltState(const bool state)               { _tiltState = state; }
-    void setWavedashState(const bool state)           { _wavedashState = state; }
-    void setLButtonState(const bool state)            { _lButtonState = state; }
-    void setShieldDropState(const bool state)         { _shieldDropState = state; }
-    void setShieldState(const bool state)             { _shieldState = state; }
-    void setJumpState(const bool state)               { _jumpState = state; }
-    void setAState(const bool state)                  { _AState = state; }
-    void setBState(const bool state)                  { _BState = state; }
-    void setSmashDIState(const bool state)            { _smashDIState = state; }
+    void setLsLeftState(const bool state)        { _lsLeftState = state; _xAxis.setLowState(state); }
+    void setLsRightState(const bool state)       { _lsRightState = state; _xAxis.setHighState(state); }
+    void setLsDownState(const bool state)        { _lsDownState = state; _yAxis.setLowState(state); }
+    void setLsUpState(const bool state)          { _lsUpState = state; _yAxis.setHighState(state); }
+    void setXModState(const bool state)          { _xModState = state; }
+    void setYModState(const bool state)          { _yModState = state; }
+    void setTiltState(const bool state)          { _tiltState = state; }
+    void setWavedashState(const bool state)      { _wavedashState = state; }
+    void setLButtonState(const bool state)       { _lButtonState = state; }
+    void setShieldDropState(const bool state)    { _shieldDropState = state; }
+    void setShieldState(const bool state)        { _shieldState = state; }
+    void setJumpState(const bool state)          { _jumpState = state; }
+    void setAState(const bool state)             { _AState = state; }
+    void setBState(const bool state)             { _BState = state; }
+    void setSmashDIState(const bool state)       { _smashDIState = state; }
 
-    void setGameMode(const uint8_t value)             { _gameMode = value; }
-    void setShieldDrop(const uint8_t value)           { _shieldDropValue = value; }
-    void setTilt(const uint8_t value)                 { _tiltAmount = value; }
+    void setGameMode(const uint8_t value)        { _gameMode = value; }
 
-    void setModStart(const uint8_t value)             { _xAxis.setModValue(value); _yAxis.setModValue(value); }
+    void maxWavelandValue(const uint8_t value)   { _maxWavelandValue = value; }
+    void maxWavedashValue(const uint8_t value)   { _maxWavedashValue = value; }
+    void shortWavedashValue(const uint8_t value) { _shortWavedashValue = value; }
+    void setTiltXValue(const uint8_t value)      { _tiltXValue = value; }
+    void setTiltYValue(const uint8_t value)      { _tiltYValue = value; }
+    void setShieldDropValue(const uint8_t value) { _shieldDropValue = value; }
+    void setABTiltValue(const uint8_t value)     { _ABTiltValue = value; }
 
     void setRange(const uint8_t value)
     {
-        FightingJoystick::setRange(value);
+        _xValue.setRange(value);
+        _yValue.setRange(value);
         _xAxis.setRange(value);
         _yAxis.setRange(value);
-        _range = value;
     }
 
+    const uint8_t getXValue() const              { return _xValue; }
+    const uint8_t getYValue() const              { return _yValue; }
+
 private:
+    Control _xValue;
+    Control _yValue;
+
     Activator _tiltState;
     Activator _shieldState;
     Activator _shieldDropState;
@@ -307,12 +315,20 @@ private:
     Activator _BState;
     Activator _smashDIState;
 
-    Control _gameMode;
+    TwoButtonControl _xAxis;
+    TwoButtonControl _yAxis;
 
-    uint8_t _tiltAmount;
-    uint8_t _range;
+    uint8_t _maxWavelandValue;
+    uint8_t _maxWavedashValue;
+    uint8_t _shortWavedashValue;
+    uint8_t _tiltXValue;
+    uint8_t _tiltYValue;
     uint8_t _shieldDropValue;
     uint8_t _ABTiltValue;
+    uint8_t _xModValue;
+    uint8_t _yModValue;
+
+    Control _gameMode;
 
     TemporaryActivator _tiltXActivator;
     TemporaryActivator _tiltYActivator;
@@ -321,9 +337,6 @@ private:
     TemporaryActivator _killXTilt;
 
     TimedActivator _inCrouch;
-
-    SingleModAxis _xAxis;
-    SingleModAxis _yAxis;
 
     TwoButtonSpamMacro _smashDIMacro;
 };

@@ -274,14 +274,16 @@ void EightWayController::processGameMode()
         // Melee:
         if (_gameMode == 0)
         {
+            _leftStick.setGameMode(_gameMode);
             _leftStick.setRange(80);
             _cStick.setRange(80);
-            // The minimum in Melee is 24 for mod start.
-            _leftStick.setModStart(30);
-            _leftStick.setShieldDrop(74);
-            _leftStick.setDeadZoneUpperBound(22);
-            // Max 49
-            _leftStick.setTilt(40);
+            _leftStick.maxWavelandValue(34);
+            _leftStick.maxWavedashValue(25);
+            _leftStick.shortWavedashValue(35);
+            _leftStick.setTiltXValue(49);
+            _leftStick.setTiltYValue(40);
+            _leftStick.setShieldDropValue(74);
+            _leftStick.setABTiltValue(40);
             resetLsXTrim();
             resetLsYTrim();
             _wavedashMacro.setMinimumDelay(3);
@@ -290,12 +292,15 @@ void EightWayController::processGameMode()
         // Project M:
         if (_gameMode == 1)
         {
+            _leftStick.setGameMode(_gameMode);
             _leftStick.setRange(80);
             _cStick.setRange(80);
-            _leftStick.setModStart(31);
-            _leftStick.setShieldDrop(56);
-            _leftStick.setDeadZoneUpperBound(30);
-            _leftStick.setTilt(64);
+            _leftStick.maxWavedashValue(31);
+            _leftStick.shortWavedashValue(31);
+            _leftStick.setTiltXValue(64);
+            _leftStick.setTiltYValue(64);
+            _leftStick.setShieldDropValue(56);
+            _leftStick.setABTiltValue(60);
             resetLsXTrim();
             resetLsYTrim();
             _wavedashMacro.setMinimumDelay(3);
@@ -304,12 +309,15 @@ void EightWayController::processGameMode()
         // Rivals:
         if (_gameMode == 2)
         {
+            _leftStick.setGameMode(_gameMode);
             _leftStick.setRange(100);
             _cStick.setRange(100);
-            _leftStick.setModStart(32);
-            _leftStick.setShieldDrop(28);
-            _leftStick.setDeadZoneUpperBound(27);
-            _leftStick.setTilt(61);
+            _leftStick.maxWavedashValue(32);
+            _leftStick.shortWavedashValue(32);
+            _leftStick.setTiltXValue(61);
+            _leftStick.setTiltYValue(61);
+            _leftStick.setShieldDropValue(28);
+            _leftStick.setABTiltValue(60);
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
@@ -319,12 +327,15 @@ void EightWayController::processGameMode()
         // Icons:
         if (_gameMode == 3)
         {
+            _leftStick.setGameMode(_gameMode);
             _leftStick.setRange(100);
             _cStick.setRange(100);
-            _leftStick.setModStart(43);
-            _leftStick.setShieldDrop(28);
-            _leftStick.setDeadZoneUpperBound(27);
-            _leftStick.setTilt(61);
+            _leftStick.maxWavedashValue(43);
+            _leftStick.shortWavedashValue(43);
+            _leftStick.setTiltXValue(61);
+            _leftStick.setTiltYValue(61);
+            _leftStick.setShieldDropValue(28);
+            _leftStick.setABTiltValue(60);
             resetLsXTrim();
             resetLsYTrim();
             trimLsYDown();
@@ -442,7 +453,6 @@ void EightWayController::processLStick()
     _leftStick.setAState(_aButton);
     _leftStick.setBState(_bButton);
     _leftStick.setSmashDIState(_smashDIButton);
-    _leftStick.setGameMode(_gameMode);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
@@ -452,8 +462,8 @@ void EightWayController::processLStick()
 
     _leftStick.process();
 
-    _lsXOut = _leftStick.xValue;
-    _lsYOut = _leftStick.yValue;
+    _lsXOut = _leftStick.getXValue();
+    _lsYOut = _leftStick.getYValue();
 }
 
 void EightWayController::processCStick()
@@ -467,12 +477,12 @@ void EightWayController::processCStick()
     _cStick.setCUpState(_cUpButton && !disableCDirections);
     _cStick.setLsDownState(_lsDownButton);
     _cStick.setLsUpState(_lsUpButton);
-    _cStick.setTiltState(_xModButton || _yModButton);
+    _cStick.setTiltState(_lsDownButton || _lsUpButton);
 
     _cStick.process();
 
-    _cXOut = _cStick.xValue;
-    _cYOut = _cStick.yValue;
+    _cXOut = _cStick.getXValue();
+    _cYOut = _cStick.getYValue();
 
     // This allows cUp to be pressed while in shield to toggle light shield.
     bool lightShieldJumpClear = _shortHopButton || _fullHopButton;

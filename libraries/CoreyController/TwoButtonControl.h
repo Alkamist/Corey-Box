@@ -10,60 +10,55 @@ class TwoButtonControl : public Control
 {
 public:
     TwoButtonControl()
-    : Control(128),
-      _range(127)
+    : Control(128, 127)
     {}
 
-    virtual void process();
+    explicit TwoButtonControl(const uint8_t range)
+    : Control(128, range)
+    {}
 
-    void setLowState(const bool state)         { _stateTracker.setState1(state); }
-    void setHighState(const bool state)        { _stateTracker.setState2(state); }
+    void process()
+    {
+        _stateTracker.process();
 
-    virtual void setRange(const uint8_t value) { _range = value; }
+        if (_stateTracker.getState1() && _stateTracker.state2WasFirst())
+        {
+            setToMinimum();
+            return;
+        }
+
+        if (_stateTracker.getState1() && !_stateTracker.getState2())
+        {
+            setToMinimum();
+            return;
+        }
+
+        if (_stateTracker.state1WasFirst() && _stateTracker.getState2())
+        {
+            setToMaximum();
+            return;
+        }
+
+        if (!_stateTracker.getState1() && _stateTracker.getState2())
+        {
+            setToMaximum();
+            return;
+        }
+
+        if (!_stateTracker.getState1() && !_stateTracker.getState2())
+        {
+            setToCenter();
+            return;
+        }
+    }
+
+    void setLowState(const bool state)  { _stateTracker.setState1(state); }
+    void setHighState(const bool state) { _stateTracker.setState2(state); }
 
 private:
-    uint8_t _range;
-
     TwoButtonStateTracker _stateTracker;
 
     TwoButtonControl& operator =(const uint8_t value)  { Control::operator=(value); return *this; }
 };
-
-
-
-void TwoButtonControl::process()
-{
-    _stateTracker.process();
-
-    if (_stateTracker.getState1() && _stateTracker.state2WasFirst())
-    {
-        *this = 128 - _range;
-        return;
-    }
-
-    if (_stateTracker.getState1() && !_stateTracker.getState2())
-    {
-        *this = 128 - _range;
-        return;
-    }
-
-    if (_stateTracker.state1WasFirst() && _stateTracker.getState2())
-    {
-        *this = 128 + _range;
-        return;
-    }
-
-    if (!_stateTracker.getState1() && _stateTracker.getState2())
-    {
-        *this = 128 + _range;
-        return;
-    }
-
-    if (!_stateTracker.getState1() && !_stateTracker.getState2())
-    {
-        *this = 128;
-        return;
-    }
-}
 
 #endif // TWOBUTTONCONTROL_H
