@@ -72,6 +72,11 @@ private:
     TemporaryActivator _jumpCancelGrabDelay;
     TemporaryActivator _jumpCancelGrabMinimumPressTime;
 
+    // Accidental Roll Prevention:
+    TemporaryActivator _accidentalRollPreventer;
+    TemporaryActivator _minimumShieldTime;
+    Activator _rollPreventedR;
+
     // Extra Activators:
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
@@ -105,6 +110,7 @@ private:
     // Process Functions:
     void setTiming();
     void initializeOutputs();
+    void preventAccidentalRolls();
     void processActivators();
     void processGameMode();
     void processShieldManager();
@@ -123,6 +129,7 @@ void EightWayController::process()
 {
     setTiming();
     initializeOutputs();
+    preventAccidentalRolls();
     processActivators();
     processGameMode();
     processShieldManager();
@@ -186,6 +193,11 @@ void EightWayController::endCycle()
     // Jump Cancel Grab:
     _jumpCancelGrabDelay.endCycle();
     _jumpCancelGrabMinimumPressTime.endCycle();
+
+    // Accidental Roll Prevention:
+    _accidentalRollPreventer.endCycle();
+    _minimumShieldTime.endCycle();
+    _rollPreventedR.endCycle();
 
     // Extra Activators:
     _trimWavedashDown.endCycle();
@@ -251,6 +263,18 @@ void EightWayController::initializeOutputs()
         _dDownOut = _lsDownButton;
         _dUpOut = _lsUpButton;
     }
+}
+
+void EightWayController::preventAccidentalRolls()
+{
+    _accidentalRollPreventer = (_lsLeftButton.justActivated() || _lsRightButton.justActivated())
+                            && !_rButton && !_lsDownButton && !_lsUpButton;
+    _accidentalRollPreventer.process();
+
+    _minimumShieldTime = _accidentalRollPreventer.justDeactivated() && _rButton;
+    _minimumShieldTime.process();
+
+    _rollPreventedR = (_rButton && !_accidentalRollPreventer) || _minimumShieldTime;
 }
 
 void EightWayController::processActivators()
@@ -349,7 +373,7 @@ void EightWayController::processGameMode()
 
 void EightWayController::processShieldManager()
 {
-    _shieldManager.setActivator(_rButton);
+    _shieldManager.setActivator(_rollPreventedR);
     _shieldManager.setToggleState(_cUpButton);
     _shieldManager.process();
 
@@ -559,7 +583,10 @@ EightWayController::EightWayController()
     ButtonReader::setUseBounce(true);
 
     _jumpCancelGrabDelay.setTime(3);
-    _jumpCancelGrabMinimumPressTime.setTime(3);
+    _jumpCancelGrabMinimumPressTime.setTime(4);
+
+    _accidentalRollPreventer.setTime(8);
+    _minimumShieldTime.setTime(4);
 }
 
 #endif // BUTTONONLYCONTROLLER_H
