@@ -70,6 +70,7 @@ private:
 
     // Jump Cancel Grab:
     TemporaryActivator _jumpCancelGrabDelay;
+    TemporaryActivator _jumpCancelGrabMinimumPressTime;
 
     // Extra Activators:
     Activator _trimWavedashDown;
@@ -184,6 +185,7 @@ void EightWayController::endCycle()
 
     // Jump Cancel Grab:
     _jumpCancelGrabDelay.endCycle();
+    _jumpCancelGrabMinimumPressTime.endCycle();
 
     // Extra Activators:
     _trimWavedashDown.endCycle();
@@ -375,11 +377,11 @@ void EightWayController::processJumpCancelGrab()
 
     bool doJumpCancelGrab = (onlyLeft || onlyRight) && _zButton;
 
-    if (doJumpCancelGrab)
-    {
-        _jumpCancelGrabDelay = _zButton.justActivated();
-        _jumpCancelGrabDelay.process();
-    }
+    _jumpCancelGrabDelay = _zButton.justActivated() && doJumpCancelGrab;
+    _jumpCancelGrabDelay.process();
+
+    _jumpCancelGrabMinimumPressTime = _jumpCancelGrabDelay.justDeactivated();
+    _jumpCancelGrabMinimumPressTime.process();
 
     if (_jumpCancelGrabDelay)
     {
@@ -387,7 +389,7 @@ void EightWayController::processJumpCancelGrab()
     }
     else
     {
-        _zOut = _zButton;
+        _zOut = _zButton || _jumpCancelGrabMinimumPressTime;
     }
 }
 
@@ -557,6 +559,7 @@ EightWayController::EightWayController()
     ButtonReader::setUseBounce(true);
 
     _jumpCancelGrabDelay.setTime(3);
+    _jumpCancelGrabMinimumPressTime.setTime(3);
 }
 
 #endif // BUTTONONLYCONTROLLER_H
