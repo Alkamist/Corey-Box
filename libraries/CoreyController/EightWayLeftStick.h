@@ -43,12 +43,12 @@ public:
 
         Joystick::process();
 
+        handleBackdashOutOfCrouchFix();
+        handleABAngles();
         handleWavelands();
         handleWavedashes();
         handleShieldDropping();
         handleTilting();
-        handleABAngles();
-        handleBackdashOutOfCrouchFix();
         handleSmashDI();
     }
 
@@ -63,7 +63,7 @@ public:
         if (_shieldState && straightLeftOrRight && _forceWaveland)
             yValue = 128 - _yAxis.getModValue();
 
-        Joystick::process();
+        //Joystick::process();
     }
 
     // Force perfect wavedashes when holding straight left or right.
@@ -76,7 +76,7 @@ public:
                 yValue = 128 - _yAxis.getModValue();
         }
 
-        Joystick::process();
+        //Joystick::process();
     }
 
     void handleShieldDropping()
@@ -90,7 +90,7 @@ public:
                 yValue = _shieldDropValue;
         }
 
-        Joystick::process();
+        //Joystick::process();
     }
 
     void handleTilting()
@@ -143,7 +143,7 @@ public:
             }
         }
 
-        FightingJoystick::process();
+        //FightingJoystick::process();
     }
 
     void handleABAngles()
@@ -152,14 +152,14 @@ public:
 
         bool onlyLeft = _lsLeftState && !(_lsUpState || _lsDownState);
         bool onlyRight = _lsRightState && !(_lsUpState || _lsDownState);
-        bool ABTiltDisabler = _xModState || _yModState || onlyLeft || onlyRight;
+        bool ABTiltDisabler = _xModState || _yModState || onlyLeft || onlyRight || _wavedashState || _lButtonState;
 
         if (AOrB && !ABTiltDisabler)
         {
             xValue = scaleBipolar(xValue, _ABTiltValue);
         }
 
-        FightingJoystick::process();
+        //FightingJoystick::process();
     }
 
     void handleBackdashOutOfCrouchFix()
@@ -182,7 +182,7 @@ public:
                 xValue = 128;
         }
 
-        FightingJoystick::process();
+        //FightingJoystick::process();
     }
 
     void handleSmashDI()
@@ -232,6 +232,7 @@ public:
         _shieldState.endCycle();
         _shieldDropState.endCycle();
         _wavedashState.endCycle();
+        _lButtonState.endCycle();
         _lsDownState.endCycle();
         _lsUpState.endCycle();
         _lsLeftState.endCycle();
@@ -267,6 +268,7 @@ public:
     void setYModState(const bool state)               { _yModState = state; _yAxis.setModState(state); }
     void setTiltState(const bool state)               { _tiltState = state; }
     void setWavedashState(const bool state)           { _wavedashState = state; }
+    void setLButtonState(const bool state)            { _lButtonState = state; }
     void setShieldDropState(const bool state)         { _shieldDropState = state; }
     void setShieldState(const bool state)             { _shieldState = state; }
     void setJumpState(const bool state)               { _jumpState = state; }
@@ -293,6 +295,7 @@ private:
     Activator _shieldState;
     Activator _shieldDropState;
     Activator _wavedashState;
+    Activator _lButtonState;
     Activator _lsDownState;
     Activator _lsUpState;
     Activator _lsLeftState;

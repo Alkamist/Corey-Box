@@ -68,6 +68,9 @@ private:
     // Jump:
     JumpManager _jumpManager;
 
+    // Jump Cancel Grab:
+    TemporaryActivator _jumpCancelGrabDelay;
+
     // Extra Activators:
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
@@ -105,6 +108,7 @@ private:
     void processGameMode();
     void processShieldManager();
     void processJumpManager();
+    void processJumpCancelGrab();
     void processSpamBAMacro();
     void processWavedashMacro();
     void processLStick();
@@ -122,6 +126,7 @@ void EightWayController::process()
     processGameMode();
     processShieldManager();
     processJumpManager();
+    processJumpCancelGrab();
     processSpamBAMacro();
     processWavedashMacro();
     processLStick();
@@ -176,6 +181,9 @@ void EightWayController::endCycle()
 
     // Jump:
     _jumpManager.endCycle();
+
+    // Jump Cancel Grab:
+    _jumpCancelGrabDelay.endCycle();
 
     // Extra Activators:
     _trimWavedashDown.endCycle();
@@ -241,8 +249,6 @@ void EightWayController::initializeOutputs()
         _dDownOut = _lsDownButton;
         _dUpOut = _lsUpButton;
     }
-
-    if (!_settingsButton) _zOut = _zButton;
 }
 
 void EightWayController::processActivators()
@@ -351,6 +357,29 @@ void EightWayController::processJumpManager()
     _yOut = _jumpManager.getYState();
 }
 
+void EightWayController::processJumpCancelGrab()
+{
+    bool onlyLeft = _lsLeftButton && !(_lsUpButton || _lsDownButton);
+    bool onlyRight = _lsRightButton && !(_lsUpButton || _lsDownButton);
+
+    bool doJumpCancelGrab = (onlyLeft || onlyRight) && _zButton;
+
+    if (doJumpCancelGrab)
+    {
+        _jumpCancelGrabDelay = _zButton.justActivated();
+        _jumpCancelGrabDelay.process();
+    }
+
+    if (_jumpCancelGrabDelay)
+    {
+        _xOut = true;
+    }
+    else
+    {
+        _zOut = _zButton;
+    }
+}
+
 void EightWayController::processSpamBAMacro()
 {
     _spamBAActivator.setState1(_bButton);
@@ -407,6 +436,7 @@ void EightWayController::processLStick()
     _leftStick.setYModState(_yModButton);
     _leftStick.setTiltState(false);
     _leftStick.setWavedashState(_wavedashMacro.getR().isRunning());
+    _leftStick.setLButtonState(_lButton);
     _leftStick.setShieldState(_shieldManager);
     _leftStick.setJumpState(_shortHopButton || _fullHopButton);
     _leftStick.setAState(_aButton);
@@ -515,6 +545,8 @@ EightWayController::EightWayController()
   _smashDIButton(4)
 {
     ButtonReader::setUseBounce(true);
+
+    _jumpCancelGrabDelay.setTime(3);
 }
 
 #endif // BUTTONONLYCONTROLLER_H
