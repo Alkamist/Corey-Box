@@ -121,7 +121,7 @@ public:
     void handleTilting()
     {
         // Tilt reset conditions
-        bool walkTilt = (_lsUpState.justDeactivated() || _lsUpState.justActivated()) && (_lsLeftState || _lsRightState);
+        bool walkTilt = (_lsLeftState.justActivated() || _lsRightState.justActivated()) && _lsUpState;
 
         bool xAxisMoved = _lsLeftState.justActivated() || _lsRightState.justActivated();
         _tiltXActivator = (xAxisMoved && _shieldState) || (xAxisMoved && _yModState)
@@ -130,7 +130,7 @@ public:
 
         bool yAxisMoved = _lsDownState.justActivated() || _lsUpState.justActivated();
         _tiltYActivator = (yAxisMoved && _shieldState)
-                       || _AState.justActivated() || _lsUpState.justActivated();
+                       || _AState.justActivated() || _lsUpState;
         _tiltYActivator.process();
 
         // Tilt conditions
