@@ -11,6 +11,7 @@
 #include "ToggleActivator.h"
 #include "ShieldManager.h"
 #include "JumpManager.h"
+#include "DelayedActivator.h"
 
 // This is the main controller class right now. I know it is kind of a
 // god class but I'm not sure how to split up this logic.
@@ -73,9 +74,7 @@ private:
     TemporaryActivator _jumpCancelGrabMinimumPressTime;
 
     // Accidental Roll Prevention:
-    TemporaryActivator _accidentalRollPreventer;
-    TemporaryActivator _minimumShieldTime;
-    Activator _rollPreventedR;
+    DelayedActivator _rollPreventedR;
 
     // Extra Activators:
     Activator _trimWavedashDown;
@@ -195,8 +194,6 @@ void EightWayController::endCycle()
     _jumpCancelGrabMinimumPressTime.endCycle();
 
     // Accidental Roll Prevention:
-    _accidentalRollPreventer.endCycle();
-    _minimumShieldTime.endCycle();
     _rollPreventedR.endCycle();
 
     // Extra Activators:
@@ -267,14 +264,10 @@ void EightWayController::initializeOutputs()
 
 void EightWayController::preventAccidentalRolls()
 {
-    _accidentalRollPreventer = (_lsLeftButton.justActivated() || _lsRightButton.justActivated())
-                            && !_rButton && !_lsDownButton && !_lsUpButton;
-    _accidentalRollPreventer.process();
-
-    _minimumShieldTime = _accidentalRollPreventer.justDeactivated() && _rButton;
-    _minimumShieldTime.process();
-
-    _rollPreventedR = (_rButton && !_accidentalRollPreventer) || _minimumShieldTime;
+    _rollPreventedR = _rButton;
+    _rollPreventedR.setDelayCondition((_lsLeftButton.justActivated() || _lsRightButton.justActivated())
+                                   && !(_lsDownButton || _lsUpButton));
+    _rollPreventedR.process();
 }
 
 void EightWayController::processActivators()
@@ -583,10 +576,9 @@ EightWayController::EightWayController()
     ButtonReader::setUseBounce(true);
 
     _jumpCancelGrabDelay.setTime(3);
-    _jumpCancelGrabMinimumPressTime.setTime(4);
+    _jumpCancelGrabMinimumPressTime.setTime(3);
 
-    _accidentalRollPreventer.setTime(8);
-    _minimumShieldTime.setTime(4);
+    _rollPreventedR.setDelayTime(8);
 }
 
 #endif // BUTTONONLYCONTROLLER_H

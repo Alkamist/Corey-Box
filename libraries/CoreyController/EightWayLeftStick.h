@@ -140,7 +140,7 @@ public:
         bool passiveYTilt = _lsUpState && !_BState;
         bool onlyDown = _lsDownState && !(_lsLeftState || _lsRightState || _lsUpState);
         bool allowShieldDrop = _shieldState && onlyDown && !_tiltState && !_xModState && !_yModState && !_lsUpState;
-        bool disableTilt = _wavedashState || (_BState && _shieldState);
+        bool disableTilt = _wavedashState || _BState;
 
         bool tiltXCondition = (_tiltState || _shieldState || _yModState || _AState || _walkTiltActivator)
                            && !disableTilt;
