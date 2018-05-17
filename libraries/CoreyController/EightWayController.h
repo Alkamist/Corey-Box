@@ -76,6 +76,10 @@ private:
     // Accidental Roll Prevention:
     DelayedActivator _rollPreventedR;
 
+    // Auto-L Cancel:
+    TemporaryActivator _autoLCancelLeftRightTracker;
+    SpamMacro _autoLCancel;
+
     // Extra Activators:
     Activator _trimWavedashDown;
     Activator _trimWavedashUp;
@@ -119,6 +123,7 @@ private:
     void processWavedashMacro();
     void processLStick();
     void processCStick();
+    void processAutoLCancel();
     void finalizeOutputs();
 };
 
@@ -138,6 +143,7 @@ void EightWayController::process()
     processWavedashMacro();
     processLStick();
     processCStick();
+    processAutoLCancel();
     finalizeOutputs();
 }
 
@@ -195,6 +201,10 @@ void EightWayController::endCycle()
 
     // Accidental Roll Prevention:
     _rollPreventedR.endCycle();
+
+    // Auto-L Cancel:
+    _autoLCancelLeftRightTracker.endCycle();
+    _autoLCancel.endCycle();
 
     // Extra Activators:
     _trimWavedashDown.endCycle();
@@ -509,6 +519,18 @@ void EightWayController::processCStick()
         _cYOut = 128;
 }
 
+void EightWayController::processAutoLCancel()
+{
+    _autoLCancelLeftRightTracker = _aButton.justActivated() && (_lsLeftButton || _lsRightButton);
+    _autoLCancelLeftRightTracker.process();
+
+    _autoLCancel = (_cLeftButton || _cRightButton || _cUpButton || _cDownButton || (_aButton && !_autoLCancelLeftRightTracker))
+               && !(_rButton || _lButton);
+    _autoLCancel.process();
+
+    _lAnalogOut = _autoLCancel * 120;
+}
+
 void EightWayController::finalizeOutputs()
 {
     // Push A at the same time as any c-stick button if one of the mods is pressed.
@@ -551,27 +573,27 @@ void EightWayController::finalizeOutputs()
 // Don't use pin 6 or 26 for buttons.
 EightWayController::EightWayController()
 : // Buttons:
-  _lsLeftButton(9),
-  _lsRightButton(8),
-  _lsDownButton(11),
-  _lsUpButton(10),
-  _xModButton(24),
-  _yModButton(22),
-  _cLeftButton(2),
-  _cRightButton(39),
-  _cDownButton(3),
-  _cUpButton(38),
-  _aButton(27),
-  _bButton(40),
-  _shortHopButton(19),
+  _lsLeftButton(11),
+  _lsRightButton(10),
+  _lsDownButton(8),
+  _lsUpButton(9),
+  _xModButton(5),
+  _yModButton(4),
+  _cLeftButton(7),
+  _cRightButton(18),
+  _cDownButton(40),
+  _cUpButton(19),
+  _aButton(39),
+  _bButton(20),
+  _shortHopButton(22),
   _fullHopButton(23),
-  _zButton(20),
-  _lButton(18),
-  _rButton(21),
-  _startButton(5),
+  _zButton(21),
+  _lButton(38),
+  _rButton(24),
+  _startButton(27),
   _dPadButton(25),
-  _settingsButton(7),
-  _smashDIButton(4)
+  _settingsButton(2),
+  _smashDIButton(3)
 {
     ButtonReader::setUseBounce(true);
 
@@ -579,6 +601,9 @@ EightWayController::EightWayController()
     _jumpCancelGrabMinimumPressTime.setTime(3);
 
     _rollPreventedR.setDelayTime(8);
+
+    _autoLCancelLeftRightTracker.setTime(30);
+    _autoLCancel.setStartDelay(3);
 }
 
 #endif // BUTTONONLYCONTROLLER_H

@@ -130,7 +130,7 @@ public:
 
         bool yAxisMoved = _lsDownState.justActivated() || _lsUpState.justActivated();
         _tiltYActivator = (yAxisMoved && _shieldState)
-                       || _AState.justActivated() || _lsUpState;
+                       || _AState.justActivated() || _lsUpState.justActivated();
         _tiltYActivator.process();
 
         // Tilt conditions
