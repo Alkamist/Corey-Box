@@ -376,8 +376,10 @@ void EightWayController::processGameMode()
 
 void EightWayController::processShieldManager()
 {
-    _shieldManager.setActivator(_rollPreventedR);
+    _shieldManager = _rollPreventedR;
     _shieldManager.setToggleState(_cUpButton);
+    _shieldManager.setJumpState(_shortHopButton || _fullHopButton);
+    _shieldManager.setShieldDropState(_lsDownButton && !(_lsLeftButton || _lsRightButton || _lsUpButton));
     _shieldManager.process();
 
     if (!_settingsButton)
@@ -514,8 +516,7 @@ void EightWayController::processCStick()
     _cYOut = _cStick.getYValue();
 
     // This allows cUp to be pressed while in shield to toggle light shield.
-    bool lightShieldJumpClear = _shortHopButton || _fullHopButton;
-    if (_rButton && _cUpButton && !lightShieldJumpClear)
+    if (_rButton && _cUpButton && _shieldManager.lightShieldIsAllowed())
         _cYOut = 128;
 }
 

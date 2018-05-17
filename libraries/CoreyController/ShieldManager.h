@@ -16,25 +16,33 @@ public:
 
     void process()
     {
-        *this = _activator;
-
-        _toggleTracker.setState1(_activator);
+        _toggleTracker.setState1(*this);
         _toggleTracker.setState2(_toggleState);
         _toggleTracker.process();
 
-        _isLightShield = _activator && _toggleTracker.state1WasFirst() && _toggleState.justActivated();
+        // Allow light shield when the shield is activated
+        if (justActivated())                     _forbidLightShield = false;
+        // But disable light shield if jump is activated while in shield
+        if (*this && (_jumpState.justActivated() || _shieldDropState.justActivated())) _forbidLightShield = true;
+
+        _isLightShield = *this && _toggleTracker.state1WasFirst() && _toggleState.justActivated() && !_forbidLightShield;
         _isLightShield.process();
 
-        if (!_activator)
+        if (!*this)
             _isLightShield.setState(false);
     }
 
     void endCycle()
     {
-        _activator.endCycle();
+        Activator::endCycle();
+        _forbidLightShield.endCycle();
         _isLightShield.endCycle();
         _toggleState.endCycle();
+        _jumpState.endCycle();
+        _shieldDropState.endCycle();
     }
+
+    const bool lightShieldIsAllowed() const            { return !_forbidLightShield; }
 
     const bool getHardShieldState() const              { return *this && !_isLightShield; }
     const bool getLightShieldState() const             { return *this && _isLightShield; }
@@ -49,13 +57,17 @@ public:
     }
 
     void setToggleState(const bool state)              { _toggleState = state; }
-    void setActivator(const bool activator)            { _activator = activator; }
+    void setJumpState(const bool state)                { _jumpState = state; }
+    void setShieldDropState(const bool state)          { _shieldDropState = state; }
 
     virtual ShieldManager& operator=(const bool value) { setState(value); return *this; }
 
 private:
-    Activator _activator;
+    Activator _forbidLightShield;
+
     Activator _toggleState;
+    Activator _jumpState;
+    Activator _shieldDropState;
 
     TwoButtonStateTracker _toggleTracker;
 
