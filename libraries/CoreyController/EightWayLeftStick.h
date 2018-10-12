@@ -207,7 +207,7 @@ public:
         _smashDIMacro = activateSmashDI;
         _smashDIMacro.process();
 
-        if (_smashDIMacro.isRunning())
+        if (_smashDIMacro.isRunning() && _smashDIState)
         {
             if (_smashDIMacro.getButton1())
                 _xValue = _xAxis;

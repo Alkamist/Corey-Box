@@ -404,7 +404,7 @@ void EightWayController::processJumpCancelGrab()
     bool onlyLeft = _lsLeftButton && !(_lsUpButton || _lsDownButton);
     bool onlyRight = _lsRightButton && !(_lsUpButton || _lsDownButton);
 
-    bool doJumpCancelGrab = (onlyLeft || onlyRight) && _zButton;
+    bool doJumpCancelGrab = (onlyLeft || onlyRight) && _zButton && !_xModButton && !_yModButton;
 
     _jumpCancelGrabDelay = _zButton.justActivated() && doJumpCancelGrab;
     _jumpCancelGrabDelay.process();
@@ -483,7 +483,7 @@ void EightWayController::processLStick()
     _leftStick.setJumpState(_shortHopButton || _fullHopButton);
     _leftStick.setAState(_aButton);
     _leftStick.setBState(_bButton);
-    _leftStick.setSmashDIState(_smashDIButton);
+    _leftStick.setSmashDIState(_smashDIButton && !_bButton && !_aButton);
 
     if (_trimLsXDown.justActivated()) trimLsXDown();
     if (_trimLsXUp.justActivated())   trimLsXUp();
