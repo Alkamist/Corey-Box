@@ -38,7 +38,6 @@ THE SOFTWARE.
 #define NINTENDO_DEVICE_GC_WIRED     0x0009
 #define NINTENDO_DEVICE_GC_NONE      0x0000
 
-
 //================================================================================
 // Gamecube Typedefs
 //================================================================================
@@ -117,7 +116,6 @@ struct Gamecube_Data_t{
     Gamecube_Origin_t origin;
     Gamecube_Report_t report;
 };
-
 
 //================================================================================
 // Gamecube Function Prototypes
