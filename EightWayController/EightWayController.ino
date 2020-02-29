@@ -5,6 +5,25 @@
 CGamecubeConsole gamecubeOutput(45);
 Gamecube_Data_t controllerData;
 
+class State
+{
+public:
+    explicit State(const bool initialState)
+    : m_currentState(initialState),
+      m_previousState(initialState)
+    {}
+    void update() { m_previousState = m_currentState; }
+    void setState(const bool newState) { m_currentState = newState; }
+    const bool isActive() const { return m_currentState; }
+    const bool justActivated() const { return m_currentState && !m_previousState; }
+    const bool justDeactivated() const { return !m_currentState && m_previousState; }
+private:
+    bool m_currentState{false};
+    bool m_previousState{false};
+};
+
+// The class for reading a button. Specify the input pin number and
+// whether or not you want the button to be debounced.
 class Button
 {
 public:
@@ -43,57 +62,63 @@ private:
     bool m_previousState{false};
 };
 
+// The class for an analog axis that is driven by a high and low state.
+// The most recently activated direction will override the previous.
 class ButtonAxis
 {
 public:
-    void update(const Button& lowButton, const Button& highButton)
+    void update(const bool lowState, const bool highState)
     {
-        if (lowButton.justPressed() || (lowButton.isPressed() && !highButton.isPressed()))
+        m_lowState.update();
+        m_lowState.setState(lowState);
+        m_highState.setState(highState);
+        if (m_lowState.justActivated() || (m_lowState.isActive() && !m_highState.isActive()))
         {
             m_value = -1.0;
         }
-        else if (highButton.justPressed() || (highButton.isPressed() && !lowButton.isPressed()))
+        else if (m_highState.justActivated() || (m_highState.isActive() && !m_lowState.isActive()))
         {
             m_value = 1.0;
         }
-        else if (!lowButton.isPressed() && !highButton.isPressed())
+        else if (!m_lowState.isActive() && !m_highState.isActive())
         {
             m_value = 0.0;
         }
     }
     const float getValue() const { return m_value; }
 private:
+    State m_lowState{false};
+    State m_highState{false};
     bool m_lowWasFirst{false};
     float m_value{0.0};
 };
 
-Button aButton(18, false);
-Button bButton(19, false);
-Button lsLeftButton(3, false);
-Button lsRightButton(5, false);
-Button lsDownButton(4, false);
-Button lsUpButton(40, false);
-Button xModButton(7, false);
+Button aButton(38, false);
+Button bButton(18, false);
+Button lsLeftButton(2, false);
+Button lsRightButton(4, false);
+Button lsDownButton(3, false);
+Button lsUpButton(27, false);
+Button xModButton(5, false);
 Button yModButton(8, false);
-Button cLeftButton(38, false);
-Button cRightButton(20, false);
-Button cDownButton(39, false);
-Button cUpButton(21, false);
+Button cLeftButton(39, false);
+Button cRightButton(19, false);
+Button cDownButton(40, false);
+Button cUpButton(20, false);
 Button shortHopButton(23, true);
 Button fullHopButton(25, true);
-Button zButton(24, false);
+Button zButton(21, false);
 Button airdodgeButton(22, true);
-Button shieldButton(2, false);
-Button startButton(27, false);
-Button dPadButton(10, false);
-Button settingsButton(9, false);
-Button smashDIButton(11, false);
+Button shieldButton(24, false);
+Button startButton(9, false);
+Button smashDIButton(7, false);
 
 ButtonAxis lsXRaw;
 ButtonAxis lsYRaw;
 ButtonAxis cXRaw;
 ButtonAxis cYRaw;
 
+// Define the outputs that eventually get pushed out to the GameCube.
 bool aOut = false;
 bool bOut = false;
 bool xOut = false;
@@ -113,12 +138,10 @@ float lsYOut = 0.0;
 float cXOut = 0.0;
 float cYOut = 0.0;
 
-bool isShortHopping = false;
-unsigned long shortHopTime = 0;
-bool isFullHopping = false;
-unsigned long fullHopTime = 0;
-bool isAirDodging = false;
-unsigned long airDodgeTime = 0;
+unsigned long framesToMillis(const float frames)
+{
+    return floor(1000.0 * frames / 60.0);
+}
 
 void packAndWriteGamecubeData()
 {
@@ -163,80 +186,122 @@ void readButtons()
     airdodgeButton.update();
     shieldButton.update();
     startButton.update();
-    dPadButton.update();
-    settingsButton.update();
     smashDIButton.update();
 }
 
+bool isShortHopping = false;
+bool shortHopOut = false;
+unsigned long shortHopTime = 0;
+bool isFullHopping = false;
+bool fullHopOut = false;
+unsigned long fullHopTime = 0;
 void handleShortAndFullHops()
 {
-    //if short hop button is pressed or the full hop button is pressed during the 134 ms window:
-    //    press y for 33 ms
-    //if full hop button is pressed:
-    //    press x for as long as the full hop button is held, but no less than 134 ms
+    // If the short hop button is pressed or the full hop button is pressed during the 134 ms window:
+    //     press y for 25 ms.
+    // If the full hop button is pressed:
+    //     press x for as long as the full hop button is held, but no less than 134 ms.
     if (shortHopButton.justPressed() || (isFullHopping && fullHopButton.justPressed()))
     {
         isShortHopping = true;
         shortHopTime = millis();
-        yOut = true;
+        shortHopOut = true;
     }
     if (!isFullHopping && fullHopButton.justPressed())
     {
         isFullHopping = true;
         fullHopTime = millis();
-        xOut = true;
+        fullHopOut = true;
     }
-
     if (isShortHopping)
     {
-        if (millis() - shortHopTime >= 33)
+        if (millis() - shortHopTime >= 25)
         {
             isShortHopping = false;
-            yOut = false;
+            shortHopOut = false;
         }
     }
     if (isFullHopping && !fullHopButton.isPressed())
     {
         if (millis() - fullHopTime >= 134)
         {
+            fullHopOut = false;
+        }
+        // Wait one extra frame so you can't miss a double jump by
+        // pushing the full hop button on the same frame of release.
+        if (millis() - fullHopTime >= 150)
+        {
             isFullHopping = false;
-            xOut = false;
         }
     }
 }
 
-void handleAssistedAirdodge()
+uint8_t jumpsquatFrames = 3;
+bool wavedashJumpOut = false;
+bool wavedashShieldOut = false;
+bool wavedashAirdodgeOut = false;
+bool wavedashDownOut = false;
+bool isAirDodging = false;
+bool isJumpingBeforeAirdodge = false;
+bool needToAirdodge = false;
+bool isWavedashing = false;
+unsigned long airDodgeTime = 0;
+unsigned long wavedashTime = 0;
+void handleWavedash()
 {
-    // If the l button is pressed, push l on that frame, and then r one frame later.
+    // Peform a short hop initially.
     if (airdodgeButton.justPressed())
     {
-        isAirDodging = true;
-        airDodgeTime = millis();
-        lOut = true;
-        rOut = false;
+        isWavedashing = true;
+        isJumpingBeforeAirdodge = true;
+        needToAirdodge = true;
+        wavedashTime = millis();
+        wavedashJumpOut = true;
+        if (shieldButton.isPressed())
+        {
+            wavedashShieldOut = true;
+        }
     }
+    if (isJumpingBeforeAirdodge)
+    {
+        if (millis() - wavedashTime >= 25)
+        {
+            isJumpingBeforeAirdodge = false;
+            wavedashJumpOut = false;
+            wavedashShieldOut = false;
+        }
+    }
+    // Attempt to push l just after the jumpsquat ends.
+    if (needToAirdodge && (millis() - wavedashTime >= framesToMillis(float(jumpsquatFrames) - 0.5)))
+    {
+        isAirDodging = true;
+        needToAirdodge = false;
+        airDodgeTime = millis();
+        wavedashAirdodgeOut = true;
+        wavedashDownOut = true;
+    }
+    // Push r one frame later just in case l doesn't come out on time.
     if (isAirDodging)
     {
         auto currentDuration = millis() - airDodgeTime;
         if (currentDuration >= 16 && currentDuration < 33)
         {
-            lOut = false;
-            rOut = true;
+            wavedashAirdodgeOut = false;
+            wavedashShieldOut = true;
         }
         if (currentDuration >= 33)
         {
             isAirDodging = false;
+            isWavedashing = false;
+            wavedashDownOut = false;
+            wavedashShieldOut = false;
         }
-    }
-    else
-    {
-        rOut = shieldButton.isPressed();
     }
 }
 
 void handleAngleModifiers()
 {
-    if (xModButton.isPressed())
+    if (xModButton.isPressed() || (isWavedashing && !lsDownButton.isPressed()))
     {
         lsYOut = lsYRaw.getValue() * 0.2875;
         if (shieldButton.isPressed())
@@ -257,7 +322,7 @@ void handleAngleModifiers()
 
 void handleShieldTilt()
 {
-    if (shieldButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
+    if (shieldButton.isPressed() && !bButton.isPressed() && !isAirDodging && !xModButton.isPressed() && !yModButton.isPressed())
     {
         lsXOut = lsXRaw.getValue() * 0.6625;
         if (lsDownButton.isPressed())
@@ -273,7 +338,7 @@ void handleShieldTilt()
 
 void handleSafeDownB()
 {
-    if (bButton.isPressed() && !shieldButton.isPressed() && !airdodgeButton.isPressed() && lsDownButton.isPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
+    if (bButton.isPressed() && !shieldButton.isPressed() && !isAirDodging && lsDownButton.isPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
     {
         lsXOut = lsXRaw.getValue() * 0.5875;
         lsYOut = lsYRaw.getValue() * 0.8000;
@@ -287,29 +352,39 @@ void loop()
 {
     readButtons();
 
-    lsXRaw.update(lsLeftButton, lsRightButton);
-    lsYRaw.update(lsDownButton, lsUpButton);
-    cXRaw.update(cLeftButton, cRightButton);
-    cYRaw.update(cDownButton, cUpButton);
+    handleShortAndFullHops();
+    handleWavedash();
 
-    aOut = aButton.isPressed();
-    bOut = bButton.isPressed();
-    zOut = zButton.isPressed();
-    startOut = startButton.isPressed();
+    lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
+    lsYRaw.update(lsDownButton.isPressed() || wavedashDownOut, lsUpButton.isPressed() && !wavedashDownOut);
     lsXOut = lsXRaw.getValue();
     lsYOut = lsYRaw.getValue();
+
+    cXRaw.update(cLeftButton.isPressed(), cRightButton.isPressed());
+    cYRaw.update(cDownButton.isPressed(), cUpButton.isPressed());
     cXOut = cXRaw.getValue();
     cYOut = cYRaw.getValue();
 
-    handleShortAndFullHops();
-    handleAssistedAirdodge();
+    aOut = aButton.isPressed();
+    bOut = bButton.isPressed();
+    yOut = shortHopOut || wavedashJumpOut;
+    xOut = fullHopOut;
+    zOut = zButton.isPressed();
+    startOut = startButton.isPressed();
+
+    lOut = wavedashAirdodgeOut;
+    if (isWavedashing)
+    {
+        rOut = wavedashShieldOut;
+    }
+    else
+    {
+        rOut = shieldButton.isPressed();
+    }
+
     handleAngleModifiers();
     handleShieldTilt();
     handleSafeDownB();
 
     packAndWriteGamecubeData();
-
-    //Serial.print(uint8_t(lsXOut * 80 + 127));
-    //Serial.println();
-    //delay(200);
 }
