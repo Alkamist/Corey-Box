@@ -70,6 +70,7 @@ public:
     void update(const bool lowState, const bool highState)
     {
         m_lowState.update();
+        m_highState.update();
         m_lowState.setState(lowState);
         m_highState.setState(highState);
         if (m_lowState.justActivated() || (m_lowState.isActive() && !m_highState.isActive()))
@@ -237,6 +238,15 @@ void handleShortAndFullHops()
 }
 
 uint8_t jumpsquatFrames = 3;
+unsigned long jumpsquatTime = framesToMillis(float(jumpsquatFrames) - 0.3);
+void changeJumpsquatFrames(const int8_t byFrames)
+{
+    jumpsquatFrames += byFrames;
+    if (jumpsquatFrames > 8) jumpsquatFrames = 8;
+    if (jumpsquatFrames < 3) jumpsquatFrames = 3;
+    jumpsquatTime = framesToMillis(float(jumpsquatFrames) - 0.3);
+}
+
 bool wavedashJumpOut = false;
 bool wavedashShieldOut = false;
 bool wavedashAirdodgeOut = false;
@@ -272,7 +282,7 @@ void handleWavedash()
         }
     }
     // Attempt to push l just after the jumpsquat ends.
-    if (needToAirdodge && (millis() - wavedashTime >= framesToMillis(float(jumpsquatFrames) - 0.5)))
+    if (needToAirdodge && (millis() - wavedashTime >= jumpsquatTime))
     {
         isAirDodging = true;
         needToAirdodge = false;
@@ -322,7 +332,7 @@ void handleAngleModifiers()
 
 void handleShieldTilt()
 {
-    if (shieldButton.isPressed() && !bButton.isPressed() && !isAirDodging && !xModButton.isPressed() && !yModButton.isPressed())
+    if (shieldButton.isPressed() && !smashDIButton.isPressed() && !isAirDodging && !xModButton.isPressed() && !yModButton.isPressed())
     {
         lsXOut = lsXRaw.getValue() * 0.6625;
         if (lsDownButton.isPressed())
@@ -351,6 +361,14 @@ void setup()
 void loop()
 {
     readButtons();
+
+    if (lsLeftButton.isPressed() && lsDownButton.isPressed() && lsUpButton.isPressed() && lsRightButton.isPressed())
+    {
+        if (cUpButton.justPressed())
+            changeJumpsquatFrames(1);
+        if (cDownButton.justPressed())
+            changeJumpsquatFrames(-1);
+    }
 
     handleShortAndFullHops();
     handleWavedash();
