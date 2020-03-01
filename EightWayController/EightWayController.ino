@@ -372,7 +372,7 @@ void handleJumpsquatTimingChanges()
 void disableWavedashForLRAStart()
 {
     // To allow for LRA start, disable wavedashing while start is held.
-    if (startButton.isPressed())
+    if (aButton.isPressed() && shieldButton.isPressed() && smashDIButton.isPressed())
     {
         lOut = airdodgeButton.isPressed();
     }
@@ -406,6 +406,26 @@ void handleAutoLCancelling()
     else
     {
         autoLCancelOut = false;
+    }
+}
+
+unsigned long smashDITime = 0;
+void handleSmashDIMacro()
+{
+    if (smashDIButton.isPressed())
+    {
+        if (smashDIButton.justPressed() || (millis() - smashDITime >= 33))
+        {
+            smashDITime = millis();
+        }
+        else
+        {
+            if (millis() - smashDITime >= 16)
+            {
+                lsXOut = 0.0;
+                lsYOut = 0.0;
+            }
+        }
     }
 }
 
@@ -461,6 +481,7 @@ void loop()
     handleAngleModifiers();
     handleShieldTilt();
     handleSafeDownB();
+    handleSmashDIMacro();
 
     packAndWriteGamecubeData();
 }
