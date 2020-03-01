@@ -132,7 +132,9 @@ bool dLeftOut = false;
 bool dRightOut = false;
 bool dDownOut = false;
 bool dUpOut = false;
-//uint8_t lAnalogOut = 0;
+// 43 is the lightest analog shield value.
+// 140 is the hardest analog shield value.
+uint8_t lAnalogOut = 0;
 //uint8_t rAnalogOut = 0;
 float lsXOut = 0.0;
 float lsYOut = 0.0;
@@ -158,7 +160,7 @@ void packAndWriteGamecubeData()
     controllerData.report.dright = dRightOut;
     controllerData.report.ddown = dDownOut;
     controllerData.report.dup = dUpOut;
-    //controllerData.report.left = lAnalogOut;
+    controllerData.report.left = lAnalogOut;
     //controllerData.report.right = rAnalogOut;
     controllerData.report.xAxis = uint8_t(lsXOut * 80 + 128);
     controllerData.report.yAxis = uint8_t(lsYOut * 80 + 128);
@@ -355,13 +357,9 @@ void handleSafeDownB()
     }
 }
 
-void setup()
-{}
-
-void loop()
+void handleJumpsquatTimingChanges()
 {
-    readButtons();
-
+    // If all digital directions are held, allow the cYAxis to increment jumpsquat timing.
     if (lsLeftButton.isPressed() && lsDownButton.isPressed() && lsUpButton.isPressed() && lsRightButton.isPressed())
     {
         if (cUpButton.justPressed())
@@ -369,7 +367,56 @@ void loop()
         if (cDownButton.justPressed())
             changeJumpsquatFrames(-1);
     }
+}
 
+void disableWavedashForLRAStart()
+{
+    // To allow for LRA start, disable wavedashing while start is held.
+    if (startButton.isPressed())
+    {
+        lOut = airdodgeButton.isPressed();
+    }
+    else
+    {
+        lOut = wavedashAirdodgeOut;
+    }
+}
+
+bool autoLCancelOut = false;
+unsigned long autoLCancelTime = 0;
+void handleAutoLCancelling()
+{
+    if (aButton.isPressed() || cLeftButton.isPressed() || cRightButton.isPressed() || cUpButton.isPressed() || cDownButton.isPressed())
+    {
+        bool repeatLoop = autoLCancelOut && (millis() - autoLCancelTime >= 33);
+        bool lCancelButtonsJustPressed = aButton.justPressed() || cLeftButton.justPressed() || cRightButton.justPressed() || cUpButton.justPressed() || cDownButton.justPressed();
+        if (repeatLoop || lCancelButtonsJustPressed)
+        {
+            autoLCancelOut = false;
+            autoLCancelTime = millis();
+        }
+        else
+        {
+            if (millis() - autoLCancelTime >= 16)
+            {
+                autoLCancelOut = true;
+            }
+        }
+    }
+    else
+    {
+        autoLCancelOut = false;
+    }
+}
+
+void setup()
+{}
+
+void loop()
+{
+    readButtons();
+
+    handleJumpsquatTimingChanges();
     handleShortAndFullHops();
     handleWavedash();
 
@@ -390,7 +437,17 @@ void loop()
     zOut = zButton.isPressed();
     startOut = startButton.isPressed();
 
-    lOut = wavedashAirdodgeOut;
+    disableWavedashForLRAStart();
+
+    if (autoLCancelOut)
+    {
+        lAnalogOut = 80;
+    }
+    else
+    {
+        lAnalogOut = 0;
+    }
+
     if (isWavedashing)
     {
         rOut = wavedashShieldOut;
@@ -400,6 +457,7 @@ void loop()
         rOut = shieldButton.isPressed();
     }
 
+    handleAutoLCancelling();
     handleAngleModifiers();
     handleShieldTilt();
     handleSafeDownB();
