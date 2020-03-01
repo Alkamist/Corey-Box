@@ -1,9 +1,5 @@
 #define BOUNCE_WITH_PROMPT_DETECTION
 #include <Bounce2.h>
-#include "Nintendo.h"
-
-CGamecubeConsole gamecubeOutput(45);
-Gamecube_Data_t controllerData;
 
 class State
 {
@@ -94,32 +90,33 @@ private:
     float m_value{0.0};
 };
 
-Button aButton(38, false);
-Button bButton(18, false);
-Button lsLeftButton(2, false);
-Button lsRightButton(4, false);
-Button lsDownButton(3, false);
-Button lsUpButton(27, false);
-Button xModButton(5, false);
-Button yModButton(8, false);
-Button cLeftButton(39, false);
-Button cRightButton(19, false);
-Button cDownButton(40, false);
-Button cUpButton(20, false);
-Button shortHopButton(23, true);
-Button fullHopButton(25, true);
-Button zButton(21, false);
-Button airdodgeButton(22, true);
-Button shieldButton(24, false);
+Button fullHopButton(23, true);
+Button shieldButton(22, false);
+Button shortHopButton(21, true);
+Button airdodgeButton(20, true);
+Button zButton(19, false);
+Button cUpButton(18, false);
+Button cRightButton(17, false);
+Button bButton(16, false);
+Button aButton(15, false);
+Button cLeftButton(14, false);
+Button cDownButton(10, false);
+
 Button startButton(9, false);
-Button smashDIButton(7, false);
+
+Button lsUpButton(2, false);
+Button lsLeftButton(3, false);
+Button lsDownButton(4, false);
+Button lsRightButton(5, false);
+Button smashDIButton(6, false);
+Button xModButton(7, false);
+Button yModButton(8, false);
 
 ButtonAxis lsXRaw;
 ButtonAxis lsYRaw;
 ButtonAxis cXRaw;
 ButtonAxis cYRaw;
 
-// Define the outputs that eventually get pushed out to the GameCube.
 bool aOut = false;
 bool bOut = false;
 bool xOut = false;
@@ -134,7 +131,7 @@ bool dDownOut = false;
 bool dUpOut = false;
 // 43 is the lightest analog shield value.
 // 140 is the hardest analog shield value.
-uint8_t lAnalogOut = 0;
+int lAnalogOut = 0;
 //uint8_t rAnalogOut = 0;
 float lsXOut = 0.0;
 float lsYOut = 0.0;
@@ -146,27 +143,42 @@ unsigned long framesToMillis(const float frames)
     return floor(1000.0 * frames / 60.0);
 }
 
-void packAndWriteGamecubeData()
+void sendJoystickOutputs()
 {
-    controllerData.report.a = aOut;
-    controllerData.report.b = bOut;
-    controllerData.report.x = xOut;
-    controllerData.report.y = yOut;
-    controllerData.report.z = zOut;
-    controllerData.report.l = lOut;
-    controllerData.report.r = rOut;
-    controllerData.report.start = startOut;
-    controllerData.report.dleft = dLeftOut;
-    controllerData.report.dright = dRightOut;
-    controllerData.report.ddown = dDownOut;
-    controllerData.report.dup = dUpOut;
-    controllerData.report.left = lAnalogOut;
-    //controllerData.report.right = rAnalogOut;
-    controllerData.report.xAxis = uint8_t(lsXOut * 80 + 128);
-    controllerData.report.yAxis = uint8_t(lsYOut * 80 + 128);
-    controllerData.report.cxAxis = uint8_t(cXOut * 80 + 128);
-    controllerData.report.cyAxis = uint8_t(cYOut * 80 + 128);
-    gamecubeOutput.write(controllerData);
+    Joystick.button(1, xOut);
+    Joystick.button(2, aOut);
+    Joystick.button(3, bOut);
+    Joystick.button(4, yOut);
+    Joystick.button(5, lOut);
+    Joystick.button(6, rOut);
+    Joystick.button(8, zOut);
+    Joystick.button(10, startOut);
+    Joystick.button(13, dUpOut);
+    Joystick.button(15, dDownOut);
+    Joystick.button(16, dLeftOut);
+    Joystick.button(14, dRightOut);
+
+    if (lsXOut >= 0.0)
+        Joystick.X(lsXOut * 322 + 512);
+    else
+        Joystick.X(lsXOut * 320 + 512);
+    if (lsYOut >= 0.0)
+        Joystick.Y(-lsYOut * 330 + 512);
+    else
+        Joystick.Y(-lsYOut * 318 + 512);
+    if (cYOut >= 0.0)
+        Joystick.Z(cYOut * 322 + 512);
+    else
+        Joystick.Z(cYOut * 320 + 512);
+    if (cXOut >= 0.0)
+        Joystick.Zrotate(-cXOut * 298 + 680);
+    else
+        Joystick.Zrotate(-cXOut * 220 + 680);
+
+    //Joystick.sliderLeft(lAnalogOut * 12);
+    Joystick.sliderLeft(512 - max(lAnalogOut - 42, 0) * 2.888);
+
+    Joystick.send_now();
 }
 
 void readButtons()
@@ -384,22 +396,35 @@ void disableWavedashForLRAStart()
 
 bool autoLCancelOut = false;
 unsigned long autoLCancelTime = 0;
+bool allowDashAttack = false;
+unsigned long dashAttackTime = 0;
 void handleAutoLCancelling()
 {
     if (aButton.isPressed() || cLeftButton.isPressed() || cRightButton.isPressed() || cUpButton.isPressed() || cDownButton.isPressed())
     {
-        bool repeatLoop = autoLCancelOut && (millis() - autoLCancelTime >= 33);
-        bool lCancelButtonsJustPressed = aButton.justPressed() || cLeftButton.justPressed() || cRightButton.justPressed() || cUpButton.justPressed() || cDownButton.justPressed();
-        if (repeatLoop || lCancelButtonsJustPressed)
+        if (aButton.justPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
         {
-            autoLCancelOut = false;
-            autoLCancelTime = millis();
+            allowDashAttack = true;
+            dashAttackTime = millis();
         }
-        else
+        if (millis() - dashAttackTime >= 66)
         {
-            if (millis() - autoLCancelTime >= 16)
+            allowDashAttack = false;
+        }
+        bool lCancelButtonsJustPressed = aButton.justPressed() || cLeftButton.justPressed() || cRightButton.justPressed() || cUpButton.justPressed() || cDownButton.justPressed();
+        if (!allowDashAttack)
+        {
+            if (lCancelButtonsJustPressed || (millis() - autoLCancelTime >= 33))
             {
-                autoLCancelOut = true;
+                autoLCancelOut = false;
+                autoLCancelTime = millis();
+            }
+            else
+            {
+                if (millis() - autoLCancelTime >= 16)
+                {
+                    autoLCancelOut = true;
+                }
             }
         }
     }
@@ -430,7 +455,9 @@ void handleSmashDIMacro()
 }
 
 void setup()
-{}
+{
+    Joystick.useManualSend(true);
+}
 
 void loop()
 {
@@ -483,5 +510,5 @@ void loop()
     handleSafeDownB();
     handleSmashDIMacro();
 
-    packAndWriteGamecubeData();
+    sendJoystickOutputs();
 }
