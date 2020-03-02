@@ -492,8 +492,7 @@ bool isJumpCancelGrabbing = false;
 unsigned long jumpCancelGrabTime = false;
 void handleJumpCancelGrab()
 {
-    if (zButton.justPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed())
-    && !aButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
+    if (zButton.justPressed() && !aButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
     {
         jumpCancelJumpOut = true;
         isJumpCancelGrabbing = true;
@@ -501,15 +500,12 @@ void handleJumpCancelGrab()
     }
     if (isJumpCancelGrabbing)
     {
-        if (millis() - jumpCancelGrabTime >= 16)
-        {
-            jumpCancelGrabOut = true;
-        }
         if (millis() - jumpCancelGrabTime >= 25)
         {
+            jumpCancelGrabOut = true;
             jumpCancelJumpOut = false;
         }
-        if (millis() - jumpCancelGrabTime >= 45)
+        if (millis() - jumpCancelGrabTime >= 66)
         {
             jumpCancelGrabOut = false;
             isJumpCancelGrabbing = false;
