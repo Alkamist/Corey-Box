@@ -486,6 +486,37 @@ void handleAngledSmashes()
     }
 }
 
+bool jumpCancelJumpOut = false;
+bool jumpCancelGrabOut = false;
+bool isJumpCancelGrabbing = false;
+unsigned long jumpCancelGrabTime = false;
+void handleJumpCancelGrab()
+{
+    if (zButton.justPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed())
+    && !aButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
+    {
+        jumpCancelJumpOut = true;
+        isJumpCancelGrabbing = true;
+        jumpCancelGrabTime = millis();
+    }
+    if (isJumpCancelGrabbing)
+    {
+        if (millis() - jumpCancelGrabTime >= 16)
+        {
+            jumpCancelGrabOut = true;
+        }
+        if (millis() - jumpCancelGrabTime >= 25)
+        {
+            jumpCancelJumpOut = false;
+        }
+        if (millis() - jumpCancelGrabTime >= 45)
+        {
+            jumpCancelGrabOut = false;
+            isJumpCancelGrabbing = false;
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -498,6 +529,7 @@ void loop()
     handleJumpsquatTimingChanges();
     handleShortAndFullHops();
     handleWavedash();
+    handleJumpCancelGrab();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
     lsYRaw.update(lsDownButton.isPressed() || wavedashDownOut, lsUpButton.isPressed() && !wavedashDownOut);
@@ -512,11 +544,19 @@ void loop()
     aOut = aButton.isPressed();
     bOut = bButton.isPressed();
     yOut = shortHopOut || wavedashJumpOut;
-    xOut = fullHopOut;
-    zOut = zButton.isPressed();
+    xOut = fullHopOut || jumpCancelJumpOut;
     startOut = startButton.isPressed();
 
     disableWavedashForLRAStart();
+
+    if (isJumpCancelGrabbing)
+    {
+        zOut = jumpCancelGrabOut;
+    }
+    else
+    {
+        zOut = zButton.isPressed();
+    }
 
     if (autoLCancelOut)
     {
