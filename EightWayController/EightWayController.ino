@@ -454,6 +454,38 @@ void handleSmashDIMacro()
     }
 }
 
+// If you hold the XMod, YMod, and Smash DI buttons at the same time,
+// the c-stick buttons will turn into DPad buttons.
+void handleDPad()
+{
+    if (smashDIButton.isPressed() && xModButton.isPressed() && yModButton.isPressed())
+    {
+        cXOut = 0.0;
+        cYOut = 0.0;
+        dLeftOut = cLeftButton.isPressed();
+        dRightOut = cRightButton.isPressed();
+        dDownOut = cDownButton.isPressed();
+        dUpOut = cUpButton.isPressed();
+    }
+}
+
+// If you hold either XMod or YMod while holding analog down or up,
+// your smashes will be angled appropriately.
+void handleAngledSmashes()
+{
+    if ((xModButton.isPressed() || yModButton.isPressed()) && (cLeftButton.isPressed() || cRightButton.isPressed()))
+    {
+        if (lsYRaw.getValue() > 0.0)
+        {
+            cYOut = 0.5;
+        }
+        else if (lsYRaw.getValue() < 0.0)
+        {
+            cYOut = -0.5;
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -509,6 +541,8 @@ void loop()
     handleShieldTilt();
     handleSafeDownB();
     handleSmashDIMacro();
+    handleAngledSmashes();
+    handleDPad();
 
     sendJoystickOutputs();
 }
