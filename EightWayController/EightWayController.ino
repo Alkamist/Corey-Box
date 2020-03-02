@@ -517,6 +517,45 @@ void handleJumpCancelGrab()
     }
 }
 
+bool spamAOut = false;
+bool spamBOut = false;
+bool isSpammingB = false;
+unsigned long spamABTime = 0;
+void handleABSpam()
+{
+    if (aButton.justPressed() && bButton.isPressed())
+    {
+        isSpammingB = true;
+        spamBOut = true;
+        spamABTime = millis();
+    }
+    if (aButton.justReleased() || bButton.justReleased())
+    {
+        isSpammingB = false;
+        spamBOut = false;
+    }
+    if (isSpammingB)
+    {
+        if ((millis() - spamABTime >= 33))
+        {
+            spamBOut = true;
+            spamABTime = millis();
+            if (smashDIButton.isPressed())
+            {
+                spamAOut = false;
+            }
+        }
+        else if (millis() - spamABTime >= 16)
+        {
+            spamBOut = false;
+            if (smashDIButton.isPressed())
+            {
+                spamAOut = true;
+            }
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -530,6 +569,7 @@ void loop()
     handleShortAndFullHops();
     handleWavedash();
     handleJumpCancelGrab();
+    handleABSpam();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
     lsYRaw.update(lsDownButton.isPressed() || wavedashDownOut, lsUpButton.isPressed() && !wavedashDownOut);
@@ -541,13 +581,22 @@ void loop()
     cXOut = cXRaw.getValue();
     cYOut = cYRaw.getValue();
 
-    aOut = aButton.isPressed();
-    bOut = bButton.isPressed();
     yOut = shortHopOut || wavedashJumpOut;
     xOut = fullHopOut || jumpCancelJumpOut;
     startOut = startButton.isPressed();
 
     disableWavedashForLRAStart();
+
+    if (isSpammingB)
+    {
+        bOut = spamBOut;
+        aOut = spamAOut;
+    }
+    else
+    {
+        bOut = bButton.isPressed();
+        aOut = aButton.isPressed();
+    }
 
     if (isJumpCancelGrabbing)
     {
