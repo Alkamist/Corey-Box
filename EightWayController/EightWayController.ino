@@ -556,6 +556,31 @@ void handleABSpam()
     }
 }
 
+bool delayBackdash = false;
+unsigned long backdashTime = 0;
+void handleBackdashOutOfCrouchFix()
+{
+    if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
+    && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
+    && !fullHopButton.isPressed() && !shortHopButton.isPressed())
+    {
+        delayBackdash = true;
+        backdashTime = millis();
+    }
+    if (lsDownButton.justReleased())
+    {
+        delayBackdash = false;
+    }
+    if (delayBackdash)
+    {
+        lsXOut = 0.0;
+        if (millis() - backdashTime >= 25)
+        {
+            delayBackdash = false;
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -628,6 +653,7 @@ void loop()
     handleAutoLCancelling();
     handleAngleModifiers();
     handleShieldTilt();
+    handleBackdashOutOfCrouchFix();
     handleSafeDownB();
     handleSmashDIMacro();
     handleAngledSmashes();
