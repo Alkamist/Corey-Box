@@ -646,7 +646,7 @@ void loop()
         rOut = shieldButton.isPressed();
     }
 
-    handleAutoLCancelling();
+    //handleAutoLCancelling();
     handleAngleModifiers();
     handleShieldTilt();
     handleBackdashOutOfCrouchFix();
