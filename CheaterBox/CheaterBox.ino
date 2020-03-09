@@ -31,7 +31,7 @@ public:
         if (m_useBounce)
         {
             m_bounce.attach(m_pinNumber);
-            m_bounce.interval(16);
+            m_bounce.interval(4);
         }
     }
     void update()
@@ -325,16 +325,18 @@ void handleWavedash()
 
 void handleAngleModifiers()
 {
-    if (xModButton.isPressed() || (isWavedashing && !lsDownButton.isPressed()))
+    bool isWavedashingToSide = isWavedashing && !lsDownButton.isPressed();
+    if (xModButton.isPressed() || isWavedashingToSide)
     {
-        lsYOut = lsYRaw.getValue() * 0.2875;
-        if (shieldButton.isPressed())
+        if (isWavedashingToSide)
         {
-            lsXOut = lsXRaw.getValue() * 0.6500;
+            lsYOut = lsYRaw.getValue() * 0.2875;
+            lsXOut = lsXRaw.getValue() * 0.9500;
         }
         else
         {
-            lsXOut = lsXRaw.getValue() * 0.7375;
+            lsYOut = lsYRaw.getValue() * 0.3750;
+            lsXOut = lsXRaw.getValue() * 0.6375;
         }
     }
     if (yModButton.isPressed())
@@ -349,14 +351,7 @@ void handleShieldTilt()
     if (shieldButton.isPressed() && !smashDIButton.isPressed() && !isAirDodging && !xModButton.isPressed() && !yModButton.isPressed())
     {
         lsXOut = lsXRaw.getValue() * 0.6625;
-        if (lsDownButton.isPressed())
-        {
-            lsYOut = lsYRaw.getValue() * 0.6625;
-        }
-        else
-        {
-            lsYOut = lsYRaw.getValue() * 0.5625;
-        }
+        lsYOut = lsYRaw.getValue() * 0.6625;
     }
 }
 
@@ -458,7 +453,7 @@ void handleSmashDIMacro()
 // the c-stick buttons will turn into DPad buttons.
 void handleDPad()
 {
-    if (smashDIButton.isPressed() && xModButton.isPressed() && yModButton.isPressed())
+    if (xModButton.isPressed() && yModButton.isPressed())
     {
         cXOut = 0.0;
         cYOut = 0.0;
@@ -589,7 +584,7 @@ void loop()
     handleJumpsquatTimingChanges();
     handleShortAndFullHops();
     handleWavedash();
-    handleJumpCancelGrab();
+    //handleJumpCancelGrab();
     handleABSpam();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
@@ -619,14 +614,15 @@ void loop()
         aOut = aButton.isPressed();
     }
 
-    if (isJumpCancelGrabbing)
-    {
-        zOut = jumpCancelGrabOut;
-    }
-    else
-    {
-        zOut = zButton.isPressed();
-    }
+    //if (isJumpCancelGrabbing)
+    //{
+    //    zOut = jumpCancelGrabOut;
+    //}
+    //else
+    //{
+    //    zOut = zButton.isPressed();
+    //}
+    zOut = zButton.isPressed();
 
     if (autoLCancelOut)
     {
