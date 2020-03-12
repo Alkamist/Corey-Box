@@ -90,26 +90,26 @@ private:
     float m_value{0.0};
 };
 
-Button fullHopButton(23, true);
-Button shieldButton(22, false);
+Button fullHopButton(19, true);
+Button shieldButton(7, false);
 Button shortHopButton(21, true);
-Button airdodgeButton(20, true);
-Button zButton(19, false);
+Button airdodgeButton(16, true);
+Button zButton(22, false);
 Button cUpButton(18, false);
 Button cRightButton(17, false);
-Button bButton(16, false);
+Button bButton(20, false);
 Button aButton(15, false);
 Button cLeftButton(14, false);
 Button cDownButton(10, false);
 
 Button startButton(9, false);
 
-Button lsUpButton(2, false);
+Button lsUpButton(23, false);
 Button lsLeftButton(3, false);
 Button lsDownButton(4, false);
 Button lsRightButton(5, false);
 Button smashDIButton(6, false);
-Button xModButton(7, false);
+Button xModButton(2, false);
 Button yModButton(8, false);
 
 ButtonAxis lsXRaw;
@@ -274,7 +274,7 @@ unsigned long wavedashTime = 0;
 void handleWavedash()
 {
     // Peform a short hop initially.
-    if (airdodgeButton.justPressed())
+    if (airdodgeButton.justPressed() && !smashDIButton.isPressed())
     {
         isWavedashing = true;
         isJumpingBeforeAirdodge = true;
@@ -379,7 +379,7 @@ void handleJumpsquatTimingChanges()
 void disableWavedashForLRAStart()
 {
     // To allow for LRA start, disable wavedashing while start is held.
-    if (aButton.isPressed() && shieldButton.isPressed() && smashDIButton.isPressed())
+    if (smashDIButton.isPressed())
     {
         lOut = airdodgeButton.isPressed();
     }
