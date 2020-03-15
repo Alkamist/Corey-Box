@@ -71,29 +71,26 @@ private:
     float m_value{0.0};
 };
 
+Button xModButton(27);
+Button lsLeftButton(0);
+Button lsDownButton(1);
+Button lsRightButton(2);
+Button shieldButton(3);
+Button yModButton(4);
+//Button xButton(39);
 
-Button lsUpButton(23);
-Button zButton(22);
-Button yButton(21);
-Button airdodgeButton(16);
-Button cUpButton(18);
-Button cRightButton(17);
-Button bButton(20);
-Button aButton(15);
-Button cLeftButton(14);
-Button cDownButton(10);
+Button startButton(5);
 
-Button startButton(9);
-
-Button shieldButton(2);
-Button lsLeftButton(3);
-Button lsDownButton(4);
-Button lsRightButton(5);
-Button xModButton(7);
-Button yModButton(8);
-
-Button smashDIButton(6);
-Button xButton(19);
+Button lsUpButton(26);
+Button zButton(25);
+Button yButton(24);
+Button bButton(23);
+Button cUpButton(22);
+Button cRightButton(21);
+Button airdodgeButton(20);
+Button aButton(19);
+Button cLeftButton(18);
+Button cDownButton(38);
 
 ButtonAxis lsXRaw;
 ButtonAxis lsYRaw;
@@ -179,12 +176,12 @@ void readButtons()
     cDownButton.update();
     cUpButton.update();
     yButton.update();
-    xButton.update();
+    //xButton.update();
     zButton.update();
     airdodgeButton.update();
     shieldButton.update();
     startButton.update();
-    smashDIButton.update();
+    //smashDIButton.update();
 }
 
 void handleAngleModifiers()
@@ -323,7 +320,7 @@ void handleBackdashOutOfCrouchFix()
 {
     if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
     && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
-    && !xButton.isPressed() && !yButton.isPressed())
+    && !yButton.isPressed())
     {
         delayBackdash = true;
         backdashTime = millis();
@@ -363,7 +360,7 @@ void loop()
     aOut = aButton.isPressed();
     bOut = bButton.isPressed();
     yOut = yButton.isPressed();
-    xOut = xButton.isPressed();
+    //xOut = xButton.isPressed();
     zOut = zButton.isPressed();
     lOut = shieldButton.isPressed();
     rOut = airdodgeButton.isPressed();
