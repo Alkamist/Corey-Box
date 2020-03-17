@@ -71,13 +71,12 @@ private:
     float m_value{0.0};
 };
 
-Button xModButton(27);
+Button shieldButton(27);
 Button lsLeftButton(0);
 Button lsDownButton(1);
 Button lsRightButton(2);
-Button shieldButton(3);
+Button xModButton(3);
 Button yModButton(4);
-//Button xButton(39);
 
 Button startButton(5);
 
@@ -85,12 +84,13 @@ Button lsUpButton(26);
 Button zButton(25);
 Button yButton(24);
 Button bButton(23);
-Button cUpButton(22);
-Button cRightButton(21);
-Button airdodgeButton(20);
-Button aButton(19);
-Button cLeftButton(18);
-Button cDownButton(38);
+Button xButton(22);
+Button airdodgeButton(21);
+Button cRightButton(20);
+Button cUpButton(19);
+Button aButton(18);
+Button cLeftButton(38);
+Button cDownButton(39);
 
 ButtonAxis lsXRaw;
 ButtonAxis lsYRaw;
@@ -176,12 +176,11 @@ void readButtons()
     cDownButton.update();
     cUpButton.update();
     yButton.update();
-    //xButton.update();
+    xButton.update();
     zButton.update();
     airdodgeButton.update();
     shieldButton.update();
     startButton.update();
-    //smashDIButton.update();
 }
 
 void handleAngleModifiers()
@@ -320,7 +319,7 @@ void handleBackdashOutOfCrouchFix()
 {
     if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
     && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
-    && !yButton.isPressed())
+    && !xButton.isPressed() && !yButton.isPressed())
     {
         delayBackdash = true;
         backdashTime = millis();
@@ -360,7 +359,7 @@ void loop()
     aOut = aButton.isPressed();
     bOut = bButton.isPressed();
     yOut = yButton.isPressed();
-    //xOut = xButton.isPressed();
+    xOut = xButton.isPressed();
     zOut = zButton.isPressed();
     lOut = shieldButton.isPressed();
     rOut = airdodgeButton.isPressed();

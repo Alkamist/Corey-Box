@@ -91,18 +91,18 @@ private:
 };
 
 Button shortHopButton(21, true);
-Button fullHopButton(19, true);
+Button fullHopButton(23, true);
 Button shieldButton(2, false);
-Button airdodgeButton(16, true);
+Button airdodgeButton(20, true);
 Button aButton(15, false);
-Button bButton(20, false);
+Button bButton(16, false);
 Button zButton(22, false);
 Button startButton(9, false);
 Button cUpButton(18, false);
 Button cLeftButton(14, false);
 Button cRightButton(17, false);
 Button cDownButton(10, false);
-Button lsUpButton(23, false);
+Button lsUpButton(19, false);
 Button lsLeftButton(3, false);
 Button lsRightButton(5, false);
 Button lsDownButton(4, false);
@@ -511,6 +511,7 @@ void loop()
     handleShortAndFullHops();
     handleWavedash();
     handleABSpam();
+    //handleZSpam();
 
     bool isWavelanding = xModButton.isPressed() && airdodgeButton.isPressed();
 
