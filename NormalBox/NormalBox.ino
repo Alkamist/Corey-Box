@@ -187,7 +187,7 @@ void handleAngleModifiers()
 {
     bool isDiagonal = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && (lsDownButton.isPressed() || lsUpButton.isPressed());
     bool isAirdodging = shieldButton.isPressed() || airdodgeButton.isPressed();
-    if (xModButton.isPressed() && !bButton.isPressed())
+    if (xModButton.isPressed())
     {
         if (isDiagonal)
         {
@@ -251,7 +251,7 @@ void handleWaveland()
         isWavelanding = true;
         wavelandTime = millis();
     }
-    if (isWavelanding)
+    if (isWavelanding && !lsDownButton.isPressed())
     {
         if (millis() - wavelandTime < 25)
         {
@@ -298,13 +298,32 @@ void handleShieldTilt()
     }
 }
 
-void handleSafeDownB()
+bool isDoingSafeB = false;
+unsigned long safeBTime = 0;
+void handleSafeGroundB()
 {
-    if (bButton.isPressed() && !shieldButton.isPressed() && lsDownButton.isPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
+    if (bButton.justPressed() && (lsDownButton.isPressed() || lsUpButton.isPressed()))
     {
-        lsXOut = lsXRaw.getValue() * 0.5875;
-        lsYOut = lsYRaw.getValue() * 0.8000;
+        isDoingSafeB = true;
+        safeBTime = millis();
     }
+    if (isDoingSafeB)
+    {
+        if (millis() - safeBTime < 25)
+        {
+            lsXOut = lsXRaw.getValue() * 0.5875;
+            lsYOut = lsYRaw.getValue() * 0.8000;
+        }
+        else
+        {
+            isDoingSafeB = false;
+        }
+    }
+    //if (bButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed() && !shieldButton.isPressed() && lsDownButton.isPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
+    //{
+    //    lsXOut = lsXRaw.getValue() * 0.5875;
+    //    lsYOut = lsYRaw.getValue() * 0.8000;
+    //}
 }
 
 // If you hold both modifier buttons at the same time,
@@ -446,7 +465,7 @@ void loop()
     handleAngleModifiers();
     handleShieldTilt();
     handleBackdashOutOfCrouchFix();
-    handleSafeDownB();
+    handleSafeGroundB();
     handleAngledSmashes();
     handleDPad();
     handleWaveland();
