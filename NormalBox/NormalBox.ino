@@ -71,29 +71,25 @@ private:
     float m_value{0.0};
 };
 
-
-Button lsUpButton(23);
-Button zButton(22);
 Button yButton(21);
-Button airdodgeButton(16);
-Button cUpButton(18);
-Button cRightButton(17);
-Button bButton(20);
-Button aButton(15);
-Button cLeftButton(14);
-Button cDownButton(10);
-
-Button startButton(9);
-
-Button shieldButton(2);
-Button lsLeftButton(3);
-Button lsDownButton(4);
-Button lsRightButton(5);
-Button xModButton(7);
-Button yModButton(8);
-
-Button smashDIButton(6);
 Button xButton(19);
+Button shieldButton(7);
+Button airdodgeButton(20);
+Button aButton(15);
+Button bButton(16);
+Button zButton(22);
+Button startButton(9);
+Button cUpButton(18);
+Button cLeftButton(14);
+Button cRightButton(17);
+Button cDownButton(10);
+Button lsUpButton(23);
+Button lsLeftButton(3);
+Button lsRightButton(5);
+Button lsDownButton(4);
+Button smashDIButton(6);
+Button xModButton(2);
+Button yModButton(8);
 
 ButtonAxis lsXRaw;
 ButtonAxis lsYRaw;
@@ -190,35 +186,23 @@ void readButtons()
 void handleAngleModifiers()
 {
     bool isDiagonal = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && (lsDownButton.isPressed() || lsUpButton.isPressed());
-    bool isLedgeDashing = lsLeftButton.isPressed() && lsRightButton.isPressed();
     bool isAirdodging = shieldButton.isPressed() || airdodgeButton.isPressed();
-
-    if (xModButton.isPressed())
+    if (xModButton.isPressed() && !bButton.isPressed())
     {
-        if (!isLedgeDashing)
-        {
-            if (isDiagonal)
-            {
-                if (isAirdodging)
-                {
-                    lsXOut = lsXRaw.getValue() * 0.6375;
-                }
-                else
-                {
-                    lsXOut = lsXRaw.getValue() * 0.7375;
-                }
-            }
-            else
-            {
-                lsXOut = lsXRaw.getValue() * 0.6625;
-            }
-        }
-        else
+        if (isDiagonal)
         {
             if (isAirdodging)
             {
                 lsXOut = lsXRaw.getValue() * 0.6375;
             }
+            else
+            {
+                lsXOut = lsXRaw.getValue() * 0.7375;
+            }
+        }
+        else
+        {
+            lsXOut = lsXRaw.getValue() * 0.6625;
         }
         if (isAirdodging)
         {
@@ -231,30 +215,20 @@ void handleAngleModifiers()
     }
     if (yModButton.isPressed())
     {
-        if (!isLedgeDashing)
-        {
-            if (isDiagonal)
-            {
-                if (isAirdodging)
-                {
-                    lsXOut = lsXRaw.getValue() * 0.5000;
-                }
-                else
-                {
-                    lsXOut = lsXRaw.getValue() * 0.2875;
-                }
-            }
-            else
-            {
-                lsXOut = lsXRaw.getValue() * 0.3375;
-            }
-        }
-        else
+        if (isDiagonal)
         {
             if (isAirdodging)
             {
                 lsXOut = lsXRaw.getValue() * 0.5000;
             }
+            else
+            {
+                lsXOut = lsXRaw.getValue() * 0.2875;
+            }
+        }
+        else
+        {
+            lsXOut = lsXRaw.getValue() * 0.3375;
         }
         if (isAirdodging)
         {
@@ -267,12 +241,60 @@ void handleAngleModifiers()
     }
 }
 
+bool isWavelanding = false;
+unsigned long wavelandTime = 0;
+void handleWaveland()
+{
+    bool wavelandSideways = !lsUpButton.isPressed() && !lsDownButton.isPressed();
+    if (airdodgeButton.justPressed())
+    {
+        isWavelanding = true;
+        wavelandTime = millis();
+    }
+    if (isWavelanding)
+    {
+        if (millis() - wavelandTime < 25)
+        {
+            if (wavelandSideways)
+            {
+                lsXOut = lsXRaw.getValue() * 0.6375;
+                lsYOut = -0.3750;
+            }
+            else
+            {
+                lsYOut = -1.0000;
+            }
+        }
+        else
+        {
+            isWavelanding = false;
+        }
+    }
+}
+
+bool isTiltingShield = false;
+unsigned long shieldTiltTime = 0;
 void handleShieldTilt()
 {
-    if (shieldButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
+    bool tiltTemporarily = shieldButton.isPressed() && (lsLeftButton.justPressed() || lsRightButton.justPressed());
+    bool tiltTemporarilyOnRelease = shieldButton.isPressed() && ((lsLeftButton.justReleased() && lsRightButton.isPressed()) || (lsRightButton.justReleased() && lsLeftButton.isPressed()));
+    bool tiltShieldDown = lsDownButton.isPressed() && shieldButton.isPressed();
+    if (shieldButton.justPressed() || tiltTemporarily || tiltTemporarilyOnRelease || tiltShieldDown)
     {
-        lsXOut = lsXRaw.getValue() * 0.6625;
-        lsYOut = lsYRaw.getValue() * 0.6625;
+        isTiltingShield = true;
+        shieldTiltTime = millis();
+    }
+    if (isTiltingShield && !airdodgeButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
+    {
+        if (millis() - shieldTiltTime < 100)
+        {
+            lsXOut = lsXRaw.getValue() * 0.6625;
+            lsYOut = lsYRaw.getValue() * 0.6625;
+        }
+        else
+        {
+            isTiltingShield = false;
+        }
     }
 }
 
@@ -342,6 +364,45 @@ void handleBackdashOutOfCrouchFix()
     }
 }
 
+bool spamAOut = false;
+bool spamBOut = false;
+bool isSpammingB = false;
+unsigned long spamABTime = 0;
+void handleABSpam()
+{
+    if (aButton.justPressed() && bButton.isPressed())
+    {
+        isSpammingB = true;
+        spamBOut = true;
+        spamABTime = millis();
+    }
+    if (aButton.justReleased() || bButton.justReleased())
+    {
+        isSpammingB = false;
+        spamBOut = false;
+    }
+    if (isSpammingB)
+    {
+        if ((millis() - spamABTime >= 33))
+        {
+            spamBOut = true;
+            spamABTime = millis();
+            if (smashDIButton.isPressed())
+            {
+                spamAOut = false;
+            }
+        }
+        else if (millis() - spamABTime >= 16)
+        {
+            spamBOut = false;
+            if (smashDIButton.isPressed())
+            {
+                spamAOut = true;
+            }
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -350,6 +411,8 @@ void setup()
 void loop()
 {
     readButtons();
+
+    handleABSpam();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
     lsYRaw.update(lsDownButton.isPressed(), lsUpButton.isPressed());
@@ -360,8 +423,8 @@ void loop()
     cYRaw.update(cDownButton.isPressed(), cUpButton.isPressed());
     cXOut = cXRaw.getValue();
     cYOut = cYRaw.getValue();
-    aOut = aButton.isPressed();
-    bOut = bButton.isPressed();
+    //aOut = aButton.isPressed();
+    //bOut = bButton.isPressed();
     yOut = yButton.isPressed();
     xOut = xButton.isPressed();
     zOut = zButton.isPressed();
@@ -369,12 +432,24 @@ void loop()
     rOut = airdodgeButton.isPressed();
     startOut = startButton.isPressed();
 
+    if (isSpammingB)
+    {
+        bOut = spamBOut;
+        aOut = spamAOut;
+    }
+    else
+    {
+        bOut = bButton.isPressed();
+        aOut = aButton.isPressed();
+    }
+
     handleAngleModifiers();
     handleShieldTilt();
     handleBackdashOutOfCrouchFix();
     handleSafeDownB();
     handleAngledSmashes();
     handleDPad();
+    handleWaveland();
 
     sendJoystickOutputs();
 }
