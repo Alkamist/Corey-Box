@@ -1,3 +1,6 @@
+#define BOUNCE_WITH_PROMPT_DETECTION
+#include <Bounce2.h>
+
 class State
 {
 public:
@@ -15,24 +18,40 @@ private:
     bool m_previousState{false};
 };
 
-// The class for reading a button. Specify the input pin number.
+// The class for reading a button. Specify the input pin number and
+// whether or not you want the button to be debounced.
 class Button
 {
 public:
-    explicit Button(const uint8_t pinNumber)
-    : m_pinNumber(pinNumber)
+    explicit Button(const uint8_t pinNumber, const bool useBounce)
+    : m_pinNumber(pinNumber),
+      m_useBounce(useBounce)
     {
         pinMode(m_pinNumber, INPUT_PULLUP);
+        if (m_useBounce)
+        {
+            m_bounce.attach(m_pinNumber);
+            m_bounce.interval(4);
+        }
     }
     void update()
     {
         m_previousState = m_currentState;
-        m_currentState = !digitalRead(m_pinNumber);
+        if (m_useBounce)
+        {
+            m_bounce.update();
+            m_currentState = !m_bounce.read();
+        }
+        else
+        {
+            m_currentState = !digitalRead(m_pinNumber);
+        }
     }
     const bool isPressed() const { return m_currentState; }
     const bool justPressed() const { return m_currentState && !m_previousState; }
     const bool justReleased() const { return !m_currentState && m_previousState; }
 private:
+    Bounce m_bounce;
     uint8_t m_pinNumber{3};
     bool m_useBounce{false};
     bool m_currentState{false};
@@ -71,25 +90,25 @@ private:
     float m_value{0.0};
 };
 
-Button yButton(21);
-Button xButton(19);
-Button shieldButton(7);
-Button airdodgeButton(20);
-Button aButton(15);
-Button bButton(16);
-Button zButton(22);
-Button startButton(9);
-Button cUpButton(18);
-Button cLeftButton(14);
-Button cRightButton(17);
-Button cDownButton(10);
-Button lsUpButton(23);
-Button lsLeftButton(3);
-Button lsRightButton(5);
-Button lsDownButton(4);
-Button smashDIButton(6);
-Button xModButton(2);
-Button yModButton(8);
+Button shortHopButton(21, true);
+Button fullHopButton(19, true);
+Button shieldButton(7, false);
+Button airdodgeButton(20, false);
+Button aButton(15, false);
+Button bButton(16, false);
+Button zButton(22, false);
+Button startButton(9, false);
+Button cUpButton(18, false);
+Button cLeftButton(14, false);
+Button cRightButton(17, false);
+Button cDownButton(10, false);
+Button lsUpButton(23, false);
+Button lsLeftButton(3, false);
+Button lsRightButton(5, false);
+Button lsDownButton(4, false);
+Button smashDIButton(6, false);
+Button xModButton(2, false);
+Button yModButton(8, false);
 
 ButtonAxis lsXRaw;
 ButtonAxis lsYRaw;
@@ -174,8 +193,8 @@ void readButtons()
     cRightButton.update();
     cDownButton.update();
     cUpButton.update();
-    yButton.update();
-    xButton.update();
+    shortHopButton.update();
+    fullHopButton.update();
     zButton.update();
     airdodgeButton.update();
     shieldButton.update();
@@ -364,7 +383,7 @@ void handleBackdashOutOfCrouchFix()
 {
     if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
     && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
-    && !xButton.isPressed() && !yButton.isPressed())
+    && !fullHopButton.isPressed() && !shortHopButton.isPressed())
     {
         delayBackdash = true;
         backdashTime = millis();
@@ -422,6 +441,53 @@ void handleABSpam()
     }
 }
 
+bool isShortHopping = false;
+bool shortHopOut = false;
+unsigned long shortHopTime = 0;
+bool isFullHopping = false;
+bool fullHopOut = false;
+unsigned long fullHopTime = 0;
+void handleShortAndFullHops()
+{
+    // If the short hop button is pressed or the full hop button is pressed during the 134 ms window:
+    //     press y for 25 ms.
+    // If the full hop button is pressed:
+    //     press x for as long as the full hop button is held, but no less than 134 ms.
+    if (shortHopButton.justPressed() || (isFullHopping && fullHopButton.justPressed()))
+    {
+        isShortHopping = true;
+        shortHopTime = millis();
+        shortHopOut = true;
+    }
+    if (!isFullHopping && fullHopButton.justPressed())
+    {
+        isFullHopping = true;
+        fullHopTime = millis();
+        fullHopOut = true;
+    }
+    if (isShortHopping)
+    {
+        if (millis() - shortHopTime >= 25)
+        {
+            isShortHopping = false;
+            shortHopOut = false;
+        }
+    }
+    if (isFullHopping && !fullHopButton.isPressed())
+    {
+        if (millis() - fullHopTime >= 134)
+        {
+            fullHopOut = false;
+        }
+        // Wait one extra frame so you can't miss a double jump by
+        // pushing the full hop button on the same frame of release.
+        if (millis() - fullHopTime >= 150)
+        {
+            isFullHopping = false;
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -431,6 +497,7 @@ void loop()
 {
     readButtons();
 
+    handleShortAndFullHops();
     handleABSpam();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
@@ -444,8 +511,8 @@ void loop()
     cYOut = cYRaw.getValue();
     //aOut = aButton.isPressed();
     //bOut = bButton.isPressed();
-    yOut = yButton.isPressed();
-    xOut = xButton.isPressed();
+    yOut = shortHopOut;
+    xOut = fullHopOut;
     zOut = zButton.isPressed();
     lOut = shieldButton.isPressed();
     rOut = airdodgeButton.isPressed();
