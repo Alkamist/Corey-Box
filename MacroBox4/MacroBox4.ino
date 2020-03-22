@@ -93,7 +93,7 @@ private:
 Button shortHopButton(21, true);
 Button fullHopButton(19, true);
 Button shieldButton(7, false);
-Button airdodgeButton(20, false);
+Button airdodgeButton(20, true);
 Button aButton(15, false);
 Button bButton(16, false);
 Button zButton(22, false);
@@ -206,7 +206,7 @@ void handleAngleModifiers()
 {
     bool isDiagonal = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && (lsDownButton.isPressed() || lsUpButton.isPressed());
     bool isAirdodging = shieldButton.isPressed() || airdodgeButton.isPressed();
-    if (xModButton.isPressed())
+    if (xModButton.isPressed() && !airdodgeButton.isPressed())
     {
         if (isDiagonal)
         {
@@ -256,37 +256,6 @@ void handleAngleModifiers()
         else
         {
             lsYOut = lsYRaw.getValue() * 0.7375;
-        }
-    }
-}
-
-bool isWavelanding = false;
-unsigned long wavelandTime = 0;
-void handleWaveland()
-{
-    bool wavelandSideways = !lsUpButton.isPressed() && !lsDownButton.isPressed();
-    if (airdodgeButton.justPressed())
-    {
-        isWavelanding = true;
-        wavelandTime = millis();
-    }
-    if (isWavelanding && !lsDownButton.isPressed())
-    {
-        if (millis() - wavelandTime < 25)
-        {
-            if (wavelandSideways)
-            {
-                lsXOut = lsXRaw.getValue() * 0.6375;
-                lsYOut = -0.3750;
-            }
-            else
-            {
-                lsYOut = -1.0000;
-            }
-        }
-        else
-        {
-            isWavelanding = false;
         }
     }
 }
@@ -554,6 +523,82 @@ void handleShortAndFullHops()
     }
 }
 
+bool airdodgeShieldOut = false;
+bool airdodgeOut = false;
+bool isAirDodging = false;
+unsigned long airDodgeTime = 0;
+void handleAirdodge()
+{
+    if (airdodgeButton.justPressed() && !(xModButton.isPressed() && yModButton.isPressed()))
+    {
+        isAirDodging = true;
+        airDodgeTime = millis();
+        airdodgeShieldOut = shieldButton.isPressed();
+    }
+    if (isAirDodging)
+    {
+        auto currentDuration = millis() - airDodgeTime;
+        if (currentDuration < 16)
+        {
+            airdodgeOut = true;
+            airdodgeShieldOut = false;
+        }
+        if (currentDuration >= 16 && currentDuration < 33)
+        {
+            airdodgeOut = false;
+            airdodgeShieldOut = true;
+        }
+        //if (currentDuration >= 33)
+        //{
+        //    airdodgeOut = false;
+        //    airdodgeShieldOut = false;
+        //    isAirDodging = false;
+        //}
+        if (currentDuration >= 33 && currentDuration < 50)
+        {
+            airdodgeOut = true;
+            airdodgeShieldOut = false;
+        }
+        if (currentDuration >= 50)
+        {
+            airdodgeOut = false;
+            airdodgeShieldOut = false;
+            isAirDodging = false;
+        }
+    }
+}
+
+bool isWavelanding = false;
+unsigned long wavelandTime = 0;
+void handleWaveland()
+{
+    bool wavelandSideways = !lsUpButton.isPressed() && !lsDownButton.isPressed();
+    if (isAirDodging)
+    {
+        isWavelanding = true;
+        wavelandTime = millis();
+    }
+    if (isWavelanding && !lsDownButton.isPressed())
+    {
+        if (millis() - wavelandTime < 25)
+        {
+            if (wavelandSideways)
+            {
+                lsXOut = lsXRaw.getValue() * 0.6375;
+                lsYOut = -0.3750;
+            }
+            else
+            {
+                lsYOut = -1.0000;
+            }
+        }
+        else
+        {
+            isWavelanding = false;
+        }
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -565,6 +610,7 @@ void loop()
 
     handleShortAndFullHops();
     handleABSpam();
+    handleAirdodge();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
     lsYRaw.update(lsDownButton.isPressed(), lsUpButton.isPressed());
@@ -580,8 +626,8 @@ void loop()
     yOut = shortHopOut;
     xOut = fullHopOut;
     zOut = zButton.isPressed();
-    lOut = shieldButton.isPressed();
-    rOut = airdodgeButton.isPressed();
+    //lOut = shieldButton.isPressed();
+    //rOut = airdodgeButton.isPressed();
     startOut = startButton.isPressed();
 
     if (isSpammingB)
@@ -593,6 +639,24 @@ void loop()
     {
         bOut = bButton.isPressed();
         aOut = aButton.isPressed();
+    }
+
+    if (xModButton.isPressed() && yModButton.isPressed())
+    {
+        rOut = airdodgeButton.isPressed();
+    }
+    else
+    {
+        rOut = airdodgeOut;
+    }
+
+    if (isAirDodging)
+    {
+        lOut = airdodgeShieldOut;
+    }
+    else
+    {
+        lOut = shieldButton.isPressed();
     }
 
     handleAngleModifiers();
