@@ -410,6 +410,36 @@ void handleABSpam()
     }
 }
 
+bool grabAOut = false;
+bool isSpammingGrab = false;
+unsigned long spamGrabTime = 0;
+void handleGrabSpam()
+{
+    if (aButton.justPressed() && shieldButton.isPressed())
+    {
+        isSpammingGrab = true;
+        grabAOut = true;
+        spamGrabTime = millis();
+    }
+    if (shieldButton.justReleased() || aButton.justReleased())
+    {
+        isSpammingGrab = false;
+        grabAOut = false;
+    }
+    if (isSpammingGrab)
+    {
+        if ((millis() - spamGrabTime >= 33))
+        {
+            grabAOut = true;
+            spamGrabTime = millis();
+        }
+        else if (millis() - spamGrabTime >= 16)
+        {
+            grabAOut = false;
+        }
+    }
+}
+
 int sign(const float input)
 {
     if (input < 0.0) return -1;
@@ -610,6 +640,7 @@ void loop()
 
     handleShortAndFullHops();
     handleABSpam();
+    handleGrabSpam();
     handleAirdodge();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
@@ -639,6 +670,11 @@ void loop()
     {
         bOut = bButton.isPressed();
         aOut = aButton.isPressed();
+    }
+
+    if (isSpammingGrab)
+    {
+        aOut = grabAOut;
     }
 
     if (xModButton.isPressed() && yModButton.isPressed())
