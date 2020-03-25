@@ -614,8 +614,10 @@ void handleWaveland()
         {
             if (wavelandSideways)
             {
-                lsXOut = lsXRaw.getValue() * 0.6375;
-                lsYOut = -0.3750;
+                //lsXOut = lsXRaw.getValue() * 0.6375;
+                //lsYOut = -0.3750;
+                lsXOut = lsXRaw.getValue() * 0.9375;
+                lsYOut = -0.3125;
             }
             else
             {
