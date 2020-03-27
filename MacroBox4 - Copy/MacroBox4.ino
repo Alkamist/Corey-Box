@@ -307,11 +307,6 @@ void handleSafeGroundB()
             isDoingSafeB = false;
         }
     }
-    //if (bButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed() && !shieldButton.isPressed() && lsDownButton.isPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
-    //{
-    //    lsXOut = lsXRaw.getValue() * 0.5875;
-    //    lsYOut = lsYRaw.getValue() * 0.8000;
-    //}
 }
 
 // If you hold both modifier buttons at the same time,
@@ -406,6 +401,36 @@ void handleABSpam()
             {
                 spamAOut = true;
             }
+        }
+    }
+}
+
+bool grabAOut = false;
+bool isSpammingGrab = false;
+unsigned long spamGrabTime = 0;
+void handleGrabSpam()
+{
+    if (aButton.justPressed() && shieldButton.isPressed())
+    {
+        isSpammingGrab = true;
+        grabAOut = true;
+        spamGrabTime = millis();
+    }
+    if (shieldButton.justReleased() || aButton.justReleased())
+    {
+        isSpammingGrab = false;
+        grabAOut = false;
+    }
+    if (isSpammingGrab)
+    {
+        if ((millis() - spamGrabTime >= 33))
+        {
+            grabAOut = true;
+            spamGrabTime = millis();
+        }
+        else if (millis() - spamGrabTime >= 16)
+        {
+            grabAOut = false;
         }
     }
 }
@@ -523,86 +548,47 @@ void handleShortAndFullHops()
     }
 }
 
-uint8_t jumpsquatFrames = 3;
-unsigned long jumpsquatTime = framesToMillis(float(jumpsquatFrames) - 0.3);
-void changeJumpsquatFrames(const int8_t byFrames)
-{
-    jumpsquatFrames += byFrames;
-    if (jumpsquatFrames > 8) jumpsquatFrames = 8;
-    if (jumpsquatFrames < 3) jumpsquatFrames = 3;
-    jumpsquatTime = framesToMillis(float(jumpsquatFrames) - 0.3);
-}
-
-void handleJumpsquatTimingChanges()
-{
-    // If all digital directions are held, allow the cYAxis to increment jumpsquat timing.
-    if (lsLeftButton.isPressed() && lsDownButton.isPressed() && lsUpButton.isPressed() && lsRightButton.isPressed())
-    {
-        if (cUpButton.justPressed())
-            changeJumpsquatFrames(1);
-        if (cDownButton.justPressed())
-            changeJumpsquatFrames(-1);
-    }
-}
-
-bool wavedashJumpOut = false;
-bool wavedashShieldOut = false;
-bool wavedashAirdodgeOut = false;
-bool wavedashDownOut = false;
+bool airdodgeShieldOut = false;
+bool airdodgeOut = false;
 bool isAirDodging = false;
-bool isJumpingBeforeAirdodge = false;
-bool needToAirdodge = false;
-bool isWavedashing = false;
 unsigned long airDodgeTime = 0;
-unsigned long wavedashTime = 0;
-void handleWavedash()
+void handleAirdodge()
 {
-    // Peform a short hop initially.
-    if (airdodgeButton.justPressed() && !xModButton.isPressed() && !yModButton.isPressed())
-    {
-        isWavedashing = true;
-        isJumpingBeforeAirdodge = true;
-        needToAirdodge = true;
-        wavedashTime = millis();
-        wavedashJumpOut = true;
-        if (shieldButton.isPressed())
-        {
-            wavedashShieldOut = true;
-        }
-    }
-    if (isJumpingBeforeAirdodge)
-    {
-        if (millis() - wavedashTime >= 25)
-        {
-            isJumpingBeforeAirdodge = false;
-            wavedashJumpOut = false;
-            wavedashShieldOut = false;
-        }
-    }
-    // Attempt to push l just after the jumpsquat ends.
-    if (needToAirdodge && (millis() - wavedashTime >= jumpsquatTime))
+    if (airdodgeButton.justPressed() && !(xModButton.isPressed() && yModButton.isPressed()))
     {
         isAirDodging = true;
-        needToAirdodge = false;
         airDodgeTime = millis();
-        wavedashAirdodgeOut = true;
-        wavedashDownOut = true;
+        airdodgeShieldOut = shieldButton.isPressed();
     }
-    // Push r one frame later just in case l doesn't come out on time.
     if (isAirDodging)
     {
         auto currentDuration = millis() - airDodgeTime;
+        if (currentDuration < 16)
+        {
+            airdodgeOut = true;
+            airdodgeShieldOut = false;
+        }
         if (currentDuration >= 16 && currentDuration < 33)
         {
-            wavedashAirdodgeOut = false;
-            wavedashShieldOut = true;
+            airdodgeOut = false;
+            airdodgeShieldOut = true;
         }
-        if (currentDuration >= 33)
+        //if (currentDuration >= 33)
+        //{
+        //    airdodgeOut = false;
+        //    airdodgeShieldOut = false;
+        //    isAirDodging = false;
+        //}
+        if (currentDuration >= 33 && currentDuration < 50)
         {
+            airdodgeOut = true;
+            airdodgeShieldOut = false;
+        }
+        if (currentDuration >= 50)
+        {
+            airdodgeOut = false;
+            airdodgeShieldOut = false;
             isAirDodging = false;
-            isWavedashing = false;
-            wavedashDownOut = false;
-            wavedashShieldOut = false;
         }
     }
 }
@@ -612,7 +598,7 @@ unsigned long wavelandTime = 0;
 void handleWaveland()
 {
     bool wavelandSideways = !lsUpButton.isPressed() && !lsDownButton.isPressed();
-    if (airdodgeButton.justPressed() || isAirDodging)
+    if (isAirDodging)
     {
         isWavelanding = true;
         wavelandTime = millis();
@@ -623,8 +609,10 @@ void handleWaveland()
         {
             if (wavelandSideways)
             {
-                lsXOut = lsXRaw.getValue() * 0.6375;
-                lsYOut = -0.3750;
+                //lsXOut = lsXRaw.getValue() * 0.6375;
+                //lsYOut = -0.3750;
+                lsXOut = lsXRaw.getValue() * 0.9375;
+                lsYOut = -0.3125;
             }
             else
             {
@@ -647,10 +635,10 @@ void loop()
 {
     readButtons();
 
-    handleJumpsquatTimingChanges();
-    handleWavedash();
     handleShortAndFullHops();
     handleABSpam();
+    handleGrabSpam();
+    handleAirdodge();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
     lsYRaw.update(lsDownButton.isPressed(), lsUpButton.isPressed());
@@ -663,7 +651,7 @@ void loop()
     cYOut = cYRaw.getValue();
     //aOut = aButton.isPressed();
     //bOut = bButton.isPressed();
-    yOut = shortHopOut || wavedashJumpOut;
+    yOut = shortHopOut;
     xOut = fullHopOut;
     zOut = zButton.isPressed();
     //lOut = shieldButton.isPressed();
@@ -681,18 +669,23 @@ void loop()
         aOut = aButton.isPressed();
     }
 
-    if (xModButton.isPressed() || yModButton.isPressed())
+    if (isSpammingGrab)
+    {
+        aOut = grabAOut;
+    }
+
+    if (xModButton.isPressed() && yModButton.isPressed())
     {
         rOut = airdodgeButton.isPressed();
     }
     else
     {
-        rOut = wavedashAirdodgeOut;
+        rOut = airdodgeOut;
     }
 
-    if (isWavedashing)
+    if (isAirDodging)
     {
-        lOut = wavedashShieldOut;
+        lOut = airdodgeShieldOut;
     }
     else
     {

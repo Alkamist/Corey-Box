@@ -90,6 +90,14 @@ private:
     float m_value{0.0};
 };
 
+enum gameMode
+{
+  Melee,
+  PM
+};
+
+gameMode currentGameMode = Melee;
+
 Button shortHopButton(21, true);
 Button fullHopButton(19, true);
 Button shieldButton(7, false);
@@ -208,54 +216,58 @@ void handleAngleModifiers()
     bool isAirdodging = shieldButton.isPressed() || airdodgeButton.isPressed();
     if (xModButton.isPressed() && !airdodgeButton.isPressed())
     {
-        if (isDiagonal)
+        float xDiagonal = 0.7375;
+        float xNormal = 0.6625;
+        float yNormal = 0.2875;
+        if (currentGameMode == PM)
         {
-            if (isAirdodging)
-            {
-                lsXOut = lsXRaw.getValue() * 0.6375;
-            }
-            else
-            {
-                lsXOut = lsXRaw.getValue() * 0.7375;
-            }
+            xDiagonal = 0.7375;
+            xNormal = 0.6625;
+            yNormal = 0.3500;
         }
-        else
-        {
-            lsXOut = lsXRaw.getValue() * 0.6625;
-        }
-        if (isAirdodging)
-        {
-            lsYOut = lsYRaw.getValue() * 0.3750;
-        }
-        else
-        {
-            lsYOut = lsYRaw.getValue() * 0.2875;
-        }
+
+        if (isDiagonal) lsXOut = lsXRaw.getValue() * xDiagonal;
+        else lsXOut = lsXRaw.getValue() * xNormal;
+        lsYOut = lsYRaw.getValue() * yNormal;
     }
     if (yModButton.isPressed())
     {
+        float xAirdodge = 0.5000;
+        float xDiagonal = 0.2875;
+        float xNormal = 0.3375;
+        float yAirdodge = 0.8500;
+        float yNormal = 0.7375;
+        if (currentGameMode == PM)
+        {
+            xAirdodge = 0.5000;
+            xDiagonal = 0.3500;
+            xNormal = 0.3500;
+            yAirdodge = 0.8500;
+            yNormal = 0.7375;
+        }
+
         if (isDiagonal)
         {
             if (isAirdodging)
             {
-                lsXOut = lsXRaw.getValue() * 0.5000;
+                lsXOut = lsXRaw.getValue() * xAirdodge;
             }
             else
             {
-                lsXOut = lsXRaw.getValue() * 0.2875;
+                lsXOut = lsXRaw.getValue() * xDiagonal;
             }
         }
         else
         {
-            lsXOut = lsXRaw.getValue() * 0.3375;
+            lsXOut = lsXRaw.getValue() * xNormal;
         }
         if (isAirdodging)
         {
-            lsYOut = lsYRaw.getValue() * 0.8500;
+            lsYOut = lsYRaw.getValue() * yAirdodge;
         }
         else
         {
-            lsYOut = lsYRaw.getValue() * 0.7375;
+            lsYOut = lsYRaw.getValue() * yNormal;
         }
     }
 }
@@ -267,7 +279,16 @@ void handleShieldTilt()
     bool tiltTemporarily = shieldButton.isPressed() && (lsLeftButton.justPressed() || lsRightButton.justPressed());
     bool tiltTemporarilyOnRelease = shieldButton.isPressed() && ((lsLeftButton.justReleased() && lsRightButton.isPressed()) || (lsRightButton.justReleased() && lsLeftButton.isPressed()));
     bool tiltShieldDown = lsDownButton.isPressed() && shieldButton.isPressed();
-    if (shieldButton.justPressed() || tiltTemporarily || tiltTemporarilyOnRelease || tiltShieldDown)
+    bool initiateShieldTilt = shieldButton.justPressed() || tiltTemporarily || tiltTemporarilyOnRelease || tiltShieldDown;
+
+    float yLevel = 0.6625;
+    if (currentGameMode == PM)
+    {
+        initiateShieldTilt = tiltTemporarily || tiltTemporarilyOnRelease || tiltShieldDown;
+        yLevel = 0.9000;
+    }
+
+    if (initiateShieldTilt)
     {
         isTiltingShield = true;
         shieldTiltTime = millis();
@@ -277,7 +298,7 @@ void handleShieldTilt()
         if (millis() - shieldTiltTime < 100)
         {
             lsXOut = lsXRaw.getValue() * 0.6625;
-            lsYOut = lsYRaw.getValue() * 0.6625;
+            lsYOut = lsYRaw.getValue() * yLevel;
         }
         else
         {
@@ -290,6 +311,8 @@ bool isDoingSafeB = false;
 unsigned long safeBTime = 0;
 void handleSafeGroundB()
 {
+    float yLevel = 0.6000;
+    if (currentGameMode == PM) yLevel = 1.000;
     if (bButton.justPressed() && (lsDownButton.isPressed() || lsUpButton.isPressed()))
     {
         isDoingSafeB = true;
@@ -300,18 +323,13 @@ void handleSafeGroundB()
         if (millis() - safeBTime < 25)
         {
             lsXOut = lsXRaw.getValue() * 0.5875;
-            lsYOut = lsYRaw.getValue() * 0.6000;
+            lsYOut = lsYRaw.getValue() * yLevel;
         }
         else
         {
             isDoingSafeB = false;
         }
     }
-    //if (bButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed() && !shieldButton.isPressed() && lsDownButton.isPressed() && (lsLeftButton.isPressed() || lsRightButton.isPressed()))
-    //{
-    //    lsXOut = lsXRaw.getValue() * 0.5875;
-    //    lsYOut = lsYRaw.getValue() * 0.8000;
-    //}
 }
 
 // If you hold both modifier buttons at the same time,
@@ -337,11 +355,11 @@ void handleAngledSmashes()
     {
         if (lsYRaw.getValue() > 0.0)
         {
-            cYOut = 0.5;
+            cYOut = 0.7;
         }
         else if (lsYRaw.getValue() < 0.0)
         {
-            cYOut = -0.5;
+            cYOut = -0.7;
         }
     }
 }
@@ -350,23 +368,26 @@ bool delayBackdash = false;
 unsigned long backdashTime = 0;
 void handleBackdashOutOfCrouchFix()
 {
-    if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
-    && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
-    && !fullHopButton.isPressed() && !shortHopButton.isPressed())
+    if (currentGameMode == Melee)
     {
-        delayBackdash = true;
-        backdashTime = millis();
-    }
-    if (lsDownButton.justReleased())
-    {
-        delayBackdash = false;
-    }
-    if (delayBackdash)
-    {
-        lsXOut = 0.0;
-        if (millis() - backdashTime >= 25)
+        if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
+        && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
+        && !fullHopButton.isPressed() && !shortHopButton.isPressed())
+        {
+            delayBackdash = true;
+            backdashTime = millis();
+        }
+        if (lsDownButton.justReleased())
         {
             delayBackdash = false;
+        }
+        if (delayBackdash)
+        {
+            lsXOut = 0.0;
+            if (millis() - backdashTime >= 25)
+            {
+                delayBackdash = false;
+            }
         }
     }
 }
@@ -578,12 +599,6 @@ void handleAirdodge()
             airdodgeOut = false;
             airdodgeShieldOut = true;
         }
-        //if (currentDuration >= 33)
-        //{
-        //    airdodgeOut = false;
-        //    airdodgeShieldOut = false;
-        //    isAirDodging = false;
-        //}
         if (currentDuration >= 33 && currentDuration < 50)
         {
             airdodgeOut = true;
@@ -602,7 +617,15 @@ bool isWavelanding = false;
 unsigned long wavelandTime = 0;
 void handleWaveland()
 {
-    bool wavelandSideways = !lsUpButton.isPressed() && !lsDownButton.isPressed();
+    float xLevel = 0.9375;
+    float yLevel = -0.3125;
+    if (currentGameMode == PM)
+    {
+        xLevel = 0.9250;
+        yLevel = -0.3500;
+    }
+
+    bool wavelandSideways = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && !lsUpButton.isPressed() && !lsDownButton.isPressed();
     if (isAirDodging)
     {
         isWavelanding = true;
@@ -614,10 +637,8 @@ void handleWaveland()
         {
             if (wavelandSideways)
             {
-                //lsXOut = lsXRaw.getValue() * 0.6375;
-                //lsYOut = -0.3750;
-                lsXOut = lsXRaw.getValue() * 0.9375;
-                lsYOut = -0.3125;
+                lsXOut = lsXRaw.getValue() * xLevel;
+                lsYOut = yLevel;
             }
             else
             {
@@ -639,6 +660,9 @@ void setup()
 void loop()
 {
     readButtons();
+
+    if (smashDIButton.isPressed() && zButton.justPressed()) currentGameMode = PM;
+    if (smashDIButton.isPressed() && aButton.justPressed()) currentGameMode = Melee;
 
     handleShortAndFullHops();
     handleABSpam();
