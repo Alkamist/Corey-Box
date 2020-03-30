@@ -101,9 +101,9 @@ gameMode currentGameMode = Melee;
 Button shortHopButton(21, true);
 Button fullHopButton(19, true);
 Button shieldButton(7, false);
-Button airdodgeButton(20, true);
+Button airdodgeButton(16, true);
 Button aButton(15, false);
-Button bButton(16, false);
+Button bButton(20, false);
 Button zButton(22, false);
 Button startButton(9, false);
 Button cUpButton(18, false);
@@ -666,7 +666,7 @@ void loop()
 
     handleShortAndFullHops();
     handleABSpam();
-    handleGrabSpam();
+    //handleGrabSpam();
     handleAirdodge();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
@@ -682,6 +682,8 @@ void loop()
     //bOut = bButton.isPressed();
     yOut = shortHopOut;
     xOut = fullHopOut;
+    //yOut = shortHopButton.isPressed();
+    //xOut = fullHopButton.isPressed();
     zOut = zButton.isPressed();
     //lOut = shieldButton.isPressed();
     //rOut = airdodgeButton.isPressed();
@@ -698,10 +700,10 @@ void loop()
         aOut = aButton.isPressed();
     }
 
-    if (isSpammingGrab)
-    {
-        aOut = grabAOut;
-    }
+    //if (isSpammingGrab)
+    //{
+    //    aOut = grabAOut;
+    //}
 
     if (xModButton.isPressed() && yModButton.isPressed())
     {
