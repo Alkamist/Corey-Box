@@ -98,8 +98,8 @@ enum gameMode
 
 gameMode currentGameMode = Melee;
 
-Button shortHopButton(21, false);
-Button fullHopButton(19, false);
+Button shortHopButton(21, true);
+Button fullHopButton(19, true);
 Button shieldButton(7, false);
 Button airdodgeButton(16, true);
 Button aButton(15, false);
@@ -667,7 +667,7 @@ void loop()
     if (smashDIButton.isPressed() && zButton.justPressed()) currentGameMode = PM;
     if (smashDIButton.isPressed() && aButton.justPressed()) currentGameMode = Melee;
 
-    //handleShortAndFullHops();
+    handleShortAndFullHops();
     handleABSpam();
     //handleGrabSpam();
     handleAirdodge();
@@ -683,8 +683,7 @@ void loop()
     cYOut = cYRaw.getValue();
     //aOut = aButton.isPressed();
     //bOut = bButton.isPressed();
-    yOut = shortHopButton.isPressed();
-    //xOut = fullHopOut;
+    xOut = fullHopOut;
     //yOut = shortHopButton.isPressed();
     //xOut = fullHopButton.isPressed();
     zOut = zButton.isPressed();
@@ -708,12 +707,14 @@ void loop()
     //    aOut = grabAOut;
     //}
 
-    if (xModButton.isPressed() && yModButton.isPressed())
+    if ((xModButton.isPressed() && yModButton.isPressed()) || smashDIButton.isPressed())
     {
+        yOut = shortHopButton.isPressed();
         rOut = airdodgeButton.isPressed();
     }
     else
     {
+        yOut = shortHopOut;
         rOut = airdodgeOut;
     }
 
