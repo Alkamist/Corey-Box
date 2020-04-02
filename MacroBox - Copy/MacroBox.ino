@@ -98,8 +98,8 @@ enum gameMode
 
 gameMode currentGameMode = Melee;
 
-Button shortHopButton(21, false);
-Button fullHopButton(19, false);
+Button shortHopButton(21, true);
+Button fullHopButton(19, true);
 Button shieldButton(7, false);
 Button airdodgeButton(16, true);
 Button aButton(15, false);
@@ -351,18 +351,15 @@ void handleDPad()
 // your smashes will be angled appropriately.
 void handleAngledSmashes()
 {
-    if (currentGameMode == Melee)
+    if ((xModButton.isPressed() || yModButton.isPressed()) && (cLeftButton.isPressed() || cRightButton.isPressed()))
     {
-        if ((xModButton.isPressed() || yModButton.isPressed()) && (cLeftButton.isPressed() || cRightButton.isPressed()))
+        if (lsYRaw.getValue() > 0.0)
         {
-            if (lsYRaw.getValue() > 0.0)
-            {
-                cYOut = 0.7;
-            }
-            else if (lsYRaw.getValue() < 0.0)
-            {
-                cYOut = -0.7;
-            }
+            cYOut = 0.7;
+        }
+        else if (lsYRaw.getValue() < 0.0)
+        {
+            cYOut = -0.7;
         }
     }
 }
@@ -667,7 +664,7 @@ void loop()
     if (smashDIButton.isPressed() && zButton.justPressed()) currentGameMode = PM;
     if (smashDIButton.isPressed() && aButton.justPressed()) currentGameMode = Melee;
 
-    //handleShortAndFullHops();
+    handleShortAndFullHops();
     handleABSpam();
     //handleGrabSpam();
     handleAirdodge();
@@ -683,8 +680,8 @@ void loop()
     cYOut = cYRaw.getValue();
     //aOut = aButton.isPressed();
     //bOut = bButton.isPressed();
-    yOut = shortHopButton.isPressed();
-    //xOut = fullHopOut;
+    yOut = shortHopOut;
+    xOut = fullHopOut;
     //yOut = shortHopButton.isPressed();
     //xOut = fullHopButton.isPressed();
     zOut = zButton.isPressed();
