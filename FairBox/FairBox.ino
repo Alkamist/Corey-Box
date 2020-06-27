@@ -101,7 +101,7 @@ gameMode currentGameMode = Melee;
 Button shortHopButton(21, true);
 Button fullHopButton(19, true);
 Button shieldButton(7, false);
-Button airdodgeButton(16, true);
+Button airdodgeButton(16, false);
 Button aButton(15, false);
 Button bButton(20, false);
 Button zButton(22, false);
@@ -346,6 +346,13 @@ void handleDPad()
         dDownOut = cDownButton.isPressed();
         dUpOut = cUpButton.isPressed();
     }
+    else
+    {
+        dLeftOut = false;
+        dRightOut = false;
+        dDownOut = false;
+        dUpOut = false;
+    }
 }
 
 // If you hold either XMod or YMod while holding analog down or up,
@@ -435,100 +442,10 @@ void handleABSpam()
     }
 }
 
-bool grabAOut = false;
-bool isSpammingGrab = false;
-unsigned long spamGrabTime = 0;
-void handleGrabSpam()
-{
-    if (aButton.justPressed() && shieldButton.isPressed())
-    {
-        isSpammingGrab = true;
-        grabAOut = true;
-        spamGrabTime = millis();
-    }
-    if (shieldButton.justReleased() || aButton.justReleased())
-    {
-        isSpammingGrab = false;
-        grabAOut = false;
-    }
-    if (isSpammingGrab)
-    {
-        if ((millis() - spamGrabTime >= 33))
-        {
-            grabAOut = true;
-            spamGrabTime = millis();
-        }
-        else if (millis() - spamGrabTime >= 16)
-        {
-            grabAOut = false;
-        }
-    }
-}
-
 int sign(const float input)
 {
     if (input < 0.0) return -1;
     else return 1;
-}
-
-unsigned long smashDITime = 0;
-void handleSmashDIMacro()
-{
-    if (xModButton.isPressed() && yModButton.isPressed())
-    {
-        if (xModButton.justPressed() || yModButton.justPressed() || (millis() - smashDITime >= 33))
-        {
-            smashDITime = millis();
-        }
-        else
-        {
-            bool horizontal = lsLeftButton.isPressed() || lsRightButton.isPressed();
-            bool vertical = lsDownButton.isPressed() || lsUpButton.isPressed();
-            bool diagonal = horizontal && vertical;
-            if (millis() - smashDITime >= 16)
-            {
-                if (diagonal)
-                {
-                    lsXOut = 0.0;
-                    lsYOut = sign(lsYRaw.getValue());
-                }
-                else
-                {
-                    if (horizontal)
-                    {
-                        lsXOut = sign(lsXRaw.getValue());
-                        lsYOut = 0.7;
-                    }
-                    else if (vertical)
-                    {
-                        lsXOut = 0.7;
-                        lsYOut = sign(lsYRaw.getValue());
-                    }
-                }
-            }
-            else
-            {
-                if (diagonal)
-                {
-                    lsXOut = sign(lsXRaw.getValue());
-                    lsYOut = 0.0;
-                }
-                else
-                {
-                    if (horizontal)
-                    {
-                        lsXOut = sign(lsXRaw.getValue());
-                        lsYOut = -0.7;
-                    }
-                    else if (vertical)
-                    {
-                        lsXOut = -0.7;
-                        lsYOut = sign(lsYRaw.getValue());
-                    }
-                }
-            }
-        }
-    }
 }
 
 bool isShortHopping = false;
@@ -578,48 +495,9 @@ void handleShortAndFullHops()
     }
 }
 
-bool airdodgeShieldOut = false;
-bool airdodgeOut = false;
-bool isAirDodging = false;
-unsigned long airDodgeTime = 0;
-void handleAirdodge()
-{
-    if (airdodgeButton.justPressed() && !(xModButton.isPressed() && yModButton.isPressed()))
-    {
-        isAirDodging = true;
-        airDodgeTime = millis();
-        airdodgeShieldOut = shieldButton.isPressed();
-    }
-    if (isAirDodging)
-    {
-        auto currentDuration = millis() - airDodgeTime;
-        if (currentDuration < 16)
-        {
-            airdodgeOut = true;
-            airdodgeShieldOut = false;
-        }
-        if (currentDuration >= 16 && currentDuration < 33)
-        {
-            airdodgeOut = false;
-            airdodgeShieldOut = true;
-        }
-        if (currentDuration >= 33 && currentDuration < 50)
-        {
-            airdodgeOut = true;
-            airdodgeShieldOut = false;
-        }
-        if (currentDuration >= 50)
-        {
-            airdodgeOut = false;
-            airdodgeShieldOut = false;
-            isAirDodging = false;
-        }
-    }
-}
-
 bool isWavelanding = false;
 unsigned long wavelandTime = 0;
-void handleWaveland()
+void handleWavelandAngles()
 {
     float xLevel = 0.9375;
     float yLevel = -0.3125;
@@ -630,7 +508,7 @@ void handleWaveland()
     }
 
     bool wavelandSideways = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && !lsUpButton.isPressed() && !lsDownButton.isPressed();
-    if (isAirDodging)
+    if (airdodgeButton.justPressed())
     {
         isWavelanding = true;
         wavelandTime = millis();
@@ -670,8 +548,6 @@ void loop()
 
     handleShortAndFullHops();
     handleABSpam();
-    //handleGrabSpam();
-    handleAirdodge();
 
     lsXRaw.update(lsLeftButton.isPressed(), lsRightButton.isPressed());
     lsYRaw.update(lsDownButton.isPressed(), lsUpButton.isPressed());
@@ -688,8 +564,8 @@ void loop()
     //yOut = shortHopButton.isPressed();
     //xOut = fullHopButton.isPressed();
     zOut = zButton.isPressed();
-    //lOut = shieldButton.isPressed();
-    //rOut = airdodgeButton.isPressed();
+    lOut = shieldButton.isPressed();
+    rOut = airdodgeButton.isPressed();
     startOut = startButton.isPressed();
 
     if (isSpammingB)
@@ -703,29 +579,13 @@ void loop()
         aOut = aButton.isPressed();
     }
 
-    //if (isSpammingGrab)
-    //{
-    //    aOut = grabAOut;
-    //}
-
-    if ((xModButton.isPressed() && yModButton.isPressed()) || smashDIButton.isPressed())
+    if (smashDIButton.isPressed())
     {
         yOut = shortHopButton.isPressed();
-        rOut = airdodgeButton.isPressed();
     }
     else
     {
         yOut = shortHopOut;
-        rOut = airdodgeOut;
-    }
-
-    if (isAirDodging)
-    {
-        lOut = airdodgeShieldOut;
-    }
-    else
-    {
-        lOut = shieldButton.isPressed();
     }
 
     handleAngleModifiers();
@@ -734,8 +594,7 @@ void loop()
     handleSafeGroundB();
     handleAngledSmashes();
     handleDPad();
-    handleWaveland();
-    handleSmashDIMacro();
+    handleWavelandAngles();
 
     sendJoystickOutputs();
 }
