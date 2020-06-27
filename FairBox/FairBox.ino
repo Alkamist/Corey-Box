@@ -507,7 +507,7 @@ void handleWavelandAngles()
         yLevel = -0.3500;
     }
 
-    bool wavelandSideways = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && !lsUpButton.isPressed() && !lsDownButton.isPressed();
+    bool wavelandSideways = (lsLeftButton.isPressed() || lsRightButton.isPressed()) && !lsDownButton.isPressed();
     if (airdodgeButton.justPressed())
     {
         isWavelanding = true;
