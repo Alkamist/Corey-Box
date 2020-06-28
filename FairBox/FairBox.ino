@@ -282,6 +282,7 @@ void handleShieldTilt()
     bool initiateShieldTilt = shieldButton.justPressed() || tiltTemporarily || tiltTemporarilyOnRelease || tiltShieldDown;
 
     float yLevel = 0.6625;
+    float yLevelTilt = 0.6000;
     if (currentGameMode == PM)
     {
         initiateShieldTilt = tiltTemporarily || tiltTemporarilyOnRelease || tiltShieldDown;
@@ -293,13 +294,19 @@ void handleShieldTilt()
         isTiltingShield = true;
         shieldTiltTime = millis();
     }
-    //if (isTiltingShield && !airdodgeButton.isPressed() && !xModButton.isPressed() && !yModButton.isPressed())
     if (isTiltingShield && !airdodgeButton.isPressed())
     {
         if (millis() - shieldTiltTime < 100)
         {
             lsXOut = lsXRaw.getValue() * 0.6625;
-            lsYOut = lsYRaw.getValue() * yLevel;
+            if (xModButton.isPressed())
+            {
+                lsYOut = lsYRaw.getValue() * yLevelTilt;
+            }
+            else
+            {
+                lsYOut = lsYRaw.getValue() * yLevel;
+            }
         }
         else
         {
