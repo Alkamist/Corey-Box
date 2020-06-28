@@ -181,8 +181,10 @@ void sendJoystickOutputs()
     else
         Joystick.Zrotate(-cXOut * 220 + 680);
 
-    //Joystick.sliderLeft(lAnalogOut * 12);
-    Joystick.sliderLeft(512 - max(lAnalogOut - 42, 0) * 2.888);
+    if (lAnalogOut > 42)
+        Joystick.sliderLeft(512 + lAnalogOut * 2.0);
+    else
+        Joystick.sliderLeft(0);
 
     Joystick.send_now();
 }
@@ -541,6 +543,37 @@ void handleWavelandAngles()
     }
 }
 
+unsigned long lightShieldTime = 0;
+bool isLightShielding = false;
+void handleLightShield()
+{
+    if (zButton.justPressed() && xModButton.isPressed() && shieldButton.isPressed() && (millis() - lightShieldTime >= 16))
+    {
+        isLightShielding = !isLightShielding;
+        lightShieldTime = millis();
+    }
+
+    if (shieldButton.justReleased())
+    {
+        isLightShielding = false;
+    }
+
+    if (isLightShielding)
+    {
+        lOut = false;
+        lAnalogOut = 43;
+    }
+    else
+    {
+        lAnalogOut = 0;
+    }
+
+    if (xModButton.isPressed() && shieldButton.isPressed())
+    {
+        zOut = false;
+    }
+}
+
 void setup()
 {
     Joystick.useManualSend(true);
@@ -595,6 +628,7 @@ void loop()
         yOut = shortHopOut;
     }
 
+    handleLightShield();
     handleAngleModifiers();
     handleShieldTilt();
     handleBackdashOutOfCrouchFix();
