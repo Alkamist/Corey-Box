@@ -390,7 +390,7 @@ void handleBackdashOutOfCrouchFix()
 {
     if (currentGameMode == Melee)
     {
-        if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsLeftButton.justPressed())
+        if (lsDownButton.isPressed() && (lsLeftButton.justPressed() || lsRightButton.justPressed())
         && !aButton.isPressed() && !bButton.isPressed() && !airdodgeButton.isPressed() && !shieldButton.isPressed() && !zButton.isPressed()
         && !fullHopButton.isPressed() && !shortHopButton.isPressed())
         {

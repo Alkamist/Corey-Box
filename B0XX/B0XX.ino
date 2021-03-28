@@ -1,533 +1,118 @@
-/*
-  DIYB0XX Native USB v1.201 code by Crane.
-  This code utilizes
-    Nicohood's Nintendo library
-    MHeironimus' Arduino Joystick Library.
-  This is code designed with native USB 8 bit AVR microcontrollers in mind.
-  I test these on my 32u4 boards (Like the Arduino Micro).
-  If you use it on any other device, do so at your own risk.
-  A version of this code is available without native USB joystick support DIY controllers
-  using other Arduinos here https://github.com/Crane1195/DIYB0XX/tree/master/code
+#define BOUNCE_WITH_PROMPT_DETECTION
+#include <Bounce2.h>
 
-  Read the README file for whichever of these you are using for more information.
-*/
+class State {
+public:
+    explicit State(const bool initialState)
+    : m_currentState(initialState),
+      m_previousState(initialState) {}
 
-bool UseNewModVertical = true;
+    void update() { m_previousState = m_currentState; }
+    void setState(const bool newState) { m_currentState = newState; }
+    const bool isActive() const { return m_currentState; }
+    const bool justActivated() const { return m_currentState && !m_previousState; }
+    const bool justDeactivated() const { return !m_currentState && m_previousState; }
 
-uint8_t fTwoIPNoReactivate(bool isLOW, bool isHIGH, bool& wasLOW, bool& wasHIGH, bool& lockLOW, bool& lockHIGH);
-uint8_t fTwoIP(bool isLOW, bool isHIGH, bool& wasLOW, bool& wasHIGH);
-uint8_t fNeutral(bool isLOW, bool isHIGH);
-
-enum game
-{
-  Melee,
-  PM
+private:
+    bool m_currentState{false};
+    bool m_previousState{false};
 };
 
-game currentGame = Melee;
+class Key {
+public:
+    explicit Key(const uint8_t pinNumber,
+                 const int keyCode,
+                 const bool useBounce)
+    : m_pinNumber(pinNumber),
+      m_keyCode(keyCode),
+      m_useBounce(useBounce) {
+        pinMode(m_pinNumber, INPUT_PULLUP);
+        if (m_useBounce) {
+            m_bounce.attach(m_pinNumber);
+            m_bounce.interval(4);
+        }
+    }
 
-enum SOCD
-{
-  Neutral,
-  TwoIP,
-  TwoIPNoReactivate
+    void update() {
+        m_previousState = m_currentState;
+
+        if (m_useBounce) {
+            m_bounce.update();
+            m_currentState = !m_bounce.read();
+        }
+
+        else {
+            m_currentState = !digitalRead(m_pinNumber);
+        }
+
+        if (justPressed()) {
+            Keyboard.press(m_keyCode);
+        }
+
+        else if (justReleased()) {
+            Keyboard.release(m_keyCode);
+        }
+    }
+
+    const bool isPressed() const { return m_currentState; }
+    const bool justPressed() const { return m_currentState && !m_previousState; }
+    const bool justReleased() const { return !m_currentState && m_previousState; }
+
+private:
+    Bounce m_bounce;
+    uint8_t m_pinNumber{3};
+    int m_keyCode{KEY_A};
+    bool m_useBounce{false};
+    bool m_currentState{false};
+    bool m_previousState{false};
 };
 
-bool wasLEFT = false;
-bool wasRIGHT = false;
-bool wasUP = false;
-bool wasDOWN = false;
+Key tiltButton(2, KEY_A, true);
+Key yModButton(7, KEY_F, true);
+Key xModButton(8, KEY_G, true);
 
-bool wasCLEFT = false;
-bool wasCRIGHT = false;
-bool wasCUP = false;
-bool wasCDOWN = false;
+Key leftButton(3, KEY_B, true);
+Key rightButton(6, KEY_E, true);
+Key downButton(4, KEY_C, true);
+Key upButton(5, KEY_D, true);
 
-bool lockLEFT = false;
-bool lockRIGHT = false;
-bool lockUP = false;
-bool lockDOWN = false;
+Key aButton(20, KEY_M, true);
+Key bButton(22, KEY_K, true);
+Key zButton(15, KEY_R, true);
 
-bool lockCLEFT = false;
-bool lockCRIGHT = false;
-bool lockCUP = false;
-bool lockCDOWN = false;
+Key startButton(9, KEY_H, true);
 
-SOCD currentSOCD = TwoIPNoReactivate;
+Key cLeftButton(10, KEY_I, true);
+Key cRightButton(19, KEY_N, true);
+Key cDownButton(23, KEY_J, true);
+Key cUpButton(21, KEY_L, true);
 
-// Alex's Buttons:
-const int L = 27;
-const int LEFT = 0;
-const int DOWN = 1;
-const int RIGHT = 2;
-const int MOD1 = 3;
-const int MOD2 = 4;
+Key shortHopButton(17, KEY_P, true);
+Key fullHopButton(16, KEY_Q, true);
 
-const int START = 5;
-const int B = 23;
-const int X = 22;
-const int Z = 25;
-const int UP = 26;
-const int R = 21;
-const int Y = 24;
+Key shieldButton(14, KEY_S, true);
+Key airdodgeButton(18, KEY_O, true);
 
-const int CDOWN = 39;
-const int A = 18;
-const int CRIGHT = 20;
-const int CLEFT = 38;
-const int CUP = 19;
+void setup() {}
 
-// Corey's Buttons:
-//const int L = 7;
-//const int LEFT = 3;
-//const int DOWN = 4;
-//const int RIGHT = 5;
-//const int MOD1 = 2;
-//const int MOD2 = 8;
-//
-//const int START = 9;
-//const int B = 16;
-//const int X = 19;
-//const int Z = 22;
-//const int UP = 23;
-//const int R = 20;
-//const int Y = 21;
-//
-//const int CDOWN = 10;
-//const int A = 15;
-//const int CRIGHT = 17;
-//const int CLEFT = 14;
-//const int CUP = 18;
-
-const uint8_t minValue = 28;
-const uint8_t maxValue = 228;
-
-void setup()
-{
-  Joystick.useManualSend(true);
-  pinMode(L, INPUT_PULLUP);
-  pinMode(LEFT, INPUT_PULLUP);
-  pinMode(DOWN, INPUT_PULLUP);
-  pinMode(RIGHT, INPUT_PULLUP);
-  pinMode(MOD1, INPUT_PULLUP);
-  pinMode(MOD2, INPUT_PULLUP);
-  pinMode(START, INPUT_PULLUP);
-  pinMode(B, INPUT_PULLUP);
-  pinMode(X, INPUT_PULLUP);
-  pinMode(Z, INPUT_PULLUP);
-  pinMode(UP, INPUT_PULLUP);
-  pinMode(R, INPUT_PULLUP);
-  pinMode(Y, INPUT_PULLUP);
-  pinMode(CDOWN, INPUT_PULLUP);
-  pinMode(A, INPUT_PULLUP);
-  pinMode(CRIGHT, INPUT_PULLUP);
-  pinMode(CLEFT, INPUT_PULLUP);
-  pinMode(CUP, INPUT_PULLUP);
-}
-
-void loop()
-{
-  bool isL = (digitalRead(L) == LOW);
-  bool isLEFT = (digitalRead(LEFT) == LOW);
-  bool isDOWN = (digitalRead(DOWN) == LOW);
-  bool isRIGHT = (digitalRead(RIGHT) == LOW);
-  bool isMOD1 = (digitalRead(MOD1) == LOW);
-  bool isMOD2 = (digitalRead(MOD2) == LOW);
-  bool isSTART = (digitalRead(START) == LOW);
-  bool isB = (digitalRead(B) == LOW);
-  bool isX = (digitalRead(X) == LOW);
-  bool isZ = (digitalRead(Z) == LOW);
-  bool isUP = (digitalRead(UP) == LOW);
-  bool isR = (digitalRead(R) == LOW);
-  bool isY = (digitalRead(Y) == LOW);
-  bool isCDOWN = (digitalRead(CDOWN) == LOW);
-  bool isA = (digitalRead(A) == LOW);
-  bool isCRIGHT = (digitalRead(CRIGHT) == LOW);
-  bool isCLEFT = (digitalRead(CLEFT) == LOW);
-  bool isCUP = (digitalRead(CUP) == LOW);
-
-  if (isL && isMOD1 && isMOD2 && isZ) currentGame = PM;
-  if (isL && isMOD1 && isMOD2 && isA) currentGame = Melee;
-
-  bool isDPADUP = false;
-  bool isDPADDOWN = false;
-  bool isDPADLEFT = false;
-  bool isDPADRIGHT = false;
-
-  uint8_t controlX = 128;
-  uint8_t controlY = 128;
-  uint8_t cstickX = 128;
-  uint8_t cstickY = 128;
-
-  int8_t positionX = 0;
-  int8_t positionY = 0;
-  int8_t positionCX = 0;
-  int8_t positionCY = 0;
-
-  bool HORIZONTAL = false;
-  bool VERTICAL = false;
-  bool DIAGONAL = false;
-
-  if (currentSOCD == TwoIPNoReactivate) {
-    controlX = fTwoIPNoReactivate(isLEFT, isRIGHT, wasLEFT, wasRIGHT, lockLEFT, lockRIGHT);
-    controlY = fTwoIPNoReactivate(isDOWN, isUP, wasDOWN, wasUP, lockDOWN, lockUP);
-    cstickX = fTwoIPNoReactivate(isCLEFT, isCRIGHT, wasCLEFT, wasCRIGHT, lockCLEFT, lockCRIGHT);
-    cstickY = fTwoIPNoReactivate(isCDOWN, isCUP, wasCDOWN, wasCUP, lockCDOWN, lockCUP);
-  }
-
-  if (currentSOCD == TwoIP){
-    controlX = fTwoIP(isLEFT, isRIGHT, wasLEFT, wasRIGHT);
-    controlY = fTwoIP(isDOWN, isUP, wasDOWN, wasUP);
-    cstickX = fTwoIP(isCLEFT, isCRIGHT, wasCLEFT, wasCRIGHT);
-    cstickY = fTwoIP(isCDOWN, isCUP, wasCDOWN, wasCUP);
-  }
-
-  if (currentSOCD == Neutral) {
-    controlX = fNeutral(isLEFT, isRIGHT);
-    controlY = fNeutral(isDOWN, isUP);
-    cstickX = fNeutral(isCLEFT, isCRIGHT);
-    cstickY = fNeutral(isCDOWN, isCUP);
-  }
-
-  if (controlX != 128) {
-    HORIZONTAL = true;
-    if (controlX == minValue) positionX = -1;
-    else positionX = 1;
-  }
-  if (controlY != 128) {
-    VERTICAL = true;
-    if (controlY == minValue) positionY = -1;
-    else positionY = 1;
-  }
-  if (HORIZONTAL && VERTICAL) DIAGONAL = true;
-
-  if (cstickX != 128) {
-    if (cstickX == minValue) positionCX = -1;
-    else positionCX = 1;
-  }
-  if (cstickY != 128) {
-    if (cstickY == minValue) positionCY = -1;
-    else positionCY = 1;
-  }
-
-  if (isMOD1) {
-    if (HORIZONTAL) {
-      if (currentGame == Melee) controlX = 128 + (positionX * 53);
-      if (currentGame == PM) controlX = 128 + (positionX * 70);
-    }
-    if (VERTICAL) {
-      if (currentGame == Melee) {
-        if (UseNewModVertical)
-          controlY = 128 + (positionY * 23);
-        else
-          controlY = 128 + (positionY * 52);
-      }
-      if (currentGame == PM) controlY = 128 + (positionY * 60);
-    }
-
-    if (isB) {
-      if (currentGame == Melee) controlX = 128 + (positionX * 53);
-    }
-    if (positionCX != 0){
-      cstickX = 128 + (positionCX * 65);
-      cstickY = 128 + (positionY * 23);
-    }
-
-    if (DIAGONAL) {
-      if (currentGame == Melee) {
-        controlX = 128 + (positionX * 59);
-        controlY = 128 + (positionY * 23);
-      }
-      if (currentGame == PM) {
-        controlX = 128 + (positionX * 70);
-        controlY = 128 + (positionY * 34);
-      }
-
-      if (isCUP) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 49);
-          controlY = 128 + (positionY * 35);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 77);
-          controlY = 128 + (positionY * 55);
-        }
-      }
-
-      if (isCDOWN) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 49);
-          controlY = 128 + (positionY * 24);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 82);
-          controlY = 128 + (positionY * 32);
-        }
-      }
-
-      if (isCLEFT) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 52);
-          controlY = 128 + (positionY * 31);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 84);
-          controlY = 128 + (positionY * 50);
-        }
-      }
-
-      if (isCRIGHT) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 51);
-          controlY = 128 + (positionY * 43);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 72);
-          controlY = 128 + (positionY * 61);
-        }
-      }
-    }
-  }
-
-  if (isMOD2) {
-    if (HORIZONTAL) {
-      if (currentGame == Melee) controlX = 128 + (positionX * 27);
-      if (currentGame == PM) controlX = 128 + (positionX * 28);
-    }
-    if (VERTICAL) {
-      if (currentGame == Melee) controlY = 128 + (positionY * 59);
-      if (currentGame == PM) controlY = 128 + (positionY * 34);
-    }
-
-    if (isB) {
-      if (currentGame == Melee) controlX = 128 + (positionX * 80);
-      if (currentGame == PM) controlX = 128 + (positionX * 59);
-    }
-
-    if (DIAGONAL) {
-      if (currentGame == Melee) {
-        controlX = 128 + (positionX * 23);
-        controlY = 128 + (positionY * 59);
-      }
-      if (currentGame == PM) {
-        controlX = 128 + (positionX * 28);
-        controlY = 128 + (positionY * 58);
-      }
-
-      if (isCUP) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 45);
-          controlY = 128 + (positionY * 63);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 55);
-          controlY = 128 + (positionY * 77);
-        }
-      }
-
-      if (isCDOWN) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 28);
-          controlY = 128 + (positionY * 57);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 32);
-          controlY = 128 + (positionY * 82);
-        }
-      }
-
-      if (isCLEFT) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 34);
-          controlY = 128 + (positionY * 57);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 50);
-          controlY = 128 + (positionY * 84);
-        }
-      }
-
-      if (isCRIGHT) {
-        if (currentGame == Melee) {
-          controlX = 128 + (positionX * 47);
-          controlY = 128 + (positionY * 57);
-        }
-        if (currentGame == PM) {
-          controlX = 128 + (positionX * 62);
-          controlY = 128 + (positionY * 72);
-        }
-      }
-    }
-  }
-
-  if (isLEFT && isRIGHT && !VERTICAL)
-    controlX = 128 + (positionX * 100);
-
-  if (isL) {
-    if (HORIZONTAL) controlX = 128 + (positionX * 100);
-    if (VERTICAL) controlY = 128 + (positionY * 100);
-    if (HORIZONTAL && (positionY == 1)) {
-      if (currentGame == Melee){
-        controlX = 128 + (positionX * 43);
-        controlY = 128 + 43;
-      }
-      if (currentGame == PM) {
-        controlX = 128 + (positionX * 67);
-        controlY = 128 + 67;
-      }
-    }
-    if (HORIZONTAL && (positionY == -1)) {
-      controlX = 128 + (positionX * 57);
-      if (currentGame == Melee) controlY = 128 - 55;
-      else {controlX = 128 + (positionX * 100); controlY = minValue;}
-    }
-    if ((currentGame == Melee) && (isMOD1 || isMOD2)) {
-      if (DIAGONAL) {
-        if (isMOD1) {
-          controlX = 128 + (positionX * 51);
-          controlY = 128 + (positionY * 30);
-        }
-        if (isMOD2) {
-          controlX = 128 + (positionX * 40);
-          controlY = 128 + (positionY * 68);
-        }
-      }
-    }
-  }
-
-  if (isR) {
-    if (HORIZONTAL) {
-      if (currentGame == Melee)
-        controlX = 128 + (positionX * 51);
-      if (currentGame == PM)
-        controlX = 128 + (positionX * 48);
-    }
-    if (VERTICAL) {
-      if (currentGame == Melee)
-        controlY = 128 + (positionY * 43);
-      if (currentGame == PM)
-        controlY = 128 + (positionY * 48);
-    }
-    if (DIAGONAL) {
-      if (currentGame == Melee) controlX = 128 + (positionX * 43);
-      if (isMOD1) {
-        if (currentGame == Melee){
-          controlX = 128 + (positionX * 51);
-          controlY = 128 + (positionY * 30);
-        }
-        if (currentGame == PM){
-          controlX = 128 + (positionX * 68);
-          controlY = 128 + (positionY * 40);
-        }
-      }
-      if (isMOD2) {
-        controlX = 128 + (positionX * 40);
-        controlY = 128 + (positionY * 68);
-      }
-    }
-  }
-
-  if (isMOD1 && isMOD2) {
-    cstickX = 128;
-    cstickY = 128;
-    if (isCUP) isDPADUP = true;
-    if (isCDOWN) isDPADDOWN = true;
-    if (isCLEFT) isDPADLEFT = true;
-    if (isCRIGHT) isDPADRIGHT = true;
-  }
-
-  Joystick.button(1, isX);
-  Joystick.button(2, isA);
-  Joystick.button(3, isB);
-  Joystick.button(4, isY);
-  Joystick.button(5, isL);
-  Joystick.button(6, isR);
-  Joystick.button(8, isZ);
-  Joystick.button(10, isSTART);
-  Joystick.button(13, isDPADUP);
-  Joystick.button(15, isDPADDOWN);
-  Joystick.button(16, isDPADLEFT);
-  Joystick.button(14, isDPADRIGHT);
-
-  float lsXOut = (controlX - 128) / 80.0;
-  float lsYOut = (controlY - 128) / 80.0;
-  float cXOut = (cstickX - 128) / 80.0;
-  float cYOut = (cstickY - 128) / 80.0;
-
-  if (lsXOut >= 0.0)
-    Joystick.X(lsXOut * 322 + 512);
-  else
-    Joystick.X(lsXOut * 320 + 512);
-  if (lsYOut >= 0.0)
-    Joystick.Y(-lsYOut * 328 + 512);
-  else
-    Joystick.Y(-lsYOut * 318 + 512);
-  if (cYOut >= 0.0)
-    Joystick.Z(cYOut * 322 + 512);
-  else
-    Joystick.Z(cYOut * 320 + 512);
-  if (cXOut >= 0.0)
-    Joystick.Zrotate(-cXOut * 298 + 680);
-  else
-    Joystick.Zrotate(-cXOut * 220 + 680);
-
-  Joystick.send_now();
-}
-
-uint8_t fTwoIPNoReactivate(bool isLOW, bool isHIGH, bool& wasLOW, bool& wasHIGH, bool& lockLOW, bool& lockHIGH){
-  uint8_t control = 128;
-  if (isLOW && isHIGH) {
-    if (wasHIGH) {
-      control = minValue;
-      lockHIGH = true; }
-    if (wasLOW) {
-      control = maxValue;
-      lockLOW = true; }
-  }
-  if (!isLOW && isHIGH && (lockHIGH == false)) {
-    control = maxValue;
-    wasHIGH = true;
-    wasLOW = false;
-    lockLOW = false;
-  }
-  if (isLOW && !isHIGH && (lockLOW == false)) {
-    control = minValue;
-    wasLOW = true;
-    wasHIGH = false;
-    lockHIGH = false;
-  }
-  if (!isLOW && !isHIGH) {
-    wasHIGH = false;
-    wasLOW = false;
-    lockLOW = false;
-    lockHIGH = false;
-  }
-  return control;
-}
-
-uint8_t fTwoIP(bool isLOW, bool isHIGH, bool& wasLOW, bool& wasHIGH){
-  uint8_t control = 128;
-  if (isLOW && wasHIGH)
-    control = minValue;
-  if (isHIGH && wasLOW)
-    control = maxValue;
-  if (!isLOW && isHIGH) {
-    control = maxValue;
-    wasHIGH = true;
-    wasLOW = false; }
-  if (isLOW && !isHIGH) {
-    control = minValue;
-    wasLOW = true;
-    wasHIGH = false;
-  }
-  return control;
-}
-
-uint8_t fNeutral(bool isLOW, bool isHIGH){
-  uint8_t control = 128;
-  if (!isLOW && isHIGH)
-    control = maxValue;
-  if (isLOW && !isHIGH)
-    control = minValue;
-  return control;
+void loop() {
+    tiltButton.update();
+    yModButton.update();
+    xModButton.update();
+    leftButton.update();
+    rightButton.update();
+    downButton.update();
+    upButton.update();
+    aButton.update();
+    bButton.update();
+    zButton.update();
+    startButton.update();
+    cLeftButton.update();
+    cRightButton.update();
+    cDownButton.update();
+    cUpButton.update();
+    shortHopButton.update();
+    fullHopButton.update();
+    shieldButton.update();
+    airdodgeButton.update();
 }
