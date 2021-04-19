@@ -125,7 +125,7 @@ Button cLeftButton(10, false);
 Button cRightButton(19, false);
 Button cDownButton(23, false);
 Button cUpButton(21, false);
-Button shortHopButton(17, false);
+Button shortHopButton(17, true);
 Button fullHopButton(14, false);
 Button shieldButton(2, false);
 Button airDodgeButton(18, false);
@@ -261,7 +261,7 @@ void handleBackdashOutOfCrouchFix() {
       xAxisOut = 0.0f;
     }
 
-    if (millis() - backdashTime >= 5) {
+    if (millis() - backdashTime >= 50) {
       delayBackdash = false;
     }
   }
@@ -348,20 +348,20 @@ void handleCStickTilting() {
     if (millis() - aAttackTime >= 34) {
       isUpTilting = false;
     }
+  }
 
-    // Neutral A:
-    if (aButton.justPressed()) {
-      aAttackTime = millis();
-      isDoingNeutralA = true;
-    }
-    if (isDoingNeutralA) {
-      aOut = true;
-      xAxisOut = 0.0f;
-      yAxisOut = 0.0f;
-    }
-    if (millis() - aAttackTime >= 34) {
-      isDoingNeutralA = false;
-    }
+  // Neutral A:
+  if (aButton.justPressed()) {
+    aAttackTime = millis();
+    isDoingNeutralA = true;
+  }
+  if (isDoingNeutralA) {
+    aOut = true;
+    xAxisOut = 0.0f;
+    yAxisOut = 0.0f;
+  }
+  if (millis() - aAttackTime >= 34) {
+    isDoingNeutralA = false;
   }
 }
 
@@ -502,9 +502,9 @@ void loop() {
 
   handleBackdashOutOfCrouchFix();
   handleModifierAngles();
+  handleShieldTilt();
   handleCStickTilting();
   handleSafeDownB();
-  handleShieldTilt();
   handleAirDodgeLogic();
   handleAngledSmashes();
   handleJumpLogic();
